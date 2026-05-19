@@ -4,7 +4,7 @@
  
 <div style="margin-bottom:20px">
     <h1 style="font-size:20px;font-weight:700;color:#111827;margin:0 0 3px">Vendor Selection</h1>
-    <p style="font-size:12.5px;color:#6b7280;margin:0">Select a PR, then choose items from each vendor offer.</p>
+    <p style="font-size:12.5px;color:#6b7280;margin:0">Pilih vendor. Anda bisa membagi kuantitas ke beberapa vendor jika stok tidak mencukupi.</p>
 </div>
  
 {{-- STEP 1: SELECT PR --}}
@@ -49,12 +49,11 @@
  
     {{-- Legend --}}
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11.5px;color:#374151">
-        <span style="font-weight:600;color:#6b7280;margin-right:4px">Legend:</span>
-        <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e"></span> Perfect Match</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#fde68a;border:1px solid #f59e0b"></span> Qty Less</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#bfdbfe;border:1px solid #3b82f6"></span> Qty More</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#ddd6fe;border:1px solid #7c3aed"></span> Unit Different</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#fee2e2;border:1px solid #ef4444"></span> Not offered</span>
+        <span style="font-weight:600;color:#6b7280;margin-right:4px">Status Target Qty:</span>
+        <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e"></span> Full Match</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#fde68a;border:1px solid #f59e0b"></span> Partial (Kurang)</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#bfdbfe;border:1px solid #3b82f6"></span> Over (Lebih)</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#fee2e2;border:1px solid #ef4444"></span> Pending / Kosong</span>
     </div>
  
     {{-- PR Item Requirements table --}}
@@ -64,7 +63,7 @@
                 <div style="font-size:13.5px;font-weight:700;color:#111827">PR Item Requirements</div>
                 <div id="ws-item-count" style="font-size:11.5px;color:#6b7280;margin-top:1px"></div>
             </div>
-            <div style="font-size:12px;color:#6b7280">Selected: <span id="sel-count" style="font-weight:700;color:#111827">0</span> of <span id="sel-total" style="font-weight:700;color:#111827">0</span></div>
+            <div style="font-size:12px;color:#6b7280">Items Fulfilled: <span id="sel-count" style="font-weight:700;color:#111827">0</span> of <span id="sel-total" style="font-weight:700;color:#111827">0</span></div>
         </div>
         <div style="overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;font-size:12.5px">
@@ -73,10 +72,8 @@
                         <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">NO</th>
                         <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">ITEM ID</th>
                         <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">ITEM NAME</th>
-                        <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">SPECIFICATION</th>
-                        <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">REQUIRED QTY</th>
-                        <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">UNIT</th>
-                        <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">STATUS</th>
+                        <th style="padding:8px 16px;text-align:right;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">TARGET QTY</th>
+                        <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">STATUS PEMENUHAN</th>
                     </tr>
                 </thead>
                 <tbody id="items-requirement-tbody"></tbody>
@@ -90,14 +87,14 @@
     {{-- Footer bar --}}
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
         <div>
-            <div style="font-size:12.5px;font-weight:600;color:#111827">Items selected: <span id="footer-sel">0</span> / <span id="footer-total">0</span></div>
-            <div style="font-size:11.5px;color:#9ca3af;margin-top:1px">Select all required items to enable submit</div>
+            <div style="font-size:12.5px;font-weight:600;color:#111827">Target Qty fulfilled: <span id="footer-sel">0</span> / <span id="footer-total">0</span> items</div>
+            <div style="font-size:11.5px;color:#9ca3af;margin-top:1px">Anda harus memenuhi target Qty semua item untuk melanjutkan</div>
         </div>
         <button id="show-result-btn" onclick="showSelectionResult()"
             style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#111827;color:#fff;border-radius:8px;font-size:12.5px;font-weight:600;border:none;cursor:pointer;opacity:.4;pointer-events:none"
             onmouseover="this.style.opacity='1'" onmouseout="">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-            Show Selection Result
+            Review & Submit
         </button>
     </div>
 </div>
@@ -111,62 +108,36 @@
     {{-- Header --}}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div>
-            <div style="font-size:12px;color:#6b7280">Items selected: <span id="res-sel" style="font-weight:700;color:#111827">0</span> / <span id="res-total" style="font-weight:700;color:#111827">0</span></div>
-            <div style="font-size:11.5px;color:#9ca3af;margin-top:1px">Select all required items to enable submit</div>
-            <div id="res-pr-label" style="font-size:11.5px;color:#6b7280;margin-top:3px"></div>
+            <div id="res-pr-label" style="font-size:14px;font-weight:700;color:#111827;margin-top:3px"></div>
+            <div style="font-size:12px;color:#6b7280;margin-top:2px">Review final split PO Anda sebelum diproses oleh Purchasing</div>
         </div>
-        <button onclick="showSelectionResult()"
-            style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#111827;color:#fff;border-radius:8px;font-size:12.5px;font-weight:600;border:none;cursor:pointer">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-            Show Selection Result
+        <button onclick="document.getElementById('selection-workspace').style.display='block'; document.getElementById('result-workspace').style.display='none';"
+            style="padding:7px 16px;background:#f3f4f6;color:#374151;border:1px solid #d1d5db;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer">
+            ← Edit Selection
         </button>
-    </div>
- 
-    {{-- Summary Information --}}
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:14px">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f3f4f6">
-            <div style="font-size:13.5px;font-weight:700;color:#111827">Summary Information</div>
-            <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:#f0fdf4;font-size:12px;font-weight:600;color:#15803d"><span style="width:6px;height:6px;border-radius:50%;background:#22c55e"></span>Ready for Purchasing</span>
-        </div>
-        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
-            <thead><tr style="background:#f9fafb">
-                <th style="padding:9px 18px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;width:200px">FIELD</th>
-                <th style="padding:9px 18px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">DETAIL</th>
-            </tr></thead>
-            <tbody>
-                <tr style="border-bottom:1px solid #f3f4f6"><td style="padding:11px 18px;font-weight:600;color:#374151">PR Number</td><td id="sum-pr-number" style="padding:11px 18px;color:#111827;font-family:'Courier New',monospace;font-weight:600"></td></tr>
-                <tr style="border-bottom:1px solid #f3f4f6"><td style="padding:11px 18px;font-weight:600;color:#374151">Submission Date</td><td id="sum-sub-date" style="padding:11px 18px;color:#111827"></td></tr>
-                <tr><td style="padding:11px 18px;font-weight:600;color:#374151">Selection Notes</td><td id="sum-notes" style="padding:11px 18px;color:#6b7280">—</td></tr>
-            </tbody>
-        </table>
     </div>
  
     {{-- Selected Items table --}}
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:14px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f3f4f6">
-            <div style="font-size:13.5px;font-weight:700;color:#111827">Selected Items</div>
-            <div id="sum-items-ready" style="font-size:12px;color:#6b7280"></div>
+            <div style="font-size:13.5px;font-weight:700;color:#111827">Selected Items (Split PO Details)</div>
         </div>
         <div style="overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;font-size:12px">
                 <thead><tr style="background:#f9fafb">
                     <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">NO</th>
-                    <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">ITEM ID</th>
                     <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">ITEM NAME</th>
-                    <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">SPECIFICATION</th>
-                    <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">QTY</th>
-                    <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">UNIT</th>
-                    <th style="padding:8px 14px;text-align:right;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">UNIT PRICE (RP)</th>
-                    <th style="padding:8px 14px;text-align:right;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">TOTAL (RP)</th>
                     <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">VENDOR</th>
-                    <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">NOTES</th>
+                    <th style="padding:8px 14px;text-align:right;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">BUY QTY</th>
+                    <th style="padding:8px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">UNIT</th>
+                    <th style="padding:8px 14px;text-align:right;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">PRICE (RP)</th>
+                    <th style="padding:8px 14px;text-align:right;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">SUBTOTAL (RP)</th>
                 </tr></thead>
                 <tbody id="selected-items-tbody"></tbody>
                 <tfoot>
                     <tr style="background:#f9fafb">
-                        <td colspan="7" style="padding:10px 14px;text-align:right;font-weight:700;font-size:12.5px;color:#374151;border-top:1px solid #e5e7eb">Grand Total:</td>
+                        <td colspan="6" style="padding:10px 14px;text-align:right;font-weight:700;font-size:12.5px;color:#374151;border-top:1px solid #e5e7eb">Grand Total:</td>
                         <td id="grand-total-cell" style="padding:10px 14px;font-weight:800;font-size:13px;color:#111827;border-top:1px solid #e5e7eb;text-align:right">Rp 0</td>
-                        <td colspan="2" style="border-top:1px solid #e5e7eb"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -175,16 +146,16 @@
  
     {{-- Vendor Purchase Summary cards --}}
     <div style="margin-bottom:14px">
-        <div style="font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Vendor Purchase Summary</div>
+        <div style="font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Total per Vendor</div>
         <div id="vendor-summary-cards" style="display:flex;gap:12px;flex-wrap:wrap"></div>
     </div>
  
     {{-- Confirm button --}}
-    <div style="display:flex;justify-content:flex-end">
+    <div style="display:flex;justify-content:flex-end;margin-top:20px">
         <button onclick="openSubmitModal()"
-            style="display:inline-flex;align-items:center;gap:6px;padding:10px 22px;background:#16a34a;color:#fff;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer"
+            style="display:inline-flex;align-items:center;gap:6px;padding:12px 24px;background:#16a34a;color:#fff;border-radius:8px;font-size:14px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 6px -1px rgba(22,163,74,.2)"
             onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             Confirm &amp; Submit to Purchasing
         </button>
     </div>
@@ -196,13 +167,12 @@
         <div style="padding:18px 20px;border-bottom:1px solid #f3f4f6;display:flex;align-items:flex-start;justify-content:space-between">
             <div>
                 <div style="font-size:14px;font-weight:700;color:#111827">Submission Notes</div>
-                <div style="font-size:12px;color:#6b7280;margin-top:2px">Add remarks before submit to Purchasing</div>
+                <div style="font-size:12px;color:#6b7280;margin-top:2px">Tambahkan catatan khusus untuk tim Purchasing</div>
             </div>
             <button onclick="closeSubmitModal()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;border-radius:6px"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg></button>
         </div>
         <div style="padding:18px 20px">
-            <label style="font-size:11px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px">Notes / Remarks</label>
-            <textarea id="submit-notes" rows="4" placeholder="e.g. Prioritize fast delivery items..."
+            <textarea id="submit-notes" rows="4" placeholder="Misal: Vendor A dikirim ke site 1, Vendor B ke site 2..."
                 style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;transition:border-color .15s;outline:none"
                 onfocus="this.style.borderColor='#3b5bdb'" onblur="this.style.borderColor='#d1d5db'"></textarea>
         </div>
@@ -211,7 +181,7 @@
             <button onclick="submitToServer()"
                 style="display:inline-flex;align-items:center;gap:5px;padding:7px 18px;background:#16a34a;color:#fff;border-radius:7px;font-size:12.5px;font-weight:600;border:none;cursor:pointer">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                Submit to Purchasing
+                Final Submit
             </button>
         </div>
     </div>
@@ -222,7 +192,6 @@
     <div style="background:#fff;border-radius:12px;padding:32px;width:100%;max-width:400px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.14)">
         <div style="font-size:22px;font-weight:700;color:#16a34a;margin-bottom:12px">Success!</div>
         <div style="font-size:13px;color:#374151;margin-bottom:4px">PR: <span id="popup-pr" style="font-weight:700"></span></div>
-        <div style="font-size:13px;color:#374151">Notes: <span id="popup-notes" style="font-weight:700"></span></div>
         <button onclick="closeSuccess()" style="margin-top:20px;padding:8px 24px;border:1px solid #d1d5db;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Close</button>
     </div>
 </div>
@@ -234,27 +203,24 @@ const serverVendors = @json($vendors);
  
 /* ─── State ──────────────────────────────────────────────────────────────── */
 let currentPR = null;
-let selections = {}; /* {itemId: {vendor_id, vendor_name, price, qty, notes}} */
+/* Struktur baru selections: { "vendorId_itemId" : { vendor_id, item_id, item_name, unit_price, quantity, unit, subtotal } } */
+let selections = {}; 
  
-/* ─── Vendor mock-offers (in real system this comes from vendor_quotations) ─ */
+/* ─── Vendor mock-offers ─────────────────────────────────────────────────── */
 function mockOffers(prItems, vendors) {
     const offers = {};
     vendors.forEach(v => {
-        offers[v.id] = {
-            vendor: v,
-            lead_days: Math.floor(Math.random()*8)+2,
-            items: {}
-        };
+        offers[v.id] = { vendor: v, lead_days: Math.floor(Math.random()*8)+2, items: {} };
         prItems.forEach(item => {
             const offered = Math.random()>0.1; /* 90% chance vendor offers item */
-            if (!offered) { offers[v.id].items[item.id] = null; return; }
-            const qtyOff = Math.random()>0.3 ? item.quantity : item.quantity - Math.ceil(item.quantity*0.3);
+            if (!offered) return;
+            // Simulasi stok vendor sering tidak cukup
+            const qtyOff = Math.random()>0.5 ? item.quantity : Math.floor(Math.random() * (item.quantity - 1)) + 1;
             const basePrice = Math.floor(Math.random()*500+50)*1000;
             offers[v.id].items[item.id] = {
                 qty_offered: qtyOff,
                 unit_price: basePrice,
-                subtotal: basePrice * qtyOff,
-                notes: '',
+                notes: qtyOff < item.quantity ? 'Stok terbatas!' : '',
                 warranty: Math.random()>0.5 ? '1 yr' : '2 yrs',
             };
         });
@@ -292,11 +258,24 @@ function backToStep1(){
     currentPR=null; selections={};
 }
  
-/* ─── Requirements table ─────────────────────────────────────────────────── */
+/* ─── Requirements table (Auto calc total Qty dari semua vendor yg di split) ─ */
 function getItemStatus(itemId) {
-    if (!selections[itemId]) return ['Pending','#fff7ed','#c2410c','#f97316'];
-    return ['Match','#f0fdf4','#15803d','#22c55e'];
+    const item = currentPR.items.find(i => i.id == itemId);
+    let totalSelectedQty = 0;
+    
+    // Hitung total Qty yang dibeli dari semua vendor untuk item ini
+    for (let key in selections) {
+        if (selections[key].item_id == itemId) {
+            totalSelectedQty += selections[key].quantity;
+        }
+    }
+
+    if (totalSelectedQty === 0) return ['Pending','#fff7ed','#c2410c','#f97316'];
+    if (totalSelectedQty < item.quantity) return [`Partial (${totalSelectedQty}/${item.quantity})`,'#fef9c3','#854d0e','#eab308'];
+    if (totalSelectedQty > item.quantity) return [`Over (${totalSelectedQty}/${item.quantity})`,'#dbeafe','#1d4ed8','#3b82f6'];
+    return ['Full Match','#f0fdf4','#15803d','#22c55e'];
 }
+
 function renderRequirementsTable(){
     const tbody=document.getElementById('items-requirement-tbody');
     tbody.innerHTML=currentPR.items.map((item,i)=>{
@@ -305,55 +284,71 @@ function renderRequirementsTable(){
             <td style="padding:11px 16px;color:#6b7280">${i+1}</td>
             <td style="padding:11px 16px;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_code||'—'}</td>
             <td style="padding:11px 16px;font-weight:500;color:#111827">${item.name}</td>
-            <td style="padding:11px 16px;font-size:11.5px;color:#6b7280">${item.specification||'—'}</td>
-            <td style="padding:11px 16px;font-weight:600">${item.quantity}</td>
-            <td style="padding:11px 16px;color:#374151">${item.unit}</td>
+            <td style="padding:11px 16px;font-weight:600;text-align:right">${item.quantity} ${item.unit}</td>
             <td style="padding:11px 16px"><span id="status-${item.id}" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:${bg};font-size:11.5px;font-weight:600;color:${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dot}"></span>${label}</span></td>
         </tr>`;
     }).join('');
 }
  
-/* ─── Vendor cards ───────────────────────────────────────────────────────── */
+/* ─── Vendor cards (Dengan input QTY yang bisa di adjust) ─────────────────── */
 function renderVendorCards(){
     const grid=document.getElementById('vendor-cards-grid');
     grid.innerHTML=serverVendors.map(v=>{
+        const vName = v.vendor_name || v.name || 'Unknown Vendor';
         const off=vendorOffers[v.id];
+        
         const itemCards=currentPR.items.map(item=>{
             const o=off.items[item.id];
             if(!o) return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px;margin-bottom:8px">
                 <div style="font-size:12.5px;font-weight:600;color:#111827;margin-bottom:6px">${item.name}</div>
                 <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:6px 10px;font-size:12px;color:#b91c1c;font-weight:600;text-align:center">❌ NOT OFFERED</div>
             </div>`;
-            const isMatch=o.qty_offered>=item.quantity;
-            const isBest=isBestPrice(v.id,item.id);
-            const isSelected=selections[item.id]?.vendor_id===v.id;
-            const qtyTag=isMatch
-                ? `<span style="padding:2px 7px;border-radius:4px;background:#dcfce7;color:#15803d;font-size:10.5px;font-weight:700">MATCH</span>`
-                : `<span style="padding:2px 7px;border-radius:4px;background:#fee2e2;color:#b91c1c;font-size:10.5px;font-weight:600">INSUFFICIENT (Need ${item.quantity-o.qty_offered} more)</span>`;
-            const priceTag=isBest?`<span style="padding:2px 7px;border-radius:4px;background:#fef9c3;color:#92400e;font-size:10.5px;font-weight:700;margin-left:4px">BEST PRICE</span>`:'';
-            return `<div style="background:#fff;border:2px solid ${isSelected?'#3b5bdb':'#e5e7eb'};border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:border-color .15s"
-                onclick="toggleSelect('${v.id}','${item.id}','${item.name}',${o.unit_price},${o.qty_offered},'${item.unit}')">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                    <div style="font-size:12.5px;font-weight:600;color:#111827">${item.name}</div>
-                    <input type="checkbox" ${isSelected?'checked':''} onclick="event.stopPropagation();toggleSelect('${v.id}','${item.id}','${item.name}',${o.unit_price},${o.qty_offered},'${item.unit}')" style="width:15px;height:15px;accent-color:#3b5bdb">
+            
+            const selKey = `${v.id}_${item.id}`;
+            const isSelected = !!selections[selKey];
+            const buyQty = isSelected ? selections[selKey].quantity : Math.min(o.qty_offered, item.quantity);
+            const subtotal = isSelected ? selections[selKey].subtotal : (buyQty * o.unit_price);
+            const isBest = isBestPrice(v.id,item.id);
+            const priceTag = isBest ? `<span style="padding:2px 5px;border-radius:4px;background:#fef9c3;color:#92400e;font-size:9.5px;font-weight:800;margin-left:4px">BEST</span>` : '';
+            
+            const stokBadge = o.qty_offered < item.quantity 
+                ? `<span style="color:#ef4444;font-weight:700">(Stok hanya ${o.qty_offered})</span>` 
+                : `<span style="color:#10b981;font-weight:700">(Stok Aman)</span>`;
+
+            return `<div style="background:#fff;border:2px solid ${isSelected?'#3b5bdb':'#e5e7eb'};border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:all .15s"
+                onclick="toggleSelect(${v.id}, ${item.id})">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
+                    <div style="font-size:12.5px;font-weight:600;color:#111827;line-height:1.3">${item.name} <br><span style="font-size:10.5px;font-weight:500">${stokBadge}</span></div>
+                    <input type="checkbox" ${isSelected?'checked':''} onclick="event.stopPropagation(); toggleSelect(${v.id}, ${item.id})" style="width:16px;height:16px;accent-color:#3b5bdb;margin-top:2px">
                 </div>
-                <div style="font-size:11.5px;color:#374151;display:grid;grid-template-columns:auto 1fr;gap:2px 10px">
-                    <span style="color:#9ca3af">Qty Offer</span><span>${o.qty_offered} / ${item.quantity} ${qtyTag}</span>
-                    <span style="color:#9ca3af">Unit</span><span>${item.unit}</span>
-                    <span style="color:#9ca3af">Unit Price</span><span style="font-weight:600">${fmt(o.unit_price)}${priceTag}</span>
-                    <span style="color:#9ca3af">Notes</span><span style="color:#6b7280">${o.notes||'Add note...'}</span>
-                    <span style="color:#9ca3af">Subtotal</span><span style="font-weight:700">${fmt(o.subtotal)}</span>
-                    <span style="color:#9ca3af">Warranty</span><span>${o.warranty}</span>
+                <div style="font-size:11.5px;color:#374151;display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center">
+                    <span style="color:#9ca3af">Harga</span>
+                    <span style="font-weight:600">${fmt(o.unit_price)}${priceTag}</span>
+
+                    <span style="color:${isSelected?'#3b5bdb':'#9ca3af'};font-weight:${isSelected?'700':'400'}">Qty Beli</span>
+                    <span style="display:flex;align-items:center;gap:4px">
+                        <input type="number" 
+                            onclick="event.stopPropagation()"
+                            onchange="updateQty(${v.id}, ${item.id}, this.value)"
+                            value="${buyQty}" 
+                            min="1" max="${o.qty_offered}"
+                            style="width:55px;padding:3px 6px;border:1px solid ${isSelected?'#3b5bdb':'#d1d5db'};border-radius:4px;font-size:12px;font-weight:600;background:${isSelected?'#eff6ff':'#f9fafb'}"
+                            ${!isSelected ? 'disabled' : ''}>
+                        <span style="color:#6b7280;font-size:10.5px">/ ${item.quantity} (PR)</span>
+                    </span>
+
+                    <span style="color:#9ca3af">Subtotal</span>
+                    <span style="font-weight:700;color:${isSelected?'#111827':'#6b7280'}">${fmt(subtotal)}</span>
                 </div>
             </div>`;
         }).join('');
-        const totalQ=currentPR.items.reduce((s,i)=>{const o=off.items[i.id];return s+(o?o.qty_offered:0);},0);
+        
         return `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
             <div style="padding:12px 14px;border-bottom:1px solid #e5e7eb;background:#fff">
-                <div style="font-size:13.5px;font-weight:700;color:#111827">${v.name}</div>
+                <div style="font-size:13.5px;font-weight:700;color:#111827">${vName}</div>
                 <div style="font-size:11.5px;color:#9ca3af;margin-top:2px">${v.location||''}${off.lead_days?' • Lead: '+off.lead_days+' days':''}</div>
             </div>
-            <div style="padding:10px 12px;max-height:620px;overflow-y:auto">${itemCards}</div>
+            <div style="padding:10px 12px;max-height:650px;overflow-y:auto">${itemCards}</div>
             <div style="padding:10px 14px;border-top:1px solid #e5e7eb;background:#fff;font-size:12.5px;font-weight:700;color:#111827">Total Quote <span id="vendor-total-${v.id}" style="float:right">${fmt(0)}</span></div>
         </div>`;
     }).join('');
@@ -368,12 +363,59 @@ function isBestPrice(vid,itemId){
     });
     return bestVid===vid;
 }
+
+/* Update Qty secara manual saat diketik */
+function updateQty(vendorId, itemId, val) {
+    const selKey = `${vendorId}_${itemId}`;
+    if (selections[selKey]) {
+        let q = parseInt(val) || 1;
+        const max = vendorOffers[vendorId].items[itemId].qty_offered;
+        if (q > max) q = max; // Tidak boleh melebihi stok yang ditawarkan
+        if (q < 1) q = 1;
+
+        selections[selKey].quantity = q;
+        selections[selKey].subtotal = q * selections[selKey].unit_price;
+
+        renderRequirementsTable();
+        renderVendorCards(); // Re-render untuk update total
+        updateCounts();
+    }
+}
  
-function toggleSelect(vendorId,itemId,itemName,price,qty,unit){
-    if(selections[itemId]?.vendor_id===vendorId){
-        delete selections[itemId];
+/* Toggle selection. Auto-kalkulasi Qty yang belum terpenuhi jika split PO */
+function toggleSelect(vendorId, itemId){
+    const selKey = `${vendorId}_${itemId}`;
+
+    if(selections[selKey]){
+        delete selections[selKey];
     } else {
-        selections[itemId]={vendor_id:vendorId,item_name:itemName,unit_price:price,quantity:qty,unit,notes:'Selected'};
+        const item = currentPR.items.find(i => i.id == itemId);
+        const offer = vendorOffers[vendorId].items[itemId];
+        if(item && offer) {
+            // Hitung berapa Qty yang sudah dibeli dari vendor LAIN untuk item ini
+            let qtyAlreadySelected = 0;
+            for(let key in selections) {
+                if (selections[key].item_id == itemId) qtyAlreadySelected += selections[key].quantity;
+            }
+            
+            // Hitung sisa kebutuhan. Jika masih butuh, ambil sisa. Jika sudah pas, default 1.
+            let remainingNeed = item.quantity - qtyAlreadySelected;
+            if (remainingNeed < 1) remainingNeed = 1; 
+
+            // Cek apakah vendor ini sanggup mensupply sisa kebutuhan, jika tidak ambil max stoknya
+            let defaultBuyQty = Math.min(remainingNeed, offer.qty_offered);
+
+            selections[selKey] = {
+                vendor_id: vendorId,
+                item_id: itemId,
+                item_name: item.item_name || item.name,
+                unit_price: offer.unit_price,
+                quantity: defaultBuyQty,
+                unit: item.unit,
+                notes: 'Selected'
+            };
+            selections[selKey].subtotal = defaultBuyQty * offer.unit_price;
+        }
     }
     renderRequirementsTable();
     renderVendorCards();
@@ -381,19 +423,41 @@ function toggleSelect(vendorId,itemId,itemName,price,qty,unit){
 }
  
 function updateCounts(){
-    const sel=Object.keys(selections).length;
-    const tot=currentPR?currentPR.items.length:0;
-    document.getElementById('sel-count').textContent=sel;
-    document.getElementById('footer-sel').textContent=sel;
-    const btn=document.getElementById('show-result-btn');
-    if(sel>=tot&&tot>0){btn.style.opacity='1';btn.style.pointerEvents='auto';}
-    else{btn.style.opacity='.4';btn.style.pointerEvents='none';}
+    let itemsMet = 0;
+    const tot = currentPR ? currentPR.items.length : 0;
+    
+    if (currentPR) {
+        currentPR.items.forEach(item => {
+            let t = 0;
+            for(let key in selections) {
+                if(selections[key].item_id == item.id) t += selections[key].quantity;
+            }
+            // Jika total Qty yang di split sudah menutupi target PR, anggap "Met"
+            if (t >= item.quantity) itemsMet++;
+        });
+    }
+
+    document.getElementById('sel-count').textContent = itemsMet;
+    document.getElementById('footer-sel').textContent = itemsMet;
+    const btn = document.getElementById('show-result-btn');
+    
+    // Tombol submit HANYA aktif jika SEMUA baris target item sudah terpenuhi
+    if(itemsMet >= tot && tot > 0) {
+        btn.style.opacity='1'; btn.style.pointerEvents='auto'; btn.style.background='#16a34a';
+        btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Review & Submit`;
+    } else {
+        btn.style.opacity='.4'; btn.style.pointerEvents='none'; btn.style.background='#111827';
+    }
 }
  
 function updateVendorTotals(){
     serverVendors.forEach(v=>{
         let t=0;
-        currentPR.items.forEach(item=>{const o=vendorOffers[v.id]?.items[item.id];if(o)t+=o.subtotal;});
+        // Total Quote tetap menampilkan potensi maksimal semua barang yang ditawarkan vendor
+        currentPR.items.forEach(item=>{
+            const o = vendorOffers[v.id]?.items[item.id];
+            if(o) t += (o.qty_offered * o.unit_price);
+        });
         const el=document.getElementById('vendor-total-'+v.id);
         if(el)el.textContent=fmt(t);
     });
@@ -405,69 +469,53 @@ function showSelectionResult(){
     document.getElementById('selection-workspace').style.display='none';
     document.getElementById('result-workspace').style.display='block';
  
-    document.getElementById('res-sel').textContent=Object.keys(selections).length;
-    document.getElementById('res-total').textContent=currentPR.items.length;
-    document.getElementById('res-pr-label').textContent='Summary Selection for '+currentPR.document_number;
-    document.getElementById('sum-pr-number').textContent=currentPR.document_number;
-    document.getElementById('sum-sub-date').textContent=new Date().toLocaleDateString('id-ID');
-    document.getElementById('sum-items-ready').textContent=Object.keys(selections).length+' Items ready to process';
+    document.getElementById('res-pr-label').textContent='Summary Split PO untuk '+currentPR.document_number;
  
-    /* Vendor total tabs */
-    const byVendor={};
-    Object.entries(selections).forEach(([itemId,sel])=>{
-        const v=serverVendors.find(x=>x.id==sel.vendor_id)||{name:sel.vendor_id};
-        if(!byVendor[sel.vendor_id]){byVendor[sel.vendor_id]={name:v.name,total:0};}
-        byVendor[sel.vendor_id].total+=sel.unit_price*sel.quantity;
-    });
-    const tabs=Object.values(byVendor).map(v=>`<div style="padding:10px 18px;font-size:12.5px;font-weight:600;color:#374151;border-bottom:2px solid transparent">Total Quote&nbsp;&nbsp;<span style="font-weight:800">${fmt(v.total)}</span></div>`).join('');
-    document.getElementById('vendor-total-tabs').innerHTML=tabs;
- 
-    /* Selected Items table */
+    /* Selected Items table - Di list 1 per 1 agar Split PO terlihat jelas */
     let grandTotal=0;
-    const itemRows=currentPR.items.map((item,i)=>{
-        const s=selections[item.id];
-        if(!s)return '';
-        const v=serverVendors.find(x=>x.id==s.vendor_id)||{name:s.vendor_id};
-        const total=s.unit_price*s.quantity;
-        grandTotal+=total;
+    let rowNum=1;
+    
+    const itemsArr = Object.values(selections).map((s) => {
+        const item = currentPR.items.find(x => x.id == s.item_id);
+        const v = serverVendors.find(x => x.id == s.vendor_id) || {};
+        const vName = v.vendor_name || v.name || s.vendor_id;
+        const total = s.subtotal;
+        grandTotal += total;
+        
         return `<tr style="border-bottom:1px solid #f3f4f6">
-            <td style="padding:9px 14px;color:#6b7280">${i+1}</td>
-            <td style="padding:9px 14px;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_code||'—'}</td>
-            <td style="padding:9px 14px;font-weight:500;color:#111827">${item.name}</td>
-            <td style="padding:9px 14px;font-size:11.5px;color:#6b7280">${item.specification||'—'}</td>
-            <td style="padding:9px 14px">${s.quantity}</td>
-            <td style="padding:9px 14px">${s.unit}</td>
-            <td style="padding:9px 14px;text-align:right">${Number(s.unit_price).toLocaleString('id-ID')}</td>
-            <td style="padding:9px 14px;text-align:right;font-weight:600">${Number(total).toLocaleString('id-ID')}</td>
-            <td style="padding:9px 14px"><span style="padding:2px 8px;border-radius:6px;background:#dbeafe;color:#1d4ed8;font-size:11.5px;font-weight:600">${v.name}</span></td>
-            <td style="padding:9px 14px;font-size:11.5px;color:#6b7280">Selected</td>
+            <td style="padding:10px 14px;color:#6b7280">${rowNum++}</td>
+            <td style="padding:10px 14px;font-weight:600;color:#111827">${s.item_name} <br><span style="font-family:'Courier New',monospace;font-size:10px;color:#6b7280">${item.item_code||'—'}</span></td>
+            <td style="padding:10px 14px"><span style="padding:3px 8px;border-radius:6px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700">${vName}</span></td>
+            <td style="padding:10px 14px;text-align:right;font-weight:700;font-size:13px">${s.quantity}</td>
+            <td style="padding:10px 14px">${s.unit}</td>
+            <td style="padding:10px 14px;text-align:right">${Number(s.unit_price).toLocaleString('id-ID')}</td>
+            <td style="padding:10px 14px;text-align:right;font-weight:700;color:#111827">${Number(total).toLocaleString('id-ID')}</td>
         </tr>`;
     }).join('');
-    document.getElementById('selected-items-tbody').innerHTML=itemRows||'<tr><td colspan="10" style="padding:16px;text-align:center;color:#9ca3af">No items selected</td></tr>';
-    document.getElementById('grand-total-cell').textContent=fmt(grandTotal);
+    
+    document.getElementById('selected-items-tbody').innerHTML = itemsArr;
+    document.getElementById('grand-total-cell').textContent = fmt(grandTotal);
  
-    /* Vendor summary cards */
+    /* Vendor summary cards (Grouping by Vendor) */
     const vSummaries={};
-    Object.entries(selections).forEach(([itemId,s])=>{
-        const v=serverVendors.find(x=>x.id==s.vendor_id)||{name:s.vendor_id};
-        const item=currentPR.items.find(x=>x.id==itemId)||{name:'?'};
-        if(!vSummaries[s.vendor_id]){vSummaries[s.vendor_id]={name:v.name,items:[],total:0};}
-        const sub=s.unit_price*s.quantity;
-        vSummaries[s.vendor_id].items.push({name:item.name,qty:s.quantity,unit:s.unit,price:s.unit_price,sub});
-        vSummaries[s.vendor_id].total+=sub;
+    Object.values(selections).forEach(s => {
+        const v = serverVendors.find(x => x.id == s.vendor_id) || {};
+        const vName = v.vendor_name || v.name || s.vendor_id;
+        if(!vSummaries[s.vendor_id]) { vSummaries[s.vendor_id] = { name:vName, items:[], total:0 }; }
+        vSummaries[s.vendor_id].items.push({ name:s.item_name, qty:s.quantity, unit:s.unit, price:s.unit_price, sub:s.subtotal });
+        vSummaries[s.vendor_id].total += s.subtotal;
     });
-    document.getElementById('vendor-summary-cards').innerHTML=Object.values(vSummaries).map(vs=>`
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;min-width:220px;flex:1">
-            <div style="font-size:13px;font-weight:700;color:#111827;margin-bottom:2px">${vs.name}</div>
-            <div style="font-size:11.5px;color:#9ca3af;margin-bottom:10px">${vs.items.length} selected item(s)</div>
-            ${vs.items.map(it=>`<div style="margin-bottom:8px">
-                <div style="font-size:12.5px;font-weight:600;color:#111827">${it.name} <span style="float:right;font-weight:700">${fmt(it.sub)}</span></div>
-                <div style="font-size:11.5px;color:#9ca3af">${it.qty} ${it.unit} × Rp ${Number(it.price).toLocaleString('id-ID')}</div>
-            </div>`).join('')}
-            <div style="border-top:1px solid #e5e7eb;margin-top:10px;padding-top:10px;display:flex;justify-content:space-between">
-                <span style="font-size:12px;font-weight:600;color:#6b7280">Vendor Total</span>
-                <span style="font-size:13px;font-weight:800;color:#111827">${fmt(vs.total)}</span>
+
+    document.getElementById('vendor-summary-cards').innerHTML = Object.values(vSummaries).map(vs=>`
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px;min-width:250px;flex:1">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #f3f4f6;padding-bottom:10px;margin-bottom:10px">
+                <div style="font-size:13.5px;font-weight:700;color:#1d4ed8">${vs.name}</div>
+                <div style="font-size:13.5px;font-weight:800;color:#111827">${fmt(vs.total)}</div>
             </div>
+            ${vs.items.map(it=>`<div style="margin-bottom:8px">
+                <div style="font-size:12.5px;font-weight:600;color:#374151">${it.name}</div>
+                <div style="font-size:11.5px;color:#9ca3af">${it.qty} ${it.unit} × Rp ${Number(it.price).toLocaleString('id-ID')} <span style="float:right;font-weight:700;color:#4b5563">${fmt(it.sub)}</span></div>
+            </div>`).join('')}
         </div>
     `).join('');
 }
@@ -478,19 +526,20 @@ function closeSubmitModal(){document.getElementById('submit-modal').style.displa
  
 function submitToServer(){
     const notes=document.getElementById('submit-notes').value.trim();
-    document.getElementById('sum-notes').textContent=notes||'—';
     const payload={
         pr_id:currentPR.id,
         selection_notes:notes,
-        selections:Object.entries(selections).map(([itemId,s])=>({
-            vendor_id:s.vendor_id,
-            item_id:itemId,
-            unit_price:s.unit_price,
-            quantity:s.quantity,
-            notes:s.notes,
+        // Konversi selections Object kembali ke Array untuk dikirim ke Backend
+        selections: Object.values(selections).map(s => ({
+            vendor_id: s.vendor_id,
+            item_id: s.item_id,
+            unit_price: s.unit_price,
+            quantity: s.quantity,
+            notes: s.notes,
         })),
         _token:document.querySelector('meta[name=csrf-token]')?.content||'',
     };
+    
     fetch('{{ route("vendors.store.selection") }}',{
         method:'POST',
         headers:{'Content-Type':'application/json','X-CSRF-TOKEN':payload._token},
@@ -498,13 +547,11 @@ function submitToServer(){
     }).then(r=>r.json()).then(data=>{
         closeSubmitModal();
         document.getElementById('popup-pr').textContent=data.pr_number||currentPR.document_number;
-        document.getElementById('popup-notes').textContent=data.notes||notes||'—';
         document.getElementById('success-popup').style.display='flex';
     }).catch(()=>{
-        /* fallback: show success anyway in dev */
+        /* fallback */
         closeSubmitModal();
         document.getElementById('popup-pr').textContent=currentPR.document_number;
-        document.getElementById('popup-notes').textContent=notes||'—';
         document.getElementById('success-popup').style.display='flex';
     });
 }

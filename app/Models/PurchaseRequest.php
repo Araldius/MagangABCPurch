@@ -15,6 +15,7 @@ class PurchaseRequest extends Model
         'document_number', 
         'title', 
         'department', 
+        'item_type',
         'priority', 
         'plant', 
         'submission_date', 

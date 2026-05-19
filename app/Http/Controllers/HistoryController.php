@@ -48,7 +48,7 @@ class HistoryController extends Controller
  
             /* Lead time: days from PR creation to vendor decided_at */
             $leadDays = ($pr && $sel->decided_at)
-                ? (int) \Carbon\Carbon::parse($pr->created_at)->diffInDays($sel->decided_at)
+                ? (int) \Carbon\Carbon::parse($sel->decided_at)->diffInDays($pr->created_at)
                 : null;
  
             return (object) [

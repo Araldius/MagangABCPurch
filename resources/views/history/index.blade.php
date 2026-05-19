@@ -16,7 +16,7 @@
     </div>
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px">
         <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Total Value</div>
-        <div style="font-size:22px;font-weight:800;color:#111827;margin:8px 0 5px;line-height:1">Rp {{ number_format($totalValue/1000000,0) }} Jt</div>
+        <div style="font-size:22px;font-weight:800;color:#111827;margin:8px 0 5px;line-height:1">Rp {{ number_format($totalValue, 0, ',', '.') }}</div>
         <div style="font-size:11.5px;color:#9ca3af">Jan–{{ now()->format('M Y') }}</div>
     </div>
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px">

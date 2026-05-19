@@ -19,12 +19,20 @@ class VendorController extends Controller
      */
     public function index()
     {
-        /* PRs yang sudah in_process / approved dan punya RFQ */
-        $prs = PurchaseRequest::with(['items', 'rfqs.vendorQuotations.vendor'])
+        $user = auth()->user();
+
+        // Mulai query untuk PR yang siap dipilih vendornya
+        $query = PurchaseRequest::with(['items', 'rfqs.vendorQuotations.vendor'])
             ->whereIn('status', ['in_process', 'approved', 'awaiting_approval'])
-            ->latest()
-            ->get();
- 
+            ->latest();
+
+        // LOGIKA PEMBATASAN AKSES:
+        // Jika yang login BUKAN purchasing, batasi agar hanya muncul PR buatannya sendiri
+        if ($user->role !== 'purchasing') {
+            $query->where('user_id', $user->id);
+        }
+
+        $prs = $query->get();
         $vendors = Vendor::all();
  
         return view('vendors.index', compact('prs', 'vendors'));
