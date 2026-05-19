@@ -2,6 +2,126 @@
 @php $pageTitle = 'New Request'; @endphp
 @section('content')
 
+{{-- ════ FIX: CSS utility classes yang tidak terdefinisi di layout ════ --}}
+<style>
+/* ── CSS Variables ───────────────────────────────────────────── */
+:root {
+    --primary:        #111827;
+    --primary-light:  #f0f4ff;
+    --border:         #e5e7eb;
+    --border-strong:  #d1d5db;
+    --text:           #111827;
+    --text-muted:     #6b7280;
+    --radius:         12px;
+    --shadow-sm:      0 1px 3px 0 rgb(0 0 0/.08), 0 1px 2px -1px rgb(0 0 0/.06);
+    --shadow:         0 4px 6px -1px rgb(0 0 0/.08), 0 2px 4px -2px rgb(0 0 0/.06);
+    --req-color:      #ef4444;
+}
+
+/* ── Page Header ─────────────────────────────────────────────── */
+.page-header   { margin-bottom: 24px; }
+.page-title    { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.page-desc     { font-size: 13.5px; color: var(--text-muted); }
+
+/* ── Card ────────────────────────────────────────────────────── */
+.card          { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
+.card-header   { padding: 16px 20px; border-bottom: 1px solid var(--border); background: #fafafa; }
+.card-body     { padding: 20px; }
+.card-title    { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.card-desc     { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── Section Icon ────────────────────────────────────────────── */
+.form-section-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--primary); color: white;
+    display: flex; align-items: center; justify-content: center;
+    margin-right: 12px; flex-shrink: 0;
+}
+
+/* ── Flex Utilities ──────────────────────────────────────────── */
+.flex-center   { display: flex; align-items: center; }
+.flex-between  { display: flex; align-items: center; justify-content: space-between; }
+
+/* ── Grid Rows ───────────────────────────────────────────────── */
+.form-row      { display: grid; gap: 16px; }
+.form-row-2    { grid-template-columns: 1fr 1fr; }
+.form-row-3    { grid-template-columns: 1fr 1fr 1fr; }
+
+@media (max-width: 640px) {
+    .form-row-2, .form-row-3 { grid-template-columns: 1fr; }
+}
+
+/* ── Form Elements ───────────────────────────────────────────── */
+.form-group    { display: flex; flex-direction: column; }
+.form-label    { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.req           { color: var(--req-color); margin-left: 2px; }
+
+.form-control  {
+    width: 100%; box-sizing: border-box;
+    padding: 8px 12px; font-size: 13.5px;
+    border: 1px solid var(--border-strong); border-radius: 8px;
+    background: #fff; color: var(--text);
+    transition: border-color .15s, box-shadow .15s;
+    font-family: inherit;
+    outline: none;
+}
+.form-control:focus  { border-color: #6366f1; box-shadow: 0 0 0 3px rgb(99 102 241/.12); }
+.form-control:disabled { background: #f9fafb; color: #9ca3af; cursor: default; }
+textarea.form-control { resize: vertical; min-height: 80px; }
+select.form-control   { cursor: pointer; }
+
+/* ── Margin Helpers ──────────────────────────────────────────── */
+.mt-3 { margin-top: 16px; }
+.mt-4 { margin-top: 24px; }
+
+/* ── Text Helpers ────────────────────────────────────────────── */
+.text-sm   { font-size: 13px; }
+.text-muted { color: var(--text-muted); }
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 600; cursor: pointer;
+    border: 1px solid transparent; text-decoration: none;
+    transition: all .15s; font-family: inherit; line-height: 1;
+}
+.btn-primary  { background: #111827; color: #fff; border-color: #111827; }
+.btn-primary:hover { background: #1f2937; border-color: #1f2937; }
+.btn-outline  { background: #fff; color: var(--text); border-color: var(--border-strong); }
+.btn-outline:hover { background: #f9fafb; }
+.btn-sm       { padding: 6px 14px; font-size: 12.5px; border-radius: 7px; }
+
+/* ── Modals ──────────────────────────────────────────────────── */
+.modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.4); z-index: 1000;
+    align-items: center; justify-content: center; padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+    background: #fff; border-radius: 14px; width: 100%; max-width: 560px;
+    box-shadow: 0 20px 60px -10px rgb(0 0 0/.25);
+    max-height: 90vh; display: flex; flex-direction: column;
+    overflow: hidden;
+}
+.modal-header {
+    padding: 18px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    flex-shrink: 0;
+}
+.modal-title  { font-size: 15px; font-weight: 700; color: var(--text); }
+.modal-desc   { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; }
+.modal-body   { padding: 18px 20px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+.modal-close  {
+    background: none; border: none; cursor: pointer; padding: 4px; border-radius: 6px;
+    color: var(--text-muted); display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+}
+.modal-close:hover { background: #f3f4f6; color: var(--text); }
+</style>
+
 <div class="page-header">
     <div class="page-title">New Purchase Request</div>
     <div class="page-desc">Fill in the form below to submit a new procurement request.</div>
@@ -24,7 +144,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="form-row form-row-2" style="gap:16px;">
+        <div class="form-row form-row-2">
             <div class="form-group">
                 <label class="form-label">Request ID</label>
                 <input class="form-control" disabled value="PR-{{ now()->format('Y') }}-{{ now()->format('md') }}-XXX">
@@ -34,7 +154,7 @@
                 <input class="form-control" disabled value="{{ now()->format('d /m/ Y') }}">
             </div>
         </div>
-        <div class="form-row form-row-2 mt-3" style="gap:16px;">
+        <div class="form-row form-row-2 mt-3">
             <div class="form-group">
                 <label class="form-label" for="need_date">Required Date <span class="req">*</span></label>
                 <input class="form-control" type="date" id="need_date" name="need_date" value="{{ old('need_date') }}" required>
@@ -51,7 +171,7 @@
         </div>
         <div class="form-group mt-3">
             <label class="form-label" for="pr-notes">Notes</label>
-            <textarea class="form-control" id="pr-notes" name="note" placeholder="Add any additional notes here..." style="min-height:80px;">{{ old('note') }}</textarea>
+            <textarea class="form-control" id="pr-notes" name="note" placeholder="Add any additional notes here...">{{ old('note') }}</textarea>
         </div>
     </div>
 </div>
@@ -70,7 +190,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="form-row form-row-3" style="gap:16px;">
+        <div class="form-row form-row-3">
             <div class="form-group">
                 <label class="form-label">Full Name</label>
                 <input class="form-control" disabled value="{{ Auth::user()->name }}">
