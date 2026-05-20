@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
  
 class PurchaseRequestController extends Controller
 {
-    /** PR List — purchasing sees ALL, others see own only */
     public function index()
     {
         $user  = Auth::user();
@@ -28,15 +27,33 @@ class PurchaseRequestController extends Controller
  
     public function create()
     {
-        return view('purchase_requests.create');
+        // Mengambil semua item unik yang pernah dibuat sebelumnya dari database
+        // Item ini akan dikirim ke Frontend (Javascript) sebagai Katalog Master.
+        $existingItems = PurchaseRequestItem::whereNotNull('item_code')
+            ->where('item_code', '!=', '')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->unique('item_code') // Hanya ambil 1 data terbaru untuk setiap kode item
+            ->map(function ($item) {
+                return [
+                    'id'   => $item->item_code,
+                    'name' => $item->name,
+                    'desc' => $item->item_name ?? $item->name,
+                    'unit' => $item->unit,
+                    'spec' => $item->specification ?? '',
+                ];
+            })
+            ->values();
+
+        return view('purchase_requests.create', compact('existingItems'));
     }
  
     public function store(Request $request)
     {
         $itemType = $request->input('item_type', 'goods');
  
+        // Menghapus 'title' dari validasi karena dihilangkan dari form UI
         $request->validate([
-            'title'      => ['required', 'string', 'max:255'],
             'department' => ['required', 'string', 'max:255'],
             'plant'      => ['required', 'string', 'max:255'],
             'need_date'  => ['required', 'date'],
@@ -47,19 +64,22 @@ class PurchaseRequestController extends Controller
         $todayCount = PurchaseRequest::whereDate('created_at', today())->count() + 1;
         $docNumber  = 'PR-' . now()->format('Y') . '-' . now()->format('md') . '-'
                     . str_pad($todayCount, 3, '0', STR_PAD_LEFT);
+        
+        // Membuat title otomatis untuk memenuhi syarat database
+        $autoTitle = 'Pengadaan ' . ucfirst($itemType) . ' - ' . $request->department;
  
         $pr = PurchaseRequest::create([
             'user_id'         => Auth::id(),
             'document_number' => $docNumber,
-            'title'           => $request->title,
+            'title'           => $autoTitle,
             'department'      => $request->department,
             'plant'           => $request->plant,
             'submission_date' => today(),
             'requested_date'  => $request->need_date,
             'need_date'       => $request->need_date,
             'note'            => $request->note,
-            /* "pending" diganti "awaiting_approval" */
             'status'          => 'awaiting_approval',
+            'item_type'       => $itemType, // Menyimpan tipe di DB
         ]);
  
         if ($itemType === 'goods') {
@@ -76,6 +96,7 @@ class PurchaseRequestController extends Controller
                     'purchase_request_id' => $pr->id,
                     'item_code'     => $item['item_code'] ?? ('ITM-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT)),
                     'name'          => $item['name'],
+                    'item_name'     => $item['name'],
                     'quantity'      => $item['quantity'],
                     'unit'          => $item['unit'],
                     'specification' => $item['specification'] ?? null,
@@ -96,6 +117,7 @@ class PurchaseRequestController extends Controller
                     'purchase_request_id' => $pr->id,
                     'item_code'     => $svc['service_id'],
                     'name'          => $svc['description'],
+                    'item_name'     => $svc['description'],
                     'quantity'      => $svc['volume'],
                     'unit'          => $svc['unit'],
                     'specification' => 'Service',

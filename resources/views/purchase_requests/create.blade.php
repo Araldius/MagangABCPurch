@@ -2,9 +2,7 @@
 @php $pageTitle = 'New Request'; @endphp
 @section('content')
 
-{{-- ════ FIX: CSS utility classes yang tidak terdefinisi di layout ════ --}}
 <style>
-/* ── CSS Variables ───────────────────────────────────────────── */
 :root {
     --primary:        #111827;
     --primary-light:  #f0f4ff;
@@ -17,108 +15,48 @@
     --shadow:         0 4px 6px -1px rgb(0 0 0/.08), 0 2px 4px -2px rgb(0 0 0/.06);
     --req-color:      #ef4444;
 }
-
-/* ── Page Header ─────────────────────────────────────────────── */
 .page-header   { margin-bottom: 24px; }
 .page-title    { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .page-desc     { font-size: 13.5px; color: var(--text-muted); }
-
-/* ── Card ────────────────────────────────────────────────────── */
 .card          { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
 .card-header   { padding: 16px 20px; border-bottom: 1px solid var(--border); background: #fafafa; }
 .card-body     { padding: 20px; }
 .card-title    { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
 .card-desc     { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-/* ── Section Icon ────────────────────────────────────────────── */
-.form-section-icon {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: var(--primary); color: white;
-    display: flex; align-items: center; justify-content: center;
-    margin-right: 12px; flex-shrink: 0;
-}
-
-/* ── Flex Utilities ──────────────────────────────────────────── */
+.form-section-icon { width: 34px; height: 34px; border-radius: 8px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
 .flex-center   { display: flex; align-items: center; }
 .flex-between  { display: flex; align-items: center; justify-content: space-between; }
-
-/* ── Grid Rows ───────────────────────────────────────────────── */
 .form-row      { display: grid; gap: 16px; }
 .form-row-2    { grid-template-columns: 1fr 1fr; }
 .form-row-3    { grid-template-columns: 1fr 1fr 1fr; }
-
-@media (max-width: 640px) {
-    .form-row-2, .form-row-3 { grid-template-columns: 1fr; }
-}
-
-/* ── Form Elements ───────────────────────────────────────────── */
+@media (max-width: 640px) { .form-row-2, .form-row-3 { grid-template-columns: 1fr; } }
 .form-group    { display: flex; flex-direction: column; }
 .form-label    { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
 .req           { color: var(--req-color); margin-left: 2px; }
-
-.form-control  {
-    width: 100%; box-sizing: border-box;
-    padding: 8px 12px; font-size: 13.5px;
-    border: 1px solid var(--border-strong); border-radius: 8px;
-    background: #fff; color: var(--text);
-    transition: border-color .15s, box-shadow .15s;
-    font-family: inherit;
-    outline: none;
-}
+.form-control  { width: 100%; box-sizing: border-box; padding: 8px 12px; font-size: 13.5px; border: 1px solid var(--border-strong); border-radius: 8px; background: #fff; color: var(--text); transition: border-color .15s, box-shadow .15s; font-family: inherit; outline: none; }
 .form-control:focus  { border-color: #6366f1; box-shadow: 0 0 0 3px rgb(99 102 241/.12); }
 .form-control:disabled { background: #f9fafb; color: #9ca3af; cursor: default; }
 textarea.form-control { resize: vertical; min-height: 80px; }
 select.form-control   { cursor: pointer; }
-
-/* ── Margin Helpers ──────────────────────────────────────────── */
 .mt-3 { margin-top: 16px; }
 .mt-4 { margin-top: 24px; }
-
-/* ── Text Helpers ────────────────────────────────────────────── */
 .text-sm   { font-size: 13px; }
 .text-muted { color: var(--text-muted); }
-
-/* ── Buttons ─────────────────────────────────────────────────── */
-.btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 9px 18px; border-radius: 8px;
-    font-size: 13.5px; font-weight: 600; cursor: pointer;
-    border: 1px solid transparent; text-decoration: none;
-    transition: all .15s; font-family: inherit; line-height: 1;
-}
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer; border: 1px solid transparent; text-decoration: none; transition: all .15s; font-family: inherit; line-height: 1; }
 .btn-primary  { background: #111827; color: #fff; border-color: #111827; }
 .btn-primary:hover { background: #1f2937; border-color: #1f2937; }
 .btn-outline  { background: #fff; color: var(--text); border-color: var(--border-strong); }
 .btn-outline:hover { background: #f9fafb; }
 .btn-sm       { padding: 6px 14px; font-size: 12.5px; border-radius: 7px; }
-
-/* ── Modals ──────────────────────────────────────────────────── */
-.modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.4); z-index: 1000;
-    align-items: center; justify-content: center; padding: 16px;
-}
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
 .modal-overlay.open { display: flex; }
-.modal {
-    background: #fff; border-radius: 14px; width: 100%; max-width: 560px;
-    box-shadow: 0 20px 60px -10px rgb(0 0 0/.25);
-    max-height: 90vh; display: flex; flex-direction: column;
-    overflow: hidden;
-}
-.modal-header {
-    padding: 18px 20px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-    flex-shrink: 0;
-}
+.modal { background: #fff; border-radius: 14px; width: 100%; max-width: 560px; box-shadow: 0 20px 60px -10px rgb(0 0 0/.25); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+.modal-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-shrink: 0; }
 .modal-title  { font-size: 15px; font-weight: 700; color: var(--text); }
 .modal-desc   { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; }
 .modal-body   { padding: 18px 20px; overflow-y: auto; flex: 1; }
 .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
-.modal-close  {
-    background: none; border: none; cursor: pointer; padding: 4px; border-radius: 6px;
-    color: var(--text-muted); display: flex; align-items: center; justify-content: center;
-    transition: background .15s;
-}
+.modal-close  { background: none; border: none; cursor: pointer; padding: 4px; border-radius: 6px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: background .15s; }
 .modal-close:hover { background: #f3f4f6; color: var(--text); }
 </style>
 
@@ -130,7 +68,6 @@ select.form-control   { cursor: pointer; }
 <form action="{{ route('purchase_requests.store') }}" method="post" id="pr-form">
 @csrf
 
-<!-- SECTION 1: Request Information -->
 <div class="card">
     <div class="card-header">
         <div class="flex-center">
@@ -151,7 +88,7 @@ select.form-control   { cursor: pointer; }
             </div>
             <div class="form-group">
                 <label class="form-label">Submission Date</label>
-                <input class="form-control" disabled value="{{ now()->format('d /m/ Y') }}">
+                <input class="form-control" disabled value="{{ now()->format('d / m / Y') }}">
             </div>
         </div>
         <div class="form-row form-row-2 mt-3">
@@ -176,7 +113,6 @@ select.form-control   { cursor: pointer; }
     </div>
 </div>
 
-<!-- SECTION 2: Requester Information -->
 <div class="card mt-4">
     <div class="card-header">
         <div class="flex-center">
@@ -204,14 +140,9 @@ select.form-control   { cursor: pointer; }
                 <input class="form-control" disabled value="{{ ucfirst(Auth::user()->role ?? 'Staff') }}">
             </div>
         </div>
-        <div class="form-group mt-3">
-            <label class="form-label" for="title">PR Title / Description <span class="req">*</span></label>
-            <input class="form-control" type="text" id="title" name="title" value="{{ old('title') }}" placeholder="e.g. Pengadaan Kabel NYY & MCB" required>
-        </div>
     </div>
 </div>
 
-<!-- SECTION 3: Items / Service -->
 <div class="card mt-4">
     <div class="card-header">
         <div class="flex-center">
@@ -225,14 +156,12 @@ select.form-control   { cursor: pointer; }
     </div>
     <div class="card-body">
 
-        <!-- Tabs -->
         <div style="display:flex;gap:8px;margin-bottom:20px;">
             <button type="button" id="tab-goods" class="tab-btn tab-active" onclick="setTab('goods')">🛒 Goods</button>
             <button type="button" id="tab-service" class="tab-btn" onclick="setTab('service')">🔧 Service</button>
         </div>
         <input type="hidden" name="item_type" id="item_type_field" value="goods">
 
-        <!-- ── GOODS PANEL ── -->
         <div id="goods-panel">
             <div class="flex-between" style="margin-bottom:14px;">
                 <div class="text-sm text-muted" id="goods-count-label">0 item(s) added</div>
@@ -248,21 +177,19 @@ select.form-control   { cursor: pointer; }
                             <th style="padding:9px 14px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;width:36px;">NO</th>
                             <th style="padding:9px 14px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;">ITEM ID</th>
                             <th style="padding:9px 14px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;">ITEM NAME</th>
-                            <th style="padding:9px 14px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;">DESCRIPTION</th>
-                            <th style="padding:9px 14px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;width:70px;">QTY</th>
+                            <th style="padding:9px 14px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;width:80px;">QTY</th>
                             <th style="padding:9px 14px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;width:80px;">UNIT</th>
                             <th style="padding:9px 14px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;">SPECIFICATION</th>
                             <th style="padding:9px 14px;width:36px;"></th>
                         </tr>
                     </thead>
                     <tbody id="goods-tbody">
-                        <tr><td colspan="8" style="text-align:center;padding:28px 16px;color:#9ca3af;font-size:13.5px;">No items added yet. Click "Add Item" to begin.</td></tr>
+                        <tr><td colspan="7" style="text-align:center;padding:28px 16px;color:#9ca3af;font-size:13.5px;">No items added yet. Click "Add Item" to begin.</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ── SERVICE PANEL ── -->
         <div id="service-panel" style="display:none;">
             <div class="flex-between" style="margin-bottom:14px;">
                 <div class="text-sm text-muted" id="svc-count-label">0 item(s) added</div>
@@ -293,22 +220,28 @@ select.form-control   { cursor: pointer; }
     </div>
 </div>
 
-<!-- ACTIONS -->
 <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;">
     <a href="{{ route('dashboard') }}" class="btn btn-outline">Cancel</a>
     <button type="submit" class="btn btn-primary">Submit Request</button>
 </div>
 </form>
 
-<!-- ════ GOODS: SELECT ITEM MODAL ════ -->
 <div class="modal-overlay" id="item-modal">
     <div class="modal">
         <div class="modal-header">
-            <div><div class="modal-title">Select Item</div><div class="modal-desc">Search existing items or create a new one</div></div>
+            <div><div class="modal-title">Select Item</div><div class="modal-desc">Search items from past procurements or create a new one</div></div>
             <button class="modal-close" onclick="closeItemModal()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg></button>
         </div>
-        <div class="modal-body">
-            <input class="form-control" id="item-search" placeholder="Search by ID, name, or description..." oninput="filterItems(this.value)" style="margin-bottom:14px;">
+        
+        <div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--border); background: #fafafa;">
+            <input class="form-control" id="item-search" placeholder="Search by ID, name, or spec..." oninput="filterItems(this.value)" style="margin-bottom:10px;">
+            <button type="button" class="create-new-btn" onclick="openNewItemModal()" style="margin-top:0;">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+                Create New Item ID
+            </button>
+        </div>
+        
+        <div class="modal-body" style="padding-top: 12px;">
             <div id="item-list" style="display:flex;flex-direction:column;gap:2px;"></div>
         </div>
         <div class="modal-footer">
@@ -318,7 +251,6 @@ select.form-control   { cursor: pointer; }
     </div>
 </div>
 
-<!-- GOODS: CREATE NEW ITEM MODAL -->
 <div class="modal-overlay" id="new-item-modal">
     <div class="modal">
         <div class="modal-header">
@@ -329,10 +261,9 @@ select.form-control   { cursor: pointer; }
             <div class="form-row form-row-2" style="gap:14px;">
                 <div class="form-group"><label class="form-label">Item Name <span class="req">*</span></label><input class="form-control" id="new-item-name" placeholder="e.g. Kabel NYY 4x10mm"></div>
                 <div class="form-group"><label class="form-label">Unit <span class="req">*</span></label>
-                    <select class="form-control" id="new-item-unit"><option>Roll</option><option>Pcs</option><option>Unit</option><option>Batang</option><option>Meter</option><option>Kg</option><option>Liter</option><option>Set</option></select>
+                    <select class="form-control" id="new-item-unit"><option>Roll</option><option>Pcs</option><option>Unit</option><option>Batang</option><option>Meter</option><option>Kg</option><option>Liter</option><option>Set</option><option>Lot</option><option>Ream</option><option>Box</option></select>
                 </div>
             </div>
-            <div class="form-group mt-3"><label class="form-label">Description</label><input class="form-control" id="new-item-desc" placeholder="Brief description"></div>
             <div class="form-group mt-3"><label class="form-label">Specification</label><textarea class="form-control" id="new-item-spec" placeholder="Technical specifications..." style="min-height:70px;"></textarea></div>
         </div>
         <div class="modal-footer">
@@ -342,15 +273,22 @@ select.form-control   { cursor: pointer; }
     </div>
 </div>
 
-<!-- ════ SERVICE: SELECT SERVICE MODAL ════ -->
 <div class="modal-overlay" id="svc-select-modal">
     <div class="modal">
         <div class="modal-header">
             <div><div class="modal-title">Select Service</div><div class="modal-desc">Search existing service scope from template</div></div>
             <button class="modal-close" onclick="closeSvcSelectModal()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg></button>
         </div>
-        <div class="modal-body">
-            <input class="form-control" id="svc-search" placeholder="Search by job description..." oninput="filterServices(this.value)" style="margin-bottom:14px;">
+        
+        <div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--border); background: #fafafa;">
+            <input class="form-control" id="svc-search" placeholder="Search by job description..." oninput="filterServices(this.value)" style="margin-bottom:10px;">
+            <button type="button" class="create-new-btn" onclick="openSvcCreateModal()" style="margin-top:0;">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+                Create New Service ID
+            </button>
+        </div>
+        
+        <div class="modal-body" style="padding-top: 12px;">
             <div id="svc-list" style="display:flex;flex-direction:column;gap:2px;"></div>
         </div>
         <div class="modal-footer">
@@ -360,7 +298,6 @@ select.form-control   { cursor: pointer; }
     </div>
 </div>
 
-<!-- SERVICE: CREATE NEW SERVICE SCOPE MODAL -->
 <div class="modal-overlay" id="svc-create-modal">
     <div class="modal" style="max-width:480px;">
         <div class="modal-header">
@@ -382,7 +319,6 @@ select.form-control   { cursor: pointer; }
     </div>
 </div>
 
-<!-- SUCCESS MODAL (shown after flash) -->
 <div class="modal-overlay" id="success-modal" style="display:none;">
     <div class="modal" style="max-width:440px;">
         <div class="modal-body" style="padding:36px 28px;text-align:center;">
@@ -412,17 +348,10 @@ select.form-control   { cursor: pointer; }
 </style>
 
 <script>
-// ── Catalogs ──────────────────────────────────────────────────────────────────
-const catalog = [
-    { id:'ITM-0007', name:'MCB 3 Phase 40A',      desc:'Circuit breaker 3 phase untuk panel distribusi listrik', unit:'Pcs',   spec:'Schneider Easy9, 3P, 40A, 6kA' },
-    { id:'ITM-0008', name:'MCB 1 Phase 16A',       desc:'Circuit breaker 1 phase untuk sub panel',                unit:'Pcs',   spec:'Schneider Easy9, 1P, 16A, 6kA' },
-    { id:'ITM-0009', name:'Schneider MCCB 3P 63A', desc:'Molded case circuit breaker 3 phase 63A',               unit:'Pcs',   spec:'Schneider EasyPact, 63A' },
-    { id:'ITM-0012', name:'APC Smart-UPS 3000VA',  desc:'Uninterruptible power supply untuk server room',        unit:'Unit',  spec:'APC SMT3000I, 3000VA' },
-    { id:'ITM-0021', name:'Kabel NYY 4x10mm',      desc:'Kabel daya utama, standar PLN',                         unit:'Roll',  spec:'4 core, 10mm², 0.6/1kV' },
-    { id:'ITM-0022', name:'Kabel NYY 4x6mm',       desc:'Kabel daya cabang',                                     unit:'Roll',  spec:'4 core, 6mm², 0.6/1kV' },
-    { id:'ITM-0031', name:'Conduit PVC 20mm',      desc:'Pelindung jalur kabel',                                  unit:'Batang',spec:'Clipsal Heavy Duty, 3m/batang' },
-];
+// ── DATA KATALOG DINAMIS (Dari Database) ──────────────────────────────────────
+const catalog = @json($existingItems);
 
+// SVC Catalog statis untuk Jasa
 const svcCatalog = [
     { id:'SVC-001', desc:'Mob dan demobilisasi material & alat bantu', unit:'ls' },
     { id:'SVC-002', desc:'Mess Pekerja dan Akomodasi',                 unit:'ls' },
@@ -450,38 +379,43 @@ function setTab(t) {
 // ── GOODS ─────────────────────────────────────────────────────────────────────
 function filterItems(q) { renderItemList(q.toLowerCase()); }
 function renderItemList(q='') {
-    const filtered = catalog.filter(i=>!q||i.id.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||i.desc.toLowerCase().includes(q));
+    const filtered = catalog.filter(i => 
+        !q || 
+        i.id.toLowerCase().includes(q) || 
+        i.name.toLowerCase().includes(q) || 
+        (i.spec && i.spec.toLowerCase().includes(q))
+    );
+    
     document.getElementById('item-list').innerHTML = filtered.map(i=>`
         <div class="item-option ${selectedItemId===i.id?'selected':''}" onclick="selectItem('${i.id}')">
             <div class="item-option-id">${i.id}</div>
             <div class="item-option-name">${i.name}</div>
-            <div class="item-option-desc">${i.desc}</div>
-        </div>`).join('')+`
-        <button type="button" class="create-new-btn" onclick="openNewItemModal()">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
-            Create New Item ID
-        </button>`;
+            <div class="item-option-desc">Spec: ${i.spec || '—'}</div>
+        </div>`).join('');
 }
+
 function selectItem(id){ selectedItemId=id; renderItemList(document.getElementById('item-search').value.toLowerCase()); }
 function openItemModal(){ selectedItemId=null; document.getElementById('item-search').value=''; renderItemList(); document.getElementById('item-modal').classList.add('open'); }
 function closeItemModal(){ document.getElementById('item-modal').classList.remove('open'); }
+
 function addSelectedItem(){
     if(!selectedItemId){alert('Please select an item first.');return;}
     const i=catalog.find(x=>x.id===selectedItemId); if(!i)return;
-    const idx=itemCounter++; addedItems.push({idx,id:i.id,name:i.name,desc:i.desc,unit:i.unit,spec:i.spec,qty:1});
+    const idx=itemCounter++; 
+    addedItems.push({idx, id:i.id, name:i.name, unit:i.unit, spec:i.spec, qty:1});
     renderGoodsTable(); document.getElementById('goods-count-label').textContent=`${addedItems.length} item(s) added`;
     closeItemModal();
 }
+
 function renderGoodsTable(){
     const t=document.getElementById('goods-tbody');
-    if(!addedItems.length){t.innerHTML='<tr><td colspan="8" style="text-align:center;padding:28px 16px;color:#9ca3af;">No items added yet. Click "Add Item" to begin.</td></tr>';return;}
+    if(!addedItems.length){t.innerHTML='<tr><td colspan="7" style="text-align:center;padding:28px 16px;color:#9ca3af;">No items added yet. Click "Add Item" to begin.</td></tr>';return;}
     t.innerHTML=addedItems.map((it,i)=>`<tr>
         <td style="padding:11px 14px;border-bottom:1px solid #f3f4f6;color:#6b7280;">${i+1}</td>
         <td style="padding:11px 14px;border-bottom:1px solid #f3f4f6;font-family:monospace;font-size:12px;color:var(--primary);font-weight:600;">${it.id}<input type="hidden" name="items[${it.idx}][item_code]" value="${it.id}"></td>
         <td style="padding:11px 14px;border-bottom:1px solid #f3f4f6;font-weight:500;">${it.name}<input type="hidden" name="items[${it.idx}][name]" value="${it.name}"></td>
-        <td style="padding:11px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#6b7280;">${it.desc}<input type="hidden" name="items[${it.idx}][unit]" value="${it.unit}"></td>
         <td style="padding:11px 14px;border-bottom:1px solid #f3f4f6;"><input type="number" name="items[${it.idx}][quantity]" value="${it.qty}" min="1" style="width:60px;padding:5px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;" onchange="addedItems.find(x=>x.idx==${it.idx}).qty=this.value"></td>
-        <td style="padding:11px 14px;border-bottom:1px solid #f3f4f6;font-size:13px;">${it.unit}</td>
+        <td style="padding:11px 14px;border-bottom:1px solid #f3f4f6;font-size:13px;">${it.unit}<input type="hidden" name="items[${it.idx}][unit]" value="${it.unit}"></td>
         <td style="padding:11px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;color:#6b7280;">${it.spec||'—'}<input type="hidden" name="items[${it.idx}][specification]" value="${it.spec||''}"></td>
         <td style="padding:11px 14px;border-bottom:1px solid #f3f4f6;"><button type="button" onclick="removeGoods(${it.idx})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;border-radius:6px;" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#9ca3af'"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg></button></td>
     </tr>`).join('');
@@ -493,14 +427,18 @@ function saveNewItem(){
     const name=document.getElementById('new-item-name').value.trim();
     if(!name){alert('Item name is required.');return;}
     const unit=document.getElementById('new-item-unit').value;
-    const desc=document.getElementById('new-item-desc').value.trim();
     const spec=document.getElementById('new-item-spec').value.trim();
     const newId='ITM-'+String(Math.floor(Math.random()*9000+1000)).padStart(4,'0');
-    catalog.push({id:newId,name,desc,unit,spec});
-    const idx=itemCounter++; addedItems.push({idx,id:newId,name,desc,unit,spec,qty:1});
+    
+    // Tambahkan ke katalog Javascript agar bisa dicari lagi
+    catalog.push({id:newId, name:name, unit:unit, spec:spec});
+    
+    // Langsung masuk ke tabel array submission
+    const idx=itemCounter++; 
+    addedItems.push({idx, id:newId, name:name, unit:unit, spec:spec, qty:1});
     renderGoodsTable(); document.getElementById('goods-count-label').textContent=`${addedItems.length} item(s) added`;
     closeNewItemModal();
-    ['new-item-name','new-item-desc','new-item-spec'].forEach(id=>document.getElementById(id).value='');
+    ['new-item-name','new-item-spec'].forEach(id=>document.getElementById(id).value='');
 }
 
 // ── SERVICE ───────────────────────────────────────────────────────────────────
@@ -512,11 +450,7 @@ function renderSvcList(q=''){
             <div class="item-option-id">${s.id}</div>
             <div class="item-option-name">${s.desc}</div>
             <div class="item-option-desc">Standard unit: ${s.unit}</div>
-        </div>`).join('')+`
-        <button type="button" class="create-new-btn" onclick="openSvcCreateModal()">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
-            Create New Service ID
-        </button>`;
+        </div>`).join('');
 }
 function selectSvc(id){ selectedSvcId=id; renderSvcList(document.getElementById('svc-search').value.toLowerCase()); }
 function openServiceModal(){ selectedSvcId=null; document.getElementById('svc-search').value=''; renderSvcList(); document.getElementById('svc-select-modal').classList.add('open'); }

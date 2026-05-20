@@ -8,6 +8,8 @@
         'in_process'        => ['In Process',        '#f0f9ff','#0369a1','#0ea5e9'],
         'approved'          => ['Approved',           '#f0fdf4','#15803d','#22c55e'],
         'completed'         => ['Completed',          '#eff6ff','#1d4ed8','#3b82f6'],
+        'rejected'          => ['Rejected',           '#fef2f2','#b91c1c','#ef4444'],
+        'cancelled'         => ['Cancelled',          '#f3f4f6','#374151','#9ca3af'],
     ];
 @endphp
 @section('content')
@@ -20,7 +22,7 @@
 {{-- STAT CARDS --}}
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px">
-        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Active PRs</div>
+        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Active PR</div>
         <div style="font-size:28px;font-weight:800;color:#2563eb;margin:8px 0 5px;line-height:1">{{ $activePrs }}</div>
         <div style="font-size:11.5px;color:#9ca3af">Period: {{ now()->format('M Y') }}</div>
     </div>
@@ -37,7 +39,7 @@
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px">
         <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Completed This Month</div>
         <div style="font-size:28px;font-weight:800;color:#16a34a;margin:8px 0 5px;line-height:1">{{ $completedMonth }}</div>
-        <div style="font-size:11.5px;color:#9ca3af">PRs fulfilled</div>
+        <div style="font-size:11.5px;color:#9ca3af">PR fulfilled</div>
     </div>
 </div>
  
@@ -123,11 +125,12 @@
             <tbody>
                 @forelse($recentHistory as $h)
                 @php
+                    // $h saat ini merujuk ke tabel VendorSelection, bukan tabel History umum lagi.
                     $vName = optional($h->vendor)->name ?? optional($h->vendor)->vendor_name ?? '—';
                     $vCity = optional($h->vendor)->location ?? '';
                     $docNo = optional($h->rfq)->purchaseRequest->document_number ?? '—';
                     $dept  = optional($h->rfq)->purchaseRequest->department ?? '—';
-                    $sel   = optional($h->vendorSelection);
+                    $sel   = $h; 
                     $totalVal = $sel ? $sel->selectionItems->sum(fn($si)=>($si->final_price_per_item??0)*($si->final_quantity??0)) : 0;
                     $deptColors=['Maintenance'=>['#e0f2fe','#0369a1'],'Produksi'=>['#dcfce7','#15803d'],'IT'=>['#ede9fe','#7c3aed'],'IT & Digital'=>['#ede9fe','#7c3aed'],'Finance'=>['#fef9c3','#92400e']];
                     [$dBg,$dText]=$deptColors[$dept]??['#f1f5f9','#475569'];
@@ -180,6 +183,8 @@ const statusCfg = {
     in_process:['In Process','#f0f9ff','#0369a1','#0ea5e9'],
     approved:['Approved','#f0fdf4','#15803d','#22c55e'],
     completed:['Completed','#eff6ff','#1d4ed8','#3b82f6'],
+    rejected:['Rejected','#fef2f2','#b91c1c','#ef4444'],
+    cancelled:['Cancelled','#f3f4f6','#374151','#9ca3af']
 };
 /* Progress steps config */
 const steps = [
@@ -192,27 +197,48 @@ function getStep(status){
     if(status==='completed') return 4;
     if(status==='approved') return 3;
     if(status==='in_process') return 2;
-    return 1; /* awaiting_approval */
+    return 1; 
 }
+ 
 function buildProgressBar(status){
-    const cur=getStep(status);
+    const cur = getStep(status);
+    const isFail = (status === 'rejected' || status === 'cancelled');
+    
     return `<div style="display:flex;align-items:flex-start;gap:0;margin-bottom:20px">
         ${steps.map((s,i)=>{
             const n=i+1;
-            const done=n<cur, active=n===cur;
-            const circleBg=done?'#22c55e':active?'#3b5bdb':'#e5e7eb';
-            const circleText=done?'✓':n;
-            const circleColor=done||active?'#fff':'#9ca3af';
-            const labelColor=active?'#3b5bdb':done?'#22c55e':'#9ca3af';
-            const lineColor=done?'#22c55e':'#e5e7eb';
+            let done = n < cur;
+            let active = n === cur;
+            
+            // Memaksa Langkah 4 (Completed) menjadi Hijau Penuh
+            if (status === 'completed' && n === 4) {
+                done = true;
+                active = false;
+            }
+            
+            let cb = done ? '#22c55e' : active ? '#3b5bdb' : '#e5e7eb';
+            let cc = done || active ? '#fff' : '#9ca3af';
+            let lc = active ? '#3b5bdb' : done ? '#22c55e' : '#9ca3af';
+            let circleText = done ? '✓' : n;
+
+            // Memunculkan tanda silang merah/abu untuk Rejected & Cancelled
+            if (isFail && active) {
+                cb = status === 'rejected' ? '#ef4444' : '#9ca3af';
+                lc = cb; 
+                circleText = '✕';
+            }
+            
+            const lineColor = done ? '#22c55e' : '#e5e7eb';
+
             return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;position:relative">
                 ${i<steps.length-1?`<div style="position:absolute;top:14px;left:50%;width:100%;height:2px;background:${lineColor};z-index:0"></div>`:''}
-                <div style="width:28px;height:28px;border-radius:50%;background:${circleBg};color:${circleColor};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;flex-shrink:0">${circleText}</div>
-                <div style="font-size:10.5px;font-weight:600;color:${labelColor};text-align:center;margin-top:5px;line-height:1.3;white-space:pre-line">${s.label}</div>
+                <div style="width:28px;height:28px;border-radius:50%;background:${cb};color:${cc};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;flex-shrink:0">${circleText}</div>
+                <div style="font-size:10.5px;font-weight:600;color:${lc};text-align:center;margin-top:5px;line-height:1.3;white-space:pre-line">${s.label}</div>
             </div>`;
         }).join('')}
     </div>`;
 }
+ 
 function openDetailModal(id){
     const pr=prData[id]; if(!pr)return;
     document.getElementById('modal-pr-title').textContent=pr.title||'Purchase Request';

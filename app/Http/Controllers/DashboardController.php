@@ -2,9 +2,7 @@
  
 namespace App\Http\Controllers;
  
-use App\Models\History;
 use App\Models\PurchaseRequest;
-use App\Models\Rfq;
 use App\Models\VendorSelection;
 use Illuminate\Support\Facades\Auth;
  
@@ -35,10 +33,12 @@ class DashboardController extends Controller
                             && $r->updated_at->year  === now()->year)
             ->count();
  
-        $recentHistory = History::with(['vendor', 'rfq.purchaseRequest', 'vendorSelection'])
-            ->where('user_id', $userId)
-            ->whereNotNull('vendor_id')
-            ->latest('action_date')
+        // Ubah: Hanya tampilkan PR yang sudah Completed dan memiliki Vendor Selection
+        $recentHistory = VendorSelection::with(['vendor', 'rfq.purchaseRequest', 'selectionItems'])
+            ->whereHas('rfq.purchaseRequest', function($q) use ($userId) {
+                $q->where('user_id', $userId)->where('status', 'completed');
+            })
+            ->latest('decided_at')
             ->limit(5)
             ->get();
  
@@ -61,9 +61,12 @@ class DashboardController extends Controller
  
         $latestRequests = PurchaseRequest::with(['user', 'items'])->latest()->limit(10)->get();
  
-        $recentHistory = History::with(['vendor', 'rfq.purchaseRequest', 'vendorSelection'])
-            ->whereNotNull('vendor_id')
-            ->latest('action_date')
+        // Ubah: Hanya tampilkan PR yang sudah Completed dan memiliki Vendor Selection
+        $recentHistory = VendorSelection::with(['vendor', 'rfq.purchaseRequest', 'selectionItems'])
+            ->whereHas('rfq.purchaseRequest', function($q) {
+                $q->where('status', 'completed');
+            })
+            ->latest('decided_at')
             ->limit(5)
             ->get();
  

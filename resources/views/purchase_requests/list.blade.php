@@ -1,7 +1,14 @@
 @extends('layouts.app')
 @php
     $pageTitle='PR List';
-    $statusCfg=['awaiting_approval'=>['Awaiting Approval','#fff7ed','#c2410c','#f97316'],'in_process'=>['In Process','#f0f9ff','#0369a1','#0ea5e9'],'approved'=>['Approved','#f0fdf4','#15803d','#22c55e'],'completed'=>['Completed','#eff6ff','#1d4ed8','#3b82f6']];
+    $statusCfg=[
+        'awaiting_approval'=>['Awaiting Approval','#fff7ed','#c2410c','#f97316'],
+        'in_process'=>['In Process','#f0f9ff','#0369a1','#0ea5e9'],
+        'approved'=>['Approved','#f0fdf4','#15803d','#22c55e'],
+        'completed'=>['Completed','#eff6ff','#1d4ed8','#3b82f6'],
+        'rejected'=>['Rejected','#fef2f2','#b91c1c','#ef4444'],
+        'cancelled'=>['Cancelled','#f3f4f6','#374151','#9ca3af']
+    ];
 @endphp
 @section('content')
  
@@ -32,6 +39,8 @@
                     <option value="in_process">In Process</option>
                     <option value="approved">Approved</option>
                     <option value="completed">Completed</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="cancelled">Cancelled</option>
                 </select>
                 <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
             </div>
@@ -116,25 +125,66 @@
 <script>
 const allPRs=@json($requests->load('items','user')->keyBy('id')->toArray());
 const isPurchasing={{ $isPurchasing?'true':'false' }};
-const statusCfg={awaiting_approval:['Awaiting Approval','#fff7ed','#c2410c','#f97316'],in_process:['In Process','#f0f9ff','#0369a1','#0ea5e9'],approved:['Approved','#f0fdf4','#15803d','#22c55e'],completed:['Completed','#eff6ff','#1d4ed8','#3b82f6']};
+const statusCfg={
+    awaiting_approval:['Awaiting Approval','#fff7ed','#c2410c','#f97316'],
+    in_process:['In Process','#f0f9ff','#0369a1','#0ea5e9'],
+    approved:['Approved','#f0fdf4','#15803d','#22c55e'],
+    completed:['Completed','#eff6ff','#1d4ed8','#3b82f6'],
+    rejected:['Rejected','#fef2f2','#b91c1c','#ef4444'],
+    cancelled:['Cancelled','#f3f4f6','#374151','#9ca3af']
+};
 const steps=[{label:'PR\nSubmitted'},{label:'Vendor\nSearch\n(Purchasing)'},{label:'Vendor\nSelection'},{label:'Completed'}];
-function getStep(s){if(s==='completed')return 4;if(s==='approved')return 3;if(s==='in_process')return 2;return 1;}
+ 
+function getStep(s){
+    if(s==='completed') return 4;
+    if(s==='approved') return 3;
+    if(s==='in_process') return 2;
+    return 1;
+}
+ 
+// FUNGSI INI TELAH DIUPDATE: Mengakomodasi checklist hijau untuk Completed dan X merah/abu untuk Failed.
 function buildProgressBar(status){
-    const cur=getStep(status);
+    const cur = getStep(status);
+    const isFail = (status === 'rejected' || status === 'cancelled');
+    
     return `<div style="display:flex;align-items:flex-start">${steps.map((s,i)=>{
-        const n=i+1,done=n<cur,active=n===cur;
-        const cb=done?'#22c55e':active?'#3b5bdb':'#e5e7eb',cc=done||active?'#fff':'#9ca3af',lc=active?'#3b5bdb':done?'#22c55e':'#9ca3af';
+        const n = i+1;
+        let done = n < cur;
+        let active = n === cur;
+        
+        // Memaksa Langkah 4 (Completed) menjadi Hijau Penuh
+        if (status === 'completed' && n === 4) {
+            done = true;
+            active = false;
+        }
+        
+        let cb = done ? '#22c55e' : active ? '#3b5bdb' : '#e5e7eb';
+        let cc = done || active ? '#fff' : '#9ca3af';
+        let lc = active ? '#3b5bdb' : done ? '#22c55e' : '#9ca3af';
+        let circleText = done ? '✓' : n;
+
+        // Memunculkan tanda silang merah/abu untuk Rejected & Cancelled
+        if (isFail && active) {
+            cb = status === 'rejected' ? '#ef4444' : '#9ca3af';
+            lc = cb; 
+            circleText = '✕';
+        }
+
         return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;position:relative">${i<3?`<div style="position:absolute;top:13px;left:50%;width:100%;height:2px;background:${done?'#22c55e':'#e5e7eb'};z-index:0"></div>`:''}
-            <div style="width:26px;height:26px;border-radius:50%;background:${cb};color:${cc};font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;flex-shrink:0">${done?'✓':n}</div>
+            <div style="width:26px;height:26px;border-radius:50%;background:${cb};color:${cc};font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;flex-shrink:0">${circleText}</div>
             <div style="font-size:10px;font-weight:600;color:${lc};text-align:center;margin-top:4px;line-height:1.3;white-space:pre-line">${s.label}</div>
         </div>`;
     }).join('')}</div>`;
 }
+ 
 function applyFilters(){
     const s=document.getElementById('status-filter').value;
     const d=isPurchasing?document.getElementById('dept-filter').value:'';
-    document.querySelectorAll('#pr-table tbody tr[data-status]').forEach(r=>{r.style.display=(!s||r.dataset.status===s)&&(!d||r.dataset.dept===d)?'':none;});
+    document.querySelectorAll('#pr-table tbody tr[data-status]').forEach(r=>{
+        r.style.display=(!s||r.dataset.status===s)&&(!d||r.dataset.dept===d)?'':'none';
+    });
 }
+ 
 function openPRDetail(id){
     const pr=allPRs[id]; if(!pr)return;
     document.getElementById('detail-title').textContent=pr.title||'Purchase Request';
