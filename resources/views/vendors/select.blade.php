@@ -427,15 +427,18 @@ function deselectCard(card) {
     card.dataset.selected  = 'false';
     card.style.borderColor = '#e5e7eb';
     card.style.background  = '#fff';
-
     const cb = card.querySelector('.card-checkbox');
     if (cb) {
         cb.style.background  = '#fff';
         cb.style.borderColor = '#d1d5db';
         cb.innerHTML = '';
     }
-
     delete selectedItems[card.dataset.itemId];
+
+    // Reset row highlight
+    const row = document.getElementById(`item-row-${card.dataset.itemId}`);
+    if (row) row.style.background = '';
+
     updateVendorTotal(card.dataset.vqId);
 }
 
@@ -450,15 +453,48 @@ function updateVendorTotal(vqId) {
     if (colEl) colEl.textContent = total > 0 ? 'Rp ' + total.toLocaleString('id-ID') : 'Rp —';
 }
 
+// Ganti fungsi updateItemStatus dengan versi ini:
 function updateItemStatus(itemId) {
     const badge = document.getElementById(`item-status-${itemId}`);
+    const row   = document.getElementById(`item-row-${itemId}`);
     if (!badge) return;
+
     if (selectedItems[itemId]) {
-        badge.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:4px;"></span>Match';
-        badge.style.background = '#dcfce7'; badge.style.color = '#15803d';
+        const sel = selectedItems[itemId];
+        const requiredQty = parseInt(
+            document.querySelector(`.vendor-item-card[data-item-id="${itemId}"]`)?.dataset.requiredQty
+        ) || 0;
+        const offeredQty  = sel.qty || 0;
+
+        let bgColor, textColor, dotColor, label, rowBg;
+
+        if (offeredQty === requiredQty) {
+            // Hijau — cocok sempurna
+            bgColor   = '#dcfce7'; textColor = '#15803d'; dotColor = '#22c55e';
+            rowBg     = '#f0fdf4';
+            label     = 'Match';
+        } else if (offeredQty < requiredQty) {
+            // Merah — kurang
+            bgColor   = '#fee2e2'; textColor = '#b91c1c'; dotColor = '#ef4444';
+            rowBg     = '#fff5f5';
+            label     = `Qty Less (${offeredQty}/${requiredQty})`;
+        } else {
+            // Biru — lebih
+            bgColor   = '#dbeafe'; textColor = '#1d4ed8'; dotColor = '#3b82f6';
+            rowBg     = '#eff6ff';
+            label     = `Qty More (${offeredQty}/${requiredQty})`;
+        }
+
+        badge.innerHTML = `<span style="width:6px;height:6px;border-radius:50%;background:${dotColor};display:inline-block;margin-right:4px;"></span>${label}`;
+        badge.style.background = bgColor;
+        badge.style.color      = textColor;
+        if (row) row.style.background = rowBg;
+
     } else {
         badge.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:#f97316;display:inline-block;margin-right:4px;"></span>Pending';
-        badge.style.background = '#fff7ed'; badge.style.color = '#c2410c';
+        badge.style.background = '#fff7ed';
+        badge.style.color      = '#c2410c';
+        if (row) row.style.background = '';
     }
 }
 

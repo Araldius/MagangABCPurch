@@ -280,7 +280,15 @@ function renderRequirementsTable(){
     const tbody=document.getElementById('items-requirement-tbody');
     tbody.innerHTML=currentPR.items.map((item,i)=>{
         const [label,bg,tc,dot]=getItemStatus(item.id);
-        return `<tr style="border-bottom:1px solid #f3f4f6">
+
+        // Tentukan warna highlight row berdasarkan status
+        let rowBg = '';
+        if (label === 'Full Match')              rowBg = '#f0fdf4';
+        else if (label.startsWith('Partial'))    rowBg = '#fefce8';
+        else if (label.startsWith('Over'))       rowBg = '#eff6ff';
+        else if (label !== 'Pending')            rowBg = '#fff5f5';
+
+        return `<tr style="border-bottom:1px solid #f3f4f6;background:${rowBg};transition:background .2s">
             <td style="padding:11px 16px;color:#6b7280">${i+1}</td>
             <td style="padding:11px 16px;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_code||'—'}</td>
             <td style="padding:11px 16px;font-weight:500;color:#111827">${item.name}</td>
