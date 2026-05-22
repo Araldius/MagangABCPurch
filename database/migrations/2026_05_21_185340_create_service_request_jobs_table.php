@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('service_request_jobs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sr_id')->constrained('service_requests')->onDelete('cascade');
+            $table->foreignId('service_request_id')->constrained('service_requests')->onDelete('cascade');
             $table->string('job_description');
             $table->timestamps();
         });

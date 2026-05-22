@@ -126,8 +126,9 @@ function goToPR() {
                 @foreach($items as $i => $item)
                 <tr id="item-row-{{ $item->id }}" style="border-bottom:1px solid #f9fafb;">
                     <td style="padding:11px 16px;color:#6b7280;">{{ $i + 1 }}</td>
-                    <td style="padding:11px 16px;font-family:'Courier New',monospace;font-size:12px;font-weight:600;color:#3b5bdb;">{{ $item->item_code }}</td>
-                    <td style="padding:11px 16px;font-weight:600;color:#111827;">{{ $item->item_name ?: $item->name }}</td>
+                    {{-- DIUBAH MENJADI item_id DAN item_name --}}
+                    <td style="padding:11px 16px;font-family:'Courier New',monospace;font-size:12px;font-weight:600;color:#3b5bdb;">{{ $item->item_id }}</td>
+                    <td style="padding:11px 16px;font-weight:600;color:#111827;">{{ $item->item_name }}</td>
                     <td style="padding:11px 16px;font-size:12.5px;color:#6b7280;">{{ $item->specification ?? '—' }}</td>
                     <td style="padding:11px 16px;font-weight:700;color:#111827;text-align:right;">{{ $item->quantity }}</td>
                     <td style="padding:11px 16px;color:#6b7280;">{{ $item->unit }}</td>
@@ -167,7 +168,6 @@ function goToPR() {
         <div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
             @foreach($items as $item)
             @php
-                // Mencocokkan data quotation dengan database sebenarnya (Memperbaiki isNotOffered)
                 $detail = $vendorQuotationRecord
                             ? $vendorQuotationRecord->quotationDetails->where('purchase_request_item_id', $item->id)->first()
                             : null;
@@ -206,7 +206,7 @@ function goToPR() {
                  data-unit-price="{{ $unitPrice ?? '' }}"
                  data-subtotal="{{ $subtotal ?? '' }}"
                  data-vendor-name="{{ optional($vendor)->vendor_name ?? optional($vendor)->name ?? 'Unknown Vendor' }}"
-                 data-item-name="{{ $item->item_name ?: $item->name }}"
+                 data-item-name="{{ $item->item_name }}"
                  data-not-offered="{{ $isNotOffered ? '1' : '0' }}"
                  style="border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;position:relative;cursor:{{ $isNotOffered ? 'not-allowed' : 'pointer' }};background:{{ $cardBg }};transition:.15s;"
                  @if(!$isNotOffered)
@@ -222,7 +222,7 @@ function goToPR() {
                 @endif
 
                 <div style="font-size:13px;font-weight:700;color:{{ $isNotOffered ? '#9ca3af' : '#111827' }};margin-bottom:10px;padding-right:24px;">
-                    {{ $item->item_name ?: $item->name }}
+                    {{ $item->item_name }}
                 </div>
 
                 @if(!$isNotOffered)

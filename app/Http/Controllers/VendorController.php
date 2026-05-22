@@ -57,7 +57,7 @@ class VendorController extends Controller
     public function storeSelection(Request $request)
     {
         $request->validate([
-            'pr_id'                    => ['required', 'exists:purchase_requests,id'],
+            'purchase_request_id'                    => ['required', 'exists:purchase_requests,id'],
             'selection_notes'          => ['nullable', 'string'],
             'selections'               => ['required', 'array', 'min:1'],
             'selections.*.vendor_id'   => ['required', 'exists:vendors,id'],
@@ -67,7 +67,7 @@ class VendorController extends Controller
             'selections.*.notes'       => ['nullable', 'string'],
         ]);
  
-        $pr = PurchaseRequest::findOrFail($request->pr_id);
+        $pr = PurchaseRequest::findOrFail($request->purchase_request_id);
  
         /* Get or create RFQ for this PR */
         $rfq = $pr->rfqs()->first();

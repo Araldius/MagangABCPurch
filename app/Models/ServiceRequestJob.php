@@ -12,14 +12,14 @@ class ServiceRequestJob extends Model
     protected $table = 'service_request_jobs';
 
     protected $fillable = [
-        'sr_id',
+        'service_request_id',
         'job_description',
     ];
 
     // Relasi balik (belongsTo) ke Induk Service Request
     public function serviceRequest()
     {
-        return $this->belongsTo(ServiceRequest::class, 'sr_id');
+        return $this->belongsTo(ServiceRequest::class, 'service_request_id');
     }
 
     // Relasi 1-to-Many ke tabel Items

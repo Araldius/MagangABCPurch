@@ -9,19 +9,18 @@ class PurchaseRequestItem extends Model
 {
     use HasFactory;
 
-    protected $table = 'purchase_request_items';
-
     protected $fillable = [
-        'purchase_request_id', 
-        'item_name', 
-        'quantity', 
-        'unit', 
-        'specification', 
+        'purchase_request_id',
+        'item_id',
+        'item_name',
+        'quantity',
+        'unit',
+        'specification',
         'item_notes'
     ];
 
     public function purchaseRequest()
     {
-        return $this->belongsTo(PurchaseRequest::class, 'purchase_request_id');
+        return $this->belongsTo(PurchaseRequest::class);
     }
 }

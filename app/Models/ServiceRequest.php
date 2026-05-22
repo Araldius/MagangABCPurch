@@ -29,12 +29,12 @@ class ServiceRequest extends Model
     // Relasi 1-to-Many ke tabel Jobs (Scope of Work)
     public function jobs()
     {
-        return $this->hasMany(ServiceRequestJob::class, 'sr_id');
+        return $this->hasMany(ServiceRequestJob::class, 'service_request_id');
     }
 
     // Relasi ke RFQ (jika nantinya diproses oleh Purchasing)
     public function rfqs()
     {
-        return $this->hasMany(Rfq::class, 'sr_id');
+        return $this->hasMany(Rfq::class, 'service_request_id');
     }
 }

@@ -294,7 +294,7 @@ function renderRequirementsTable(){
         const [label,bg,tc,dot]=getItemStatus(item.id);
         return `<tr style="border-bottom:1px solid #f3f4f6">
             <td style="padding:11px 16px;color:#6b7280">${i+1}</td>
-            <td style="padding:11px 16px;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_code||'—'}</td>
+            <td style="padding:11px 16px;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_id||'—'}</td>
             <td style="padding:11px 16px;font-weight:500;color:#111827">${item.name}</td>
             <td style="padding:11px 16px;font-weight:600;text-align:right">${item.quantity} ${item.unit}</td>
             <td style="padding:11px 16px"><span id="status-${item.id}" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:${bg};font-size:11.5px;font-weight:600;color:${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dot}"></span>${label}</span></td>
@@ -541,7 +541,7 @@ function renderResultWorkspace() {
         
         return `<tr style="border-bottom:1px solid #f3f4f6">
             <td style="padding:10px 14px;color:#6b7280">${rowNum++}</td>
-            <td style="padding:10px 14px;font-weight:600;color:#111827">${s.item_name} <br><span style="font-family:'Courier New',monospace;font-size:10px;color:#6b7280">${item.item_code||'—'}</span></td>
+            <td style="padding:10px 14px;font-weight:600;color:#111827">${s.item_name} <br><span style="font-family:'Courier New',monospace;font-size:10px;color:#6b7280">${item.item_id||'—'}</span></td>
             <td style="padding:10px 14px"><span style="padding:3px 8px;border-radius:6px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700">${vName}</span></td>
             <td style="padding:10px 14px;text-align:right;font-weight:700;font-size:13px">${s.quantity}</td>
             <td style="padding:10px 14px">${s.unit}</td>
@@ -584,7 +584,7 @@ function closeSubmitModal(){document.getElementById('submit-modal').style.displa
 function submitToServer(){
     const notes=document.getElementById('submit-notes').value.trim();
     const payload={
-        pr_id:currentPR.id,
+        purchase_request_id:currentPR.id,
         selection_notes:notes,
         selections: Object.values(selections).map(s => ({
             vendor_id: s.vendor_id,

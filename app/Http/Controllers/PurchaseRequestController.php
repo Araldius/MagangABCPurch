@@ -51,13 +51,14 @@ class PurchaseRequestController extends Controller
 
     public function create()
     {
-        $existingItems = PurchaseRequestItem::select('item_name', 'unit', 'specification')
-            ->distinct()->get()->map(function ($item, $idx) {
+        $existingItems = PurchaseRequestItem::select('item_id', 'item_name', 'unit', 'specification', 'item_notes')
+            ->distinct()->get()->map(function ($item) {
                 return [
-                    'id'   => 'ITM-' . str_pad($idx + 1, 4, '0', STR_PAD_LEFT),
-                    'name' => $item->item_name,
-                    'unit' => $item->unit,
-                    'spec' => $item->specification ?? '',
+                    'id'    => $item->item_id,
+                    'name'  => $item->item_name,
+                    'unit'  => $item->unit,
+                    'spec'  => $item->specification ?? '',
+                    'notes' => $item->item_notes ?? '',
                 ];
             })->values();
 
@@ -66,13 +67,14 @@ class PurchaseRequestController extends Controller
 
     public function store(Request $request)
     {
-        // LOGIKA BARU: Deteksi Service Request berdasarkan kehadiran data 'jobs'
-        if ($request->has('jobs')) {
+        if ($request->item_type === 'service') {
             $request->validate([
-                'service_name' => 'required|string',
-                'plant'        => 'required|string',
-                'requested_date' => 'required|date',
-                'jobs'         => 'required|array|min:1',
+                'service_name'       => 'required|string',
+                'plant'              => 'required|string',
+                'requested_date'     => 'required|date',
+                'jobs'               => 'required|array|min:1',
+                'jobs.*.description' => 'required|string',
+                'jobs.*.items'       => 'required|array|min:1',
             ]);
 
             $sr = ServiceRequest::create([
@@ -86,26 +88,23 @@ class PurchaseRequestController extends Controller
 
             foreach ($request->jobs as $jobData) {
                 $job = ServiceRequestJob::create([
-                    'sr_id'           => $sr->id,
-                    'job_description' => $jobData['description'],
+                    'service_request_id' => $sr->id,
+                    'job_description'    => $jobData['description'],
                 ]);
 
-                if (isset($jobData['items'])) {
-                    foreach ($jobData['items'] as $itemData) {
-                        ServiceRequestItem::create([
-                            'job_id'        => $job->id,
-                            'item_name'     => $itemData['item_name'],
-                            'quantity'      => $itemData['quantity'],
-                            'unit'          => $itemData['unit'],
-                            'specification' => $itemData['specification'] ?? null,
-                        ]);
-                    }
+                foreach ($jobData['items'] as $itemData) {
+                    ServiceRequestItem::create([
+                        'job_id'        => $job->id,
+                        'item_name'     => $itemData['item_name'],
+                        'quantity'      => $itemData['quantity'],
+                        'unit'          => $itemData['unit'],
+                        'specification' => $itemData['specification'] ?? null,
+                    ]);
                 }
             }
             $docInfo = 'SR-' . str_pad($sr->id, 4, '0', STR_PAD_LEFT);
 
         } else {
-            // LOGIKA PURCHASE REQUEST (GOODS)
             $request->validate([
                 'document_number' => 'required|unique:purchase_requests',
                 'title'           => 'required|string',
@@ -113,6 +112,7 @@ class PurchaseRequestController extends Controller
                 'plant'           => 'required|string',
                 'requested_date'  => 'required|date',
                 'items'           => 'required|array|min:1',
+                'items.*.item_id' => 'required|string',
             ]);
 
             $pr = PurchaseRequest::create([
@@ -129,10 +129,12 @@ class PurchaseRequestController extends Controller
             foreach ($request->items as $item) {
                 PurchaseRequestItem::create([
                     'purchase_request_id' => $pr->id,
-                    'item_name'           => $item['name'],
+                    'item_id'             => $item['item_id'],
+                    'item_name'           => $item['item_name'],
                     'quantity'            => $item['quantity'],
                     'unit'                => $item['unit'],
                     'specification'       => $item['specification'] ?? null,
+                    'item_notes'          => $item['item_notes'] ?? null,
                 ]);
             }
             $docInfo = $request->document_number;
