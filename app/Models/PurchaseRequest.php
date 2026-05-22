@@ -15,7 +15,6 @@ class PurchaseRequest extends Model
         'document_number', 
         'title', 
         'department', 
-        'item_type',
         'priority', 
         'plant', 
         'submission_date', 
@@ -32,7 +31,7 @@ class PurchaseRequest extends Model
 
     public function items()
     {
-        return $this->hasMany(PurchaseRequestItem::class);
+        return $this->hasMany(PurchaseRequestItem::class, 'purchase_request_id');
     }
 
     public function rfqs()

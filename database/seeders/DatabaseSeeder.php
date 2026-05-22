@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
         /* ---------------------------------------------------------------------
            TEST CASE 1: PR Normal Selesai (Goods) -> Menyumbang Katalog ATK
            --------------------------------------------------------------------- */
-        $pr1 = PurchaseRequest::create(['user_id' => $req1->id, 'document_number' => 'PR-2026-0101-001', 'title' => 'Pengadaan ATK Bulanan', 'department' => 'Operations', 'item_type' => 'goods', 'priority' => 'high', 'plant' => 'Cikarang', 'submission_date' => now()->subDays(20), 'requested_date' => now()->subDays(18), 'need_date' => now()->addDays(5), 'note' => 'Urgent for Q2', 'status' => 'completed']);
+        $pr1 = PurchaseRequest::create(['user_id' => $req1->id, 'document_number' => 'PR-2026-0101-001', 'title' => 'Pengadaan ATK Bulanan', 'department' => 'Operations', 'priority' => 'high', 'plant' => 'Cikarang', 'submission_date' => now()->subDays(20), 'requested_date' => now()->subDays(18), 'need_date' => now()->addDays(5), 'note' => 'Urgent for Q2', 'status' => 'completed']);
         $i1 = PurchaseRequestItem::create(['purchase_request_id' => $pr1->id, 'item_code' => 'OFF-001', 'name' => 'Kertas A4 80 GSM', 'item_name' => 'Kertas A4 80 GSM', 'quantity' => 50, 'unit' => 'Ream', 'specification' => 'Sinar Dunia / PaperOne']);
         $i1_2 = PurchaseRequestItem::create(['purchase_request_id' => $pr1->id, 'item_code' => 'OFF-002', 'name' => 'Tinta Printer Epson 003', 'item_name' => 'Tinta Printer Epson 003', 'quantity' => 20, 'unit' => 'Botol', 'specification' => 'Black, Original']);
         
@@ -78,7 +78,7 @@ class DatabaseSeeder extends Seeder
         /* ---------------------------------------------------------------------
            TEST CASE 2: Split PO / Multi-Vendor (Goods) -> Menyumbang Katalog Teknik
            --------------------------------------------------------------------- */
-        $prSplit = PurchaseRequest::create(['user_id' => $req2->id, 'document_number' => 'PR-2026-0105-SPLIT', 'title' => 'Peralatan Pabrik Kompleks', 'department' => 'Engineering', 'item_type' => 'goods', 'priority' => 'high', 'plant' => 'Cibitung', 'submission_date' => now()->subDays(30), 'requested_date' => now()->subDays(29), 'need_date' => now()->addDays(10), 'note' => 'Harus dibagi ke vendor termurah', 'status' => 'completed']);
+        $prSplit = PurchaseRequest::create(['user_id' => $req2->id, 'document_number' => 'PR-2026-0105-SPLIT', 'title' => 'Peralatan Pabrik Kompleks', 'department' => 'Engineering', 'priority' => 'high', 'plant' => 'Cibitung', 'submission_date' => now()->subDays(30), 'requested_date' => now()->subDays(29), 'need_date' => now()->addDays(10), 'note' => 'Harus dibagi ke vendor termurah', 'status' => 'completed']);
         
         $itemA = PurchaseRequestItem::create(['purchase_request_id' => $prSplit->id, 'item_code' => 'TOL-001', 'name' => 'Bor Listrik Bosch', 'item_name' => 'Bor Listrik Bosch', 'quantity' => 10, 'unit' => 'Unit', 'specification' => 'Bosch GSB 550 Professional']);
         $itemB = PurchaseRequestItem::create(['purchase_request_id' => $prSplit->id, 'item_code' => 'TOL-002', 'name' => 'Mata Bor Set', 'item_name' => 'Mata Bor Set', 'quantity' => 20, 'unit' => 'Set', 'specification' => 'HSS-R Metal Drill Bits']);
@@ -113,7 +113,7 @@ class DatabaseSeeder extends Seeder
         /* ---------------------------------------------------------------------
            TEST CASE 3: RFQ Zonk / Zero Bids / Failed Procurement (Service)
            --------------------------------------------------------------------- */
-        $prZonk = PurchaseRequest::create(['user_id' => $req3->id, 'document_number' => 'PR-2026-0110-ZONK', 'title' => 'Sewa Genset Darurat', 'department' => 'Maintenance', 'item_type' => 'service', 'priority' => 'high', 'plant' => 'Cikarang', 'submission_date' => now()->subDays(15), 'requested_date' => now()->subDays(15), 'need_date' => now()->addDays(2), 'note' => 'Butuh cepat tapi ga ada vendor yang merespon', 'status' => 'in_process']);
+        $prZonk = PurchaseRequest::create(['user_id' => $req3->id, 'document_number' => 'PR-2026-0110-ZONK', 'title' => 'Sewa Genset Darurat', 'department' => 'Maintenance', 'priority' => 'high', 'plant' => 'Cikarang', 'submission_date' => now()->subDays(15), 'requested_date' => now()->subDays(15), 'need_date' => now()->addDays(2), 'note' => 'Butuh cepat tapi ga ada vendor yang merespon', 'status' => 'in_process']);
         PurchaseRequestItem::create(['purchase_request_id' => $prZonk->id, 'item_code' => 'SVC-GEN-01', 'name' => 'Sewa Genset 500kVA', 'item_name' => 'Sewa Genset 500kVA', 'quantity' => 7, 'unit' => 'Hari', 'specification' => 'Service']);
         $rfqZonk = Rfq::create(['purchase_request_id' => $prZonk->id, 'rfq_number' => 'RFQ-ZONK-001', 'is_sent_to_user' => false, 'sent_to_user_at' => null, 'status' => 'closed']);
         QuotationPeriod::create(['rfq_id' => $rfqZonk->id, 'round' => 1, 'start_date' => now()->subDays(14), 'end_date' => now()->subDays(7), 'status' => 'closed']);
@@ -123,17 +123,17 @@ class DatabaseSeeder extends Seeder
         /* ---------------------------------------------------------------------
            TEST CASE 4: PR Ditolak (Rejected) & Dibatalkan (Canceled)
            --------------------------------------------------------------------- */
-        $prRejected = PurchaseRequest::create(['user_id' => $req1->id, 'document_number' => 'PR-2026-0115-REJ', 'title' => 'Laptop Gaming', 'department' => 'Operations', 'item_type' => 'goods', 'priority' => 'normal', 'plant' => 'Gresik', 'submission_date' => now()->subDays(5), 'requested_date' => now()->subDays(5), 'need_date' => now()->addDays(15), 'note' => 'Ditolak karena overbudget', 'status' => 'rejected']);
+        $prRejected = PurchaseRequest::create(['user_id' => $req1->id, 'document_number' => 'PR-2026-0115-REJ', 'title' => 'Laptop Gaming', 'department' => 'Operations', 'priority' => 'normal', 'plant' => 'Gresik', 'submission_date' => now()->subDays(5), 'requested_date' => now()->subDays(5), 'need_date' => now()->addDays(15), 'note' => 'Ditolak karena overbudget', 'status' => 'rejected']);
         PurchaseRequestItem::create(['purchase_request_id' => $prRejected->id, 'item_code' => 'IT-LAP-01', 'name' => 'Laptop ROG', 'item_name' => 'Laptop ROG', 'quantity' => 2, 'unit' => 'Unit', 'specification' => 'Core i9, 32GB RAM']);
 
-        $prCanceled = PurchaseRequest::create(['user_id' => $req2->id, 'document_number' => 'PR-2026-0117-CAN', 'title' => 'Acara Outing Divisi', 'department' => 'Engineering', 'item_type' => 'service', 'priority' => 'normal', 'plant' => 'Cibitung', 'submission_date' => now()->subDays(2), 'requested_date' => now()->subDays(2), 'need_date' => now()->addDays(30), 'note' => 'Batal diadakan', 'status' => 'cancelled']);
+        $prCanceled = PurchaseRequest::create(['user_id' => $req2->id, 'document_number' => 'PR-2026-0117-CAN', 'title' => 'Acara Outing Divisi', 'department' => 'Engineering', 'priority' => 'normal', 'plant' => 'Cibitung', 'submission_date' => now()->subDays(2), 'requested_date' => now()->subDays(2), 'need_date' => now()->addDays(30), 'note' => 'Batal diadakan', 'status' => 'cancelled']);
         PurchaseRequestItem::create(['purchase_request_id' => $prCanceled->id, 'item_code' => 'SVC-OUT-01', 'name' => 'Sewa Bus Pariwisata', 'item_name' => 'Sewa Bus Pariwisata', 'quantity' => 2, 'unit' => 'Unit', 'specification' => 'Bus AC 50 Seat']);
 
 
         /* ---------------------------------------------------------------------
            TEST CASE 5: Stress Test UI Rupiah Milyaran (Goods) -> Awaiting Approval
            --------------------------------------------------------------------- */
-        $prWhale = PurchaseRequest::create(['user_id' => $req3->id, 'document_number' => 'PR-2026-0200-WHALE', 'title' => 'Pembelian Lahan Industri', 'department' => 'Maintenance', 'item_type' => 'goods', 'priority' => 'normal', 'plant' => 'Surabaya', 'submission_date' => now()->subDays(1), 'requested_date' => now()->subDays(1), 'need_date' => now()->addDays(90), 'note' => 'Budget Ekspansi Tahunan', 'status' => 'awaiting_approval']);
+        $prWhale = PurchaseRequest::create(['user_id' => $req3->id, 'document_number' => 'PR-2026-0200-WHALE', 'title' => 'Pembelian Lahan Industri', 'department' => 'Maintenance', 'priority' => 'normal', 'plant' => 'Surabaya', 'submission_date' => now()->subDays(1), 'requested_date' => now()->subDays(1), 'need_date' => now()->addDays(90), 'note' => 'Budget Ekspansi Tahunan', 'status' => 'awaiting_approval']);
         PurchaseRequestItem::create(['purchase_request_id' => $prWhale->id, 'item_code' => 'BIG-001', 'name' => 'Tanah Industri 10 Ha', 'item_name' => 'Tanah Industri 10 Ha', 'quantity' => 100000, 'unit' => 'm2', 'specification' => 'Zona Merah Industri']);
         PurchaseRequestItem::create(['purchase_request_id' => $prWhale->id, 'item_code' => 'BIG-002', 'name' => 'Excavator CAT 320', 'item_name' => 'Excavator CAT 320', 'quantity' => 15, 'unit' => 'Unit', 'specification' => 'Tahun pembuatan 2025']);
 
@@ -141,7 +141,7 @@ class DatabaseSeeder extends Seeder
         /* ---------------------------------------------------------------------
            TEST CASE 6: PR Sedang Menunggu Persetujuan Normal (Awaiting Approval)
            --------------------------------------------------------------------- */
-        $prAwaiting = PurchaseRequest::create(['user_id' => $req1->id, 'document_number' => 'PR-2026-0210-WAIT', 'title' => 'Tinta Printer Bulanan', 'department' => 'Operations', 'item_type' => 'goods', 'priority' => 'normal', 'plant' => 'Cikarang', 'submission_date' => now(), 'requested_date' => now(), 'need_date' => now()->addDays(7), 'note' => 'Stock limit menipis', 'status' => 'awaiting_approval']);
+        $prAwaiting = PurchaseRequest::create(['user_id' => $req1->id, 'document_number' => 'PR-2026-0210-WAIT', 'title' => 'Tinta Printer Bulanan', 'department' => 'Operations', 'priority' => 'normal', 'plant' => 'Cikarang', 'submission_date' => now(), 'requested_date' => now(), 'need_date' => now()->addDays(7), 'note' => 'Stock limit menipis', 'status' => 'awaiting_approval']);
         PurchaseRequestItem::create(['purchase_request_id' => $prAwaiting->id, 'item_code' => 'OFF-002', 'name' => 'Tinta Epson 003 Hitam', 'item_name' => 'Tinta Epson 003 Hitam', 'quantity' => 20, 'unit' => 'Botol', 'specification' => 'Black, Original']);
 
 

@@ -4,7 +4,7 @@
  
 <div style="margin-bottom:20px">
     <h1 style="font-size:20px;font-weight:700;color:#111827;margin:0 0 3px">Vendor Selection</h1>
-    <p style="font-size:12.5px;color:#6b7280;margin:0">Pilih vendor. Anda bisa membagi kuantitas ke beberapa vendor jika stok tidak mencukupi.</p>
+    <p style="font-size:12.5px;color:#6b7280;margin:0">Select vendor. Divide the quantity to several vendors if stock is insufficient.</p>
 </div>
  
 {{-- STEP 1: SELECT PR --}}
@@ -47,15 +47,6 @@
         </div>
     </div>
  
-    {{-- Legend --}}
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11.5px;color:#374151">
-        <span style="font-weight:600;color:#6b7280;margin-right:4px">Status Target Qty:</span>
-        <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e"></span> Full Match</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#fde68a;border:1px solid #f59e0b"></span> Partial (Kurang)</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#bfdbfe;border:1px solid #3b82f6"></span> Over (Lebih)</span>
-        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:10px;height:10px;border-radius:2px;background:#fee2e2;border:1px solid #ef4444"></span> Pending / Kosong</span>
-    </div>
- 
     {{-- PR Item Requirements table --}}
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:14px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f3f4f6">
@@ -87,12 +78,12 @@
     {{-- Footer bar --}}
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
         <div>
-            <div style="font-size:12.5px;font-weight:600;color:#111827">Target Qty fulfilled: <span id="footer-sel">0</span> / <span id="footer-total">0</span> items</div>
-            <div style="font-size:11.5px;color:#9ca3af;margin-top:1px">Anda harus memenuhi target Qty semua item untuk melanjutkan</div>
+            <div style="font-size:12.5px;font-weight:600;color:#111827">Target Quantity fulfilled: <span id="footer-sel">0</span> / <span id="footer-total">0</span> items</div>
+            <div style="font-size:11.5px;color:#9ca3af;margin-top:1px">Sistem akan memperingatkan jika Anda submit sebelum semua quantity terpenuhi</div>
         </div>
         <button id="show-result-btn" onclick="showSelectionResult()"
             style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#111827;color:#fff;border-radius:8px;font-size:12.5px;font-weight:600;border:none;cursor:pointer;opacity:.4;pointer-events:none"
-            onmouseover="this.style.opacity='1'" onmouseout="">
+            onmouseover="this.style.opacity='1'">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
             Review & Submit
         </button>
@@ -120,7 +111,7 @@
     {{-- Selected Items table --}}
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:14px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f3f4f6">
-            <div style="font-size:13.5px;font-weight:700;color:#111827">Selected Items (Split PO Details)</div>
+            <div style="font-size:13.5px;font-weight:700;color:#111827">Selected Items</div>
         </div>
         <div style="overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;font-size:12px">
@@ -158,6 +149,29 @@
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             Confirm &amp; Submit to Purchasing
         </button>
+    </div>
+</div>
+
+{{-- MODAL PERINGATAN (WARNING) JIKA ITEM KURANG --}}
+<div id="warning-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)">
+    <div style="background:#fff;border-radius:12px;width:100%;max-width:440px;box-shadow:0 10px 40px rgba(0,0,0,.2);overflow:hidden">
+        <div style="background:#fef2f2;padding:20px;border-bottom:1px solid #fee2e2;display:flex;align-items:center;gap:14px">
+            <div style="width:44px;height:44px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;flex-shrink:0">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <div>
+                <div style="font-size:16px;font-weight:700;color:#991b1b;line-height:1.2">Peringatan Kuantitas</div>
+                <div style="font-size:12.5px;color:#b91c1c;margin-top:2px">Target Qty PR belum sepenuhnya terpenuhi</div>
+            </div>
+        </div>
+        <div style="padding:22px;font-size:13.5px;color:#374151;line-height:1.6">
+            Masih ada item yang kuantitasnya <strong>BELUM TERPENUHI</strong><br>
+            Jika Anda melanjutkan, item yang kurang mungkin harus di-PO kembali secara terpisah nanti. Apakah Anda yakin ingin mengabaikannya dan melanjutkan?
+        </div>
+        <div style="padding:16px 22px;border-top:1px solid #f3f4f6;background:#f9fafb;display:flex;justify-content:flex-end;gap:10px">
+            <button onclick="closeWarningModal()" style="padding:9px 18px;border:1px solid #d1d5db;border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:#374151;cursor:pointer">Batalkan</button>
+            <button onclick="forceShowSelectionResult()" style="padding:9px 18px;background:#ef4444;color:#fff;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;box-shadow:0 4px 6px -1px rgba(239,68,68,.2)">Ya, Tetap Lanjutkan</button>
+        </div>
     </div>
 </div>
  
@@ -203,7 +217,7 @@ const serverVendors = @json($vendors);
  
 /* ─── State ──────────────────────────────────────────────────────────────── */
 let currentPR = null;
-/* Struktur baru selections: { "vendorId_itemId" : { vendor_id, item_id, item_name, unit_price, quantity, unit, subtotal } } */
+/* Struktur selections: { "vendorId_itemId" : { vendor_id, item_id, item_name, unit_price, quantity, unit, subtotal } } */
 let selections = {}; 
  
 /* ─── Vendor mock-offers ─────────────────────────────────────────────────── */
@@ -214,7 +228,6 @@ function mockOffers(prItems, vendors) {
         prItems.forEach(item => {
             const offered = Math.random()>0.1; /* 90% chance vendor offers item */
             if (!offered) return;
-            // Simulasi stok vendor sering tidak cukup
             const qtyOff = Math.random()>0.5 ? item.quantity : Math.floor(Math.random() * (item.quantity - 1)) + 1;
             const basePrice = Math.floor(Math.random()*500+50)*1000;
             offers[v.id].items[item.id] = {
@@ -258,12 +271,11 @@ function backToStep1(){
     currentPR=null; selections={};
 }
  
-/* ─── Requirements table (Auto calc total Qty dari semua vendor yg di split) ─ */
+/* ─── Requirements table ─────────────────────────────────────────────────── */
 function getItemStatus(itemId) {
     const item = currentPR.items.find(i => i.id == itemId);
     let totalSelectedQty = 0;
     
-    // Hitung total Qty yang dibeli dari semua vendor untuk item ini
     for (let key in selections) {
         if (selections[key].item_id == itemId) {
             totalSelectedQty += selections[key].quantity;
@@ -290,7 +302,7 @@ function renderRequirementsTable(){
     }).join('');
 }
  
-/* ─── Vendor cards (Dengan input QTY yang bisa di adjust) ─────────────────── */
+/* ─── Vendor cards ───────────────────────────────────────────────────────── */
 function renderVendorCards(){
     const grid=document.getElementById('vendor-cards-grid');
     grid.innerHTML=serverVendors.map(v=>{
@@ -299,14 +311,25 @@ function renderVendorCards(){
         
         const itemCards=currentPR.items.map(item=>{
             const o=off.items[item.id];
-            if(!o) return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px;margin-bottom:8px">
-                <div style="font-size:12.5px;font-weight:600;color:#111827;margin-bottom:6px">${item.name}</div>
+            if(!o) return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px">
+                <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:6px">${item.name}</div>
                 <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:6px 10px;font-size:12px;color:#b91c1c;font-weight:600;text-align:center">❌ NOT OFFERED</div>
             </div>`;
             
             const selKey = `${v.id}_${item.id}`;
             const isSelected = !!selections[selKey];
-            const buyQty = isSelected ? selections[selKey].quantity : Math.min(o.qty_offered, item.quantity);
+
+            // Hitung Qty yang sudah terpenuhi secara global untuk item ini
+            let totalSelectedQty = 0;
+            for(let key in selections) {
+                if (selections[key].item_id == item.id) totalSelectedQty += selections[key].quantity;
+            }
+            
+            // Kunci checkbox jika item sudah "Full Match" DAN card ini belum di-select
+            const isFullMatch = totalSelectedQty >= item.quantity;
+            const disableSelection = isFullMatch && !isSelected;
+
+            const buyQty = isSelected ? selections[selKey].quantity : Math.min(o.qty_offered, Math.max(1, item.quantity - totalSelectedQty));
             const subtotal = isSelected ? selections[selKey].subtotal : (buyQty * o.unit_price);
             const isBest = isBestPrice(v.id,item.id);
             const priceTag = isBest ? `<span style="padding:2px 5px;border-radius:4px;background:#fef9c3;color:#92400e;font-size:9.5px;font-weight:800;margin-left:4px">BEST</span>` : '';
@@ -315,30 +338,31 @@ function renderVendorCards(){
                 ? `<span style="color:#ef4444;font-weight:700">(Stok hanya ${o.qty_offered})</span>` 
                 : `<span style="color:#10b981;font-weight:700">(Stok Aman)</span>`;
 
-            return `<div style="background:#fff;border:2px solid ${isSelected?'#3b5bdb':'#e5e7eb'};border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:all .15s"
-                onclick="toggleSelect(${v.id}, ${item.id})">
-                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">
-                    <div style="font-size:12.5px;font-weight:600;color:#111827;line-height:1.3">${item.name} <br><span style="font-size:10.5px;font-weight:500">${stokBadge}</span></div>
-                    <input type="checkbox" ${isSelected?'checked':''} onclick="event.stopPropagation(); toggleSelect(${v.id}, ${item.id})" style="width:16px;height:16px;accent-color:#3b5bdb;margin-top:2px">
+            // PERUBAHAN UI: Warna Harga dan Subtotal disamakan logikanya
+            return `<div style="background:#fff;border:2px solid ${isSelected?'#3b5bdb':'#e5e7eb'};border-radius:8px;padding:12px;margin-bottom:10px;cursor:${disableSelection?'not-allowed':'pointer'};opacity:${disableSelection?'0.5':'1'};transition:all .15s"
+                ${disableSelection ? '' : `onclick="toggleSelect(${v.id}, ${item.id})"`}>
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+                    <div style="font-size:14px;font-weight:700;color:#111827;line-height:1.3">${item.name} <br><span style="font-size:11px;font-weight:500;margin-top:2px;display:inline-block">${stokBadge}</span></div>
+                    <input type="checkbox" ${isSelected?'checked':''} ${disableSelection?'disabled':''} onclick="event.stopPropagation(); ${disableSelection ? '' : `toggleSelect(${v.id}, ${item.id})`}" style="width:18px;height:18px;accent-color:#3b5bdb;margin-top:2px;cursor:${disableSelection?'not-allowed':'pointer'}">
                 </div>
-                <div style="font-size:11.5px;color:#374151;display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center">
-                    <span style="color:#9ca3af">Harga</span>
-                    <span style="font-weight:600">${fmt(o.unit_price)}${priceTag}</span>
+                <div style="font-size:11.5px;color:#374151;display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center">
+                    <span style="color:#6b7280;font-weight:500">Harga</span>
+                    <span style="font-weight:600;color:${isSelected?'#111827':'#6b7280'};font-size:12px">${fmt(o.unit_price)}${priceTag}</span>
 
-                    <span style="color:${isSelected?'#3b5bdb':'#9ca3af'};font-weight:${isSelected?'700':'400'}">Qty Beli</span>
-                    <span style="display:flex;align-items:center;gap:4px">
+                    <span style="color:${isSelected?'#3b5bdb':'#6b7280'};font-weight:${isSelected?'700':'500'}">Qty Beli</span>
+                    <span style="display:flex;align-items:center;gap:5px">
                         <input type="number" 
                             onclick="event.stopPropagation()"
                             onchange="updateQty(${v.id}, ${item.id}, this.value)"
                             value="${buyQty}" 
                             min="1" max="${o.qty_offered}"
-                            style="width:55px;padding:3px 6px;border:1px solid ${isSelected?'#3b5bdb':'#d1d5db'};border-radius:4px;font-size:12px;font-weight:600;background:${isSelected?'#eff6ff':'#f9fafb'}"
-                            ${!isSelected ? 'disabled' : ''}>
+                            style="width:55px;padding:4px 6px;border:1px solid ${isSelected?'#3b5bdb':'#d1d5db'};border-radius:4px;font-size:12px;font-weight:600;background:${isSelected?'#eff6ff':'#f9fafb'};cursor:${disableSelection?'not-allowed':'auto'}"
+                            ${!isSelected || disableSelection ? 'disabled' : ''}>
                         <span style="color:#6b7280;font-size:10.5px">/ ${item.quantity} (PR)</span>
                     </span>
 
-                    <span style="color:#9ca3af">Subtotal</span>
-                    <span style="font-weight:700;color:${isSelected?'#111827':'#6b7280'}">${fmt(subtotal)}</span>
+                    <span style="color:#6b7280;font-weight:500">Subtotal</span>
+                    <span style="font-weight:700;color:${isSelected?'#111827':'#6b7280'};font-size:12px">${fmt(subtotal)}</span>
                 </div>
             </div>`;
         }).join('');
@@ -370,14 +394,14 @@ function updateQty(vendorId, itemId, val) {
     if (selections[selKey]) {
         let q = parseInt(val) || 1;
         const max = vendorOffers[vendorId].items[itemId].qty_offered;
-        if (q > max) q = max; // Tidak boleh melebihi stok yang ditawarkan
+        if (q > max) q = max; 
         if (q < 1) q = 1;
 
         selections[selKey].quantity = q;
         selections[selKey].subtotal = q * selections[selKey].unit_price;
 
         renderRequirementsTable();
-        renderVendorCards(); // Re-render untuk update total
+        renderVendorCards(); 
         updateCounts();
     }
 }
@@ -392,17 +416,19 @@ function toggleSelect(vendorId, itemId){
         const item = currentPR.items.find(i => i.id == itemId);
         const offer = vendorOffers[vendorId].items[itemId];
         if(item && offer) {
-            // Hitung berapa Qty yang sudah dibeli dari vendor LAIN untuk item ini
             let qtyAlreadySelected = 0;
             for(let key in selections) {
                 if (selections[key].item_id == itemId) qtyAlreadySelected += selections[key].quantity;
             }
             
-            // Hitung sisa kebutuhan. Jika masih butuh, ambil sisa. Jika sudah pas, default 1.
+            // Proteksi berlapis, cegah select jika item sudah terpenuhi
+            if (qtyAlreadySelected >= item.quantity) {
+                return;
+            }
+
             let remainingNeed = item.quantity - qtyAlreadySelected;
             if (remainingNeed < 1) remainingNeed = 1; 
 
-            // Cek apakah vendor ini sanggup mensupply sisa kebutuhan, jika tidak ambil max stoknya
             let defaultBuyQty = Math.min(remainingNeed, offer.qty_offered);
 
             selections[selKey] = {
@@ -418,7 +444,7 @@ function toggleSelect(vendorId, itemId){
         }
     }
     renderRequirementsTable();
-    renderVendorCards();
+    renderVendorCards(); 
     updateCounts();
 }
  
@@ -432,7 +458,6 @@ function updateCounts(){
             for(let key in selections) {
                 if(selections[key].item_id == item.id) t += selections[key].quantity;
             }
-            // Jika total Qty yang di split sudah menutupi target PR, anggap "Met"
             if (t >= item.quantity) itemsMet++;
         });
     }
@@ -441,19 +466,20 @@ function updateCounts(){
     document.getElementById('footer-sel').textContent = itemsMet;
     const btn = document.getElementById('show-result-btn');
     
-    // Tombol submit HANYA aktif jika SEMUA baris target item sudah terpenuhi
-    if(itemsMet >= tot && tot > 0) {
+    // Tombol submit selalu aktif asalkan minimal 1 item ada yang terpilih. 
+    // Validasinya dipindah ke saat tombol diklik.
+    if(Object.keys(selections).length > 0) {
         btn.style.opacity='1'; btn.style.pointerEvents='auto'; btn.style.background='#16a34a';
         btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Review & Submit`;
     } else {
         btn.style.opacity='.4'; btn.style.pointerEvents='none'; btn.style.background='#111827';
+        btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg> Review & Submit`;
     }
 }
  
 function updateVendorTotals(){
     serverVendors.forEach(v=>{
         let t=0;
-        // Total Quote tetap menampilkan potensi maksimal semua barang yang ditawarkan vendor
         currentPR.items.forEach(item=>{
             const o = vendorOffers[v.id]?.items[item.id];
             if(o) t += (o.qty_offered * o.unit_price);
@@ -463,15 +489,46 @@ function updateVendorTotals(){
     });
 }
  
-/* ─── Show result ────────────────────────────────────────────────────────── */
-function showSelectionResult(){
-    if(!currentPR)return;
+/* ─── Pengecekan & Render Hasil Akhir ────────────────────────────────────── */
+function showSelectionResult() {
+    if (!currentPR) return;
+
+    // VALIDASI JIKA TARGET QTY MASIH KURANG
+    let itemsMet = 0;
+    currentPR.items.forEach(item => {
+        let t = 0;
+        for(let key in selections) {
+            if(selections[key].item_id == item.id) t += selections[key].quantity;
+        }
+        if (t >= item.quantity) itemsMet++;
+    });
+
+    // Jika masih ada item yang kurang, Tampilkan Custom Modal Warning
+    if (itemsMet < currentPR.items.length) {
+        document.getElementById('warning-modal').style.display = 'flex';
+    } else {
+        // Jika sudah terpenuhi semua, langsung ke workspace hasil
+        renderResultWorkspace();
+    }
+}
+
+/* ─── Fungsi Logika Navigasi Modal Warning ───────────────────────────────── */
+function closeWarningModal() {
+    document.getElementById('warning-modal').style.display = 'none';
+}
+
+function forceShowSelectionResult() {
+    closeWarningModal();
+    renderResultWorkspace();
+}
+
+function renderResultWorkspace() {
     document.getElementById('selection-workspace').style.display='none';
     document.getElementById('result-workspace').style.display='block';
  
     document.getElementById('res-pr-label').textContent='Summary Split PO untuk '+currentPR.document_number;
  
-    /* Selected Items table - Di list 1 per 1 agar Split PO terlihat jelas */
+    /* Selected Items table */
     let grandTotal=0;
     let rowNum=1;
     
@@ -496,7 +553,7 @@ function showSelectionResult(){
     document.getElementById('selected-items-tbody').innerHTML = itemsArr;
     document.getElementById('grand-total-cell').textContent = fmt(grandTotal);
  
-    /* Vendor summary cards (Grouping by Vendor) */
+    /* Vendor summary cards */
     const vSummaries={};
     Object.values(selections).forEach(s => {
         const v = serverVendors.find(x => x.id == s.vendor_id) || {};
@@ -529,7 +586,6 @@ function submitToServer(){
     const payload={
         pr_id:currentPR.id,
         selection_notes:notes,
-        // Konversi selections Object kembali ke Array untuk dikirim ke Backend
         selections: Object.values(selections).map(s => ({
             vendor_id: s.vendor_id,
             item_id: s.item_id,
@@ -549,7 +605,6 @@ function submitToServer(){
         document.getElementById('popup-pr').textContent=data.pr_number||currentPR.document_number;
         document.getElementById('success-popup').style.display='flex';
     }).catch(()=>{
-        /* fallback */
         closeSubmitModal();
         document.getElementById('popup-pr').textContent=currentPR.document_number;
         document.getElementById('success-popup').style.display='flex';
@@ -562,7 +617,7 @@ function closeSuccess(){
 }
  
 /* ─── Overlay close ──────────────────────────────────────────────────────── */
-['submit-modal','success-popup'].forEach(id=>{
+['warning-modal', 'submit-modal', 'success-popup'].forEach(id=>{
     document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
 });
 </script>
