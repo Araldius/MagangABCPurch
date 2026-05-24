@@ -112,8 +112,8 @@
     </div>
     <div class="card-body">
         <div style="display:flex;gap:8px;margin-bottom:20px;">
-            <button type="button" id="tab-goods" class="tab-btn tab-active" onclick="setTab('goods')">🛒 Goods (Purchase Request)</button>
-            <button type="button" id="tab-service" class="tab-btn" onclick="setTab('service')">🔧 Service (Service Request)</button>
+            <button type="button" id="tab-goods" class="tab-btn tab-active" onclick="setTab('goods')">🛒 Goods</button>
+            <button type="button" id="tab-service" class="tab-btn" onclick="setTab('service')">🔧 Service</button>
         </div>
 
         <div id="goods-panel">

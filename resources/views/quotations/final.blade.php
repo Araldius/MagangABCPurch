@@ -10,7 +10,6 @@
     <span class="badge badge-vendor" style="font-size:13px;padding:6px 14px;">Final Stage</span>
 </div>
 
-{{-- Summary --}}
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
     <div class="stat-card">
         <div class="stat-label">No. RFQ</div>
@@ -30,8 +29,6 @@
 
 <form action="{{ route('quotations.storeFinal', $rfq) }}" method="post">
     @csrf
-
-    {{-- Item Pricing Table --}}
     <div class="card" style="margin-bottom:20px;">
         <div class="card-header">
             <div>
@@ -58,29 +55,17 @@
                     <tr>
                         <td class="text-muted text-sm">{{ $loop->iteration }}</td>
                         <td>
-                            {{-- DIUBAH MENJADI item_name DAN item_id --}}
-                            <div style="font-weight:600;">{{ $item->item_name }}</div>
-                            <div class="td-sub">{{ $item->item_id }}</div>
+                            <div style="font-weight:600;">{{ $item->item_name ?? $item->name }}</div>
+                            <div class="td-sub">{{ $item->item_id ?? $item->item_code }}</div>
                         </td>
                         <td class="text-muted text-sm">{{ $item->specification ?? '—' }}</td>
                         <td style="font-weight:700;text-align:center;">{{ $item->quantity }}</td>
                         <td class="text-muted">{{ $item->unit }}</td>
                         <td>
-                            <input type="number" step="1" min="0"
-                                   name="items[{{ $index }}][offered_price_per_item]"
-                                   class="form-control price-input"
-                                   data-row="{{ $index }}"
-                                   value="{{ old('items.'.$index.'.offered_price_per_item', optional($details->get($item->id))->offered_price_per_item) }}"
-                                   placeholder="0"
-                                   required>
+                            <input type="number" step="1" min="0" name="items[{{ $index }}][offered_price_per_item]" class="form-control price-input" data-row="{{ $index }}" value="{{ old('items.'.$index.'.offered_price_per_item', optional($details->get($item->id))->offered_price_per_item) }}" placeholder="0" required>
                         </td>
                         <td>
-                            <input type="number" min="1"
-                                   name="items[{{ $index }}][offered_quantity]"
-                                   class="form-control qty-input"
-                                   data-row="{{ $index }}"
-                                   value="{{ old('items.'.$index.'.offered_quantity', $item->quantity) }}"
-                                   required>
+                            <input type="number" min="1" name="items[{{ $index }}][offered_quantity]" class="form-control qty-input" data-row="{{ $index }}" value="{{ old('items.'.$index.'.offered_quantity', $item->quantity) }}" required>
                         </td>
                         <td style="font-weight:700;" id="subtotal-{{ $index }}">—</td>
                         <input type="hidden" name="items[{{ $index }}][purchase_request_item_id]" value="{{ $item->id }}">
@@ -91,7 +76,6 @@
         </div>
     </div>
 
-    {{-- Footer: Notes + Total --}}
     <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;margin-bottom:20px;">
         <div class="card">
             <div class="card-header"><div class="card-title">Catatan Final</div></div>
@@ -108,15 +92,10 @@
                 </div>
                 <div class="form-group" style="margin-bottom:16px;">
                     <label class="form-label">Total Manual (Override)</label>
-                    <input type="number" step="1" name="total_price" id="totalPriceInput"
-                           class="form-control"
-                           value="{{ $quotation->total_price ?? old('total_price') }}"
-                           placeholder="0" required>
+                    <input type="number" step="1" name="total_price" id="totalPriceInput" class="form-control" value="{{ $quotation->total_price ?? old('total_price') }}" placeholder="0" required>
                     <div class="form-hint">Nilai ini yang akan tersimpan. Auto-hitung dari tabel di atas.</div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;">
-                    ✓ Submit Quotation Final
-                </button>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;">✓ Submit Quotation Final</button>
             </div>
         </div>
     </div>
@@ -127,10 +106,7 @@
 </div>
 
 <script>
-function formatRp(val) {
-    return 'Rp ' + Math.round(val).toLocaleString('id-ID');
-}
-
+function formatRp(val) { return 'Rp ' + Math.round(val).toLocaleString('id-ID'); }
 function recalcAll() {
     let grand = 0;
     document.querySelectorAll('.price-input').forEach(function(inp) {
@@ -145,11 +121,7 @@ function recalcAll() {
     document.getElementById('grandTotal').textContent = formatRp(grand);
     document.getElementById('totalPriceInput').value = Math.round(grand);
 }
-
-document.querySelectorAll('.price-input, .qty-input').forEach(function(inp) {
-    inp.addEventListener('input', recalcAll);
-});
-
+document.querySelectorAll('.price-input, .qty-input').forEach(function(inp) { inp.addEventListener('input', recalcAll); });
 window.addEventListener('DOMContentLoaded', recalcAll);
 </script>
 @endsection

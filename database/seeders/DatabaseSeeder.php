@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
         SelectionItem::create(['vendor_selection_id' => $vs1->id, 'quotation_summary_id' => $qs1->id, 'final_price_per_item' => 30000, 'final_quantity' => 50]);
 
         /* TEST CASE 2: Split PO / Multi-Vendor */
-        $prSplit = PurchaseRequest::create(['user_id' => $req2->id, 'document_number' => 'PR-2026-0105-SPLIT', 'title' => 'Peralatan Pabrik Kompleks', 'department' => 'Engineering', 'priority' => 'high', 'plant' => 'Cibitung', 'submission_date' => now()->subDays(30), 'requested_date' => now()->subDays(29), 'need_date' => now()->addDays(10), 'note' => 'Harus dibagi ke vendor termurah', 'status' => 'completed']);
+        $prSplit = PurchaseRequest::create(['user_id' => $req3->id, 'document_number' => 'PR-2026-0105-SPLIT', 'title' => 'Peralatan Pabrik Kompleks', 'department' => 'Maintenance', 'priority' => 'high', 'plant' => 'Cibitung', 'submission_date' => now()->subDays(30), 'requested_date' => now()->subDays(29), 'need_date' => now()->addDays(10), 'note' => 'Harus dibagi ke vendor termurah', 'status' => 'in_process']);
         PurchaseRequestItem::create(['purchase_request_id' => $prSplit->id, 'item_id' => 'TOL-001', 'item_name' => 'Bor Listrik Bosch', 'quantity' => 10, 'unit' => 'Unit', 'specification' => 'Bosch GSB 550 Professional', 'item_notes' => null]);
         PurchaseRequestItem::create(['purchase_request_id' => $prSplit->id, 'item_id' => 'TOL-002', 'item_name' => 'Mata Bor Set', 'quantity' => 20, 'unit' => 'Set', 'specification' => 'HSS-R Metal Drill Bits', 'item_notes' => null]);
 

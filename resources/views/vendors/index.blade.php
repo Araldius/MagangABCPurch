@@ -295,7 +295,7 @@ function renderRequirementsTable(){
         return `<tr style="border-bottom:1px solid #f3f4f6">
             <td style="padding:11px 16px;color:#6b7280">${i+1}</td>
             <td style="padding:11px 16px;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_id||'—'}</td>
-            <td style="padding:11px 16px;font-weight:500;color:#111827">${item.name}</td>
+            <td style="padding:11px 16px;font-weight:500;color:#111827">${item.item_name}</td>
             <td style="padding:11px 16px;font-weight:600;text-align:right">${item.quantity} ${item.unit}</td>
             <td style="padding:11px 16px"><span id="status-${item.id}" style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:${bg};font-size:11.5px;font-weight:600;color:${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dot}"></span>${label}</span></td>
         </tr>`;
@@ -312,7 +312,7 @@ function renderVendorCards(){
         const itemCards=currentPR.items.map(item=>{
             const o=off.items[item.id];
             if(!o) return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px">
-                <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:6px">${item.name}</div>
+                <div style="font-size:14px;font-weight:700;color:#111827;margin-bottom:6px">${item.item_name}</div>
                 <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:6px 10px;font-size:12px;color:#b91c1c;font-weight:600;text-align:center">❌ NOT OFFERED</div>
             </div>`;
             
@@ -342,7 +342,7 @@ function renderVendorCards(){
             return `<div style="background:#fff;border:2px solid ${isSelected?'#3b5bdb':'#e5e7eb'};border-radius:8px;padding:12px;margin-bottom:10px;cursor:${disableSelection?'not-allowed':'pointer'};opacity:${disableSelection?'0.5':'1'};transition:all .15s"
                 ${disableSelection ? '' : `onclick="toggleSelect(${v.id}, ${item.id})"`}>
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
-                    <div style="font-size:14px;font-weight:700;color:#111827;line-height:1.3">${item.name} <br><span style="font-size:11px;font-weight:500;margin-top:2px;display:inline-block">${stokBadge}</span></div>
+                    <div style="font-size:14px;font-weight:700;color:#111827;line-height:1.3">${item.item_name} <br><span style="font-size:11px;font-weight:500;margin-top:2px;display:inline-block">${stokBadge}</span></div>
                     <input type="checkbox" ${isSelected?'checked':''} ${disableSelection?'disabled':''} onclick="event.stopPropagation(); ${disableSelection ? '' : `toggleSelect(${v.id}, ${item.id})`}" style="width:18px;height:18px;accent-color:#3b5bdb;margin-top:2px;cursor:${disableSelection?'not-allowed':'pointer'}">
                 </div>
                 <div style="font-size:11.5px;color:#374151;display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center">

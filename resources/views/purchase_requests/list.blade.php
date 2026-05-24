@@ -72,7 +72,7 @@
                     <td style="padding:13px 20px">
                         <span style="font-family:'Courier New',monospace;font-size:12px;font-weight:600;color:#111827">{{ $pr->display_doc }}</span>
                         @if($pr->type === 'service')
-                            <span style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:4px;background:#e0e7ff;color:#3730a3;font-size:10px;font-weight:700;">JASA</span>
+                            <span style="display:inline-block;margin-left:6px;padding:2px 6px;border-radius:4px;background:#e0e7ff;color:#3730a3;font-size:10px;font-weight:700;">SERVICE</span>
                         @endif
                     </td>
                     <td style="padding:13px 14px;max-width:200px">
@@ -128,7 +128,6 @@
 </div>
  
 <script>
-// Menggunakan display_doc sebagai ID unik untuk modal
 const allPRs=@json($allRequests->keyBy('display_doc')->toArray());
 const isPurchasing={{ $isPurchasing?'true':'false' }};
 const statusCfg={
@@ -193,14 +192,13 @@ function openPRDetail(docId){
     document.getElementById('detail-title').textContent = pr.display_title || 'Request Detail';
     document.getElementById('detail-sub').textContent = (pr.display_doc||'') + ' | ' + (pr.plant||'');
     
-    // Logika Pemisahan Render Item untuk GOODS vs SERVICE
     let itemRows = '';
     if (pr.type === 'goods') {
         const items = pr.items || [];
         itemRows = items.map((item,i)=>`<tr>
             <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#6b7280">${i+1}</td>
-            <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_id||'—'}</td>
-            <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-weight:500;color:#111827">${item.item_name}</td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_id||item.item_code||'—'}</td>
+            <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-weight:500;color:#111827">${item.item_name || item.name || '—'}</td>
             <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-size:11.5px;color:#6b7280">${item.specification||'—'}</td>
             <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#374151">${item.quantity}</td>
             <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#374151">${item.unit}</td>
@@ -217,7 +215,7 @@ function openPRDetail(docId){
                 itemRows += `<tr>
                     <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#6b7280">${counter++}</td>
                     <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-family:'Courier New',monospace;font-size:11.5px;color:#9ca3af;font-weight:600">—</td>
-                    <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-weight:500;color:#111827">${item.item_name}</td>
+                    <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-weight:500;color:#111827">${item.item_name || item.name || '—'}</td>
                     <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-size:11.5px;color:#6b7280">${item.specification||'—'}</td>
                     <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#374151">${item.quantity}</td>
                     <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#374151">${item.unit}</td>
