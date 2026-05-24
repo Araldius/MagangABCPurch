@@ -27,44 +27,58 @@
 .flex-between  { display: flex; align-items: center; justify-content: space-between; }
 .form-row      { display: grid; gap: 16px; }
 .form-row-2    { grid-template-columns: 1fr 1fr; }
-.form-group    { display: flex; flex-direction: column; }
+.form-group    { display: flex; flex-direction: column; margin-bottom: 16px; }
 .form-label    { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
 .req           { color: var(--req-color); margin-left: 2px; }
 .form-control  { width: 100%; box-sizing: border-box; padding: 8px 12px; font-size: 13.5px; border: 1px solid var(--border-strong); border-radius: 8px; background: #fff; color: var(--text); outline: none; }
 .form-control:focus  { border-color: #6366f1; box-shadow: 0 0 0 3px rgb(99 102 241/.12); }
-.mt-3 { margin-top: 16px; }
+.mt-2 { margin-top: 8px; }
 .mt-4 { margin-top: 24px; }
 .mb-2 { margin-bottom: 8px; }
-.mb-3 { margin-bottom: 16px; }
-.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer; border: 1px solid transparent; text-decoration: none; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer; border: 1px solid transparent; text-decoration: none; }
 .btn-primary  { background: #111827; color: #fff; }
 .btn-primary:hover { background: #1f2937; }
 .btn-outline  { background: #fff; color: var(--text); border-color: var(--border-strong); }
 .btn-outline:hover { background: #f9fafb; }
 .btn-sm       { padding: 6px 14px; font-size: 12.5px; border-radius: 7px; }
 
-/* Custom Nested Jobs UI */
-.job-container { border: 1px solid var(--border); padding: 16px; border-radius: 10px; margin-bottom: 16px; background: #fafafa; }
-.job-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; gap: 16px; }
-.item-container { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+/* Tables */
 .item-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .item-table th { text-align: left; padding: 8px; color: var(--text-muted); border-bottom: 1px solid var(--border); font-weight: 600; font-size: 11px; text-transform: uppercase; }
-.item-table td { padding: 6px 4px; border-bottom: 1px solid #f3f4f6; }
+.item-table td { padding: 8px 6px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
 
-/* Modal & Tabs */
+/* Modals */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
 .modal-overlay.open { display: flex; }
 .modal { background: #fff; border-radius: 14px; width: 100%; max-width: 560px; display: flex; flex-direction: column; overflow: hidden; }
-.modal-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+.modal-xl { max-width: 850px; }
+.modal-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
 .modal-title  { font-size: 15px; font-weight: 700; }
 .modal-desc   { font-size: 12.5px; color: var(--text-muted); }
-.modal-body   { padding: 18px 20px; overflow-y: auto; max-height: 60vh; }
+.modal-body   { padding: 20px; overflow-y: auto; max-height: 65vh; }
 .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
 .modal-close  { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 18px; }
+
+/* Tabs & UI Blocks */
 .tab-btn { padding:7px 18px;border-radius:8px;border:1px solid var(--border);font-size:13.5px;font-weight:600;cursor:pointer;background:white;color:var(--text-muted); }
 .tab-btn.tab-active { background:#111827;color:white;border-color:#111827; }
-</style>
+.item-option { padding:12px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--border);transition:background .1s; margin-bottom: 6px; }
+.item-option:hover { background:#f9fafb; }
+.item-option.selected { background:var(--primary-light);border-color:var(--primary); }
+.item-option-name { font-size:13.5px;font-weight:600;color:var(--text); }
+.item-option-desc { font-size:12px;color:var(--text-muted); margin-top: 4px;}
 
+/* Service Hierarchy Specific UI */
+.modal-job-block { border: 1px solid var(--border); border-radius: 10px; background: #fafafa; padding: 16px; margin-bottom: 16px; }
+.modal-job-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; gap: 16px; }
+.main-svc-container { margin-bottom: 12px; padding: 10px; border: 1px solid #f3f4f6; border-radius: 8px; background: #fff; }
+.main-job-title { font-weight: 600; color: #374151; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.nested-items-list { list-style: none; padding-left: 18px; margin: 0; font-size: 12.5px; color: var(--text-muted); }
+.nested-items-list li { padding: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #f3f4f6; }
+.nested-items-list li:last-child { border-bottom: none; }
+</style>
 <div class="page-header">
     <div class="page-title">New Request</div>
     <div class="page-desc">Fill in the form below to submit a new procurement/service request.</div>
@@ -85,9 +99,9 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="form-row form-row-2">
-            <div class="form-group"><label class="form-label">Requested Date <span class="req">*</span></label><input class="form-control" type="date" name="requested_date" required></div>
-            <div class="form-group">
+        <div class="form-row form-row-2" style="margin-bottom:0;">
+            <div class="form-group" style="margin-bottom:0;"><label class="form-label">Requested Date <span class="req">*</span></label><input class="form-control" type="date" name="requested_date" required></div>
+            <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">Plant <span class="req">*</span></label>
                 <select class="form-control" name="plant" required>
                     <option value="">— Select Plant —</option>
@@ -117,11 +131,11 @@
         </div>
 
         <div id="goods-panel">
-            <div class="form-row form-row-2 mb-3">
+            <div class="form-row form-row-2">
                 <div class="form-group"><label class="form-label">Document Number <span class="req">*</span></label><input class="form-control" name="document_number" value="PR-{{ now()->format('Ymd') }}-XXX" id="goods-doc" required></div>
                 <div class="form-group"><label class="form-label">Title / Project Name <span class="req">*</span></label><input class="form-control" name="title" id="goods-title" placeholder="e.g. Pengadaan ATK Bulanan" required></div>
             </div>
-            <div class="form-group mb-3"><label class="form-label">Department</label><input class="form-control" name="department" value="{{ Auth::user()->department ?? '' }}"></div>
+            <div class="form-group"><label class="form-label">Department</label><input class="form-control" name="department" value="{{ Auth::user()->department ?? '' }}"></div>
             
             <div class="flex-between mb-2 mt-4">
                 <label class="form-label mb-0" id="goods-count-label">0 item(s) added</label>
@@ -135,7 +149,7 @@
                             <th style="width:110px;">ITEM ID</th>
                             <th>ITEM NAME</th>
                             <th style="width:70px;">QTY</th>
-                            <th style="width:80px;">UNIT</th>
+                            <th style="width:100px;">UNIT</th>
                             <th>SPECIFICATION</th>
                             <th>NOTES</th>
                             <th style="width:40px;"></th>
@@ -149,11 +163,26 @@
         </div>
 
         <div id="service-panel" style="display:none;">
-            <div class="form-group mb-4"><label class="form-label">Service Name / Project <span class="req">*</span></label><input class="form-control" name="service_name" id="svc-name" placeholder="e.g. Renovasi Atap Gudang Utama"></div>
-            <div id="jobs-container"></div>
-            <button type="button" class="btn btn-outline btn-sm mt-2" onclick="addJob()" style="border: 1px dashed var(--primary); color: var(--primary); width: 100%; justify-content: center; padding: 12px;">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg> Add New Job / Scope
-            </button>
+            <div class="flex-between mb-2 mt-2">
+                <label class="form-label mb-0" id="service-count-label">0 service(s) added</label>
+                <button type="button" class="btn btn-primary btn-sm" onclick="openSvcListModal()">+ Add Service</button>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+                <table class="item-table" style="margin-bottom:0;">
+                    <thead style="background:#f9fafb;">
+                        <tr>
+                            <th style="width:40px;">NO</th>
+                            <th style="width:220px;">SERVICE NAME</th>
+                            <th>JOB DESCRIPTION & REQUIRED ITEMS</th>
+                            <th style="width:50px; text-align:center;">ACT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="service-tbody">
+                        <tr><td colspan="4" style="text-align:center;padding:28px 16px;color:#9ca3af;">No services added yet. Click "+ Add Service" to begin.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="hidden-service-inputs"></div>
         </div>
     </div>
 </div>
@@ -175,7 +204,7 @@
             <button type="button" class="btn btn-outline btn-sm" onclick="openNewItemModal()" style="width:100%; justify-content:center;">+ Create New Item ID</button>
         </div>
         <div class="modal-body" style="padding-top: 12px;">
-            <div id="item-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+            <div id="item-list" style="display:flex;flex-direction:column;"></div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline" onclick="closeItemModal()">Cancel</button>
@@ -191,14 +220,16 @@
             <button class="modal-close" onclick="closeNewItemModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <div class="form-row form-row-2 mb-3">
+            <div class="form-row form-row-2">
                 <div class="form-group"><label class="form-label">Item Name <span class="req">*</span></label><input class="form-control" id="new-item-name"></div>
                 <div class="form-group"><label class="form-label">Unit <span class="req">*</span></label>
-                    <select class="form-control" id="new-item-unit"><option>Roll</option><option>Pcs</option><option>Unit</option><option>Meter</option><option>Kg</option><option>Set</option><option>Box</option></select>
+                    <select class="form-control" id="new-item-unit">
+                        <option>Pcs</option><option>Roll</option><option>Unit</option><option>Meter</option><option>Kg</option><option>Set</option><option>Box</option><option>Lot</option><option>Jasa</option>
+                    </select>
                 </div>
             </div>
-            <div class="form-group mb-3"><label class="form-label">Specification</label><textarea class="form-control" id="new-item-spec"></textarea></div>
-            <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="new-item-notes"></textarea></div>
+            <div class="form-group"><label class="form-label">Specification</label><textarea class="form-control" id="new-item-spec"></textarea></div>
+            <div class="form-group" style="margin-bottom:0;"><label class="form-label">Notes</label><textarea class="form-control" id="new-item-notes"></textarea></div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline" onclick="closeNewItemModal()">Cancel</button>
@@ -207,29 +238,73 @@
     </div>
 </div>
 
-<style>
-.item-option { padding:12px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--border);transition:background .1s; }
-.item-option:hover { background:#f9fafb; }
-.item-option.selected { background:var(--primary-light);border-color:var(--primary); }
-.item-option-name { font-size:13.5px;font-weight:600;color:var(--text); }
-.item-option-desc { font-size:12px;color:var(--text-muted); }
-</style>
+<div class="modal-overlay" id="svc-list-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div><div class="modal-title">Select Service</div><div class="modal-desc">Search from previous service templates</div></div>
+            <button class="modal-close" onclick="closeSvcListModal()">&times;</button>
+        </div>
+        <div style="padding: 16px 20px 12px; border-bottom: 1px solid var(--border); background: #fafafa;">
+            <input class="form-control mb-2" id="svc-search" placeholder="Search services..." oninput="filterSvcList(this.value)">
+            <button type="button" class="btn btn-outline btn-sm" onclick="openNewSvcModal()" style="width:100%; justify-content:center;">+ Create New Service Form</button>
+        </div>
+        <div class="modal-body" style="padding-top: 12px;">
+            <div id="svc-list-container" style="display:flex;flex-direction:column;"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeSvcListModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="addSelectedSvcTemplate()">Add Selected</button>
+        </div>
+    </div>
+</div>
 
+<div class="modal-overlay" id="new-svc-modal">
+    <div class="modal modal-xl">
+        <div class="modal-header">
+            <div><div class="modal-title">Create New Service</div><div class="modal-desc">Define service name, scopes of work, and specific items</div></div>
+            <button class="modal-close" onclick="closeNewSvcModal()">&times;</button>
+        </div>
+        <div class="modal-body" style="background:#e5e7eb; padding:16px;">
+            <div class="form-group mb-4" style="background:#fff; padding:16px; border:1px solid var(--border); border-radius:8px;">
+                <label class="form-label" style="font-size:14px;">Service Name / Category Title <span class="req">*</span></label>
+                <input class="form-control" id="modal-service-name" placeholder="e.g. Perbaikan Sistem Kelistrikan">
+            </div>
+            <div id="modal-jobs-container"></div>
+            <button type="button" class="btn btn-outline btn-sm" onclick="addJobBlockToModal()" style="border: 1px dashed var(--primary); color: var(--primary); width: 100%; justify-content: center; padding: 12px; background:#fff;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg> Add Job Description (Scope of Work)
+            </button>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeNewSvcModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="commitModalServiceToMainTable()">Save Service & Add</button>
+        </div>
+    </div>
+</div>
 <script>
+const unitOptionsHtml = `
+    <option value="Pcs">Pcs</option>
+    <option value="Roll">Roll</option>
+    <option value="Unit">Unit</option>
+    <option value="Meter">Meter</option>
+    <option value="Kg">Kg</option>
+    <option value="Set">Set</option>
+    <option value="Box">Box</option>
+    <option value="Lot">Lot</option>
+    <option value="Jasa">Jasa</option>
+`;
+
 function setTab(t) {
     document.getElementById('item_type_field').value = t;
     document.getElementById('tab-goods').classList.toggle('tab-active', t==='goods');
     document.getElementById('tab-service').classList.toggle('tab-active', t==='service');
     document.getElementById('goods-panel').style.display   = t==='goods'   ? '' : 'none';
     document.getElementById('service-panel').style.display = t==='service' ? '' : 'none';
-    
     document.getElementById('goods-doc').required = (t === 'goods');
     document.getElementById('goods-title').required = (t === 'goods');
-    document.getElementById('svc-name').required = (t === 'service');
 }
 
-// -- GOODS LOGIC --
-const catalog = @json($existingItems);
+/* GOODS LOGIC */
+const catalog = @json($existingItems ?? []);
 let selectedItemId = null, addedItems = [], itemCounter = 0;
 
 function filterItems(q) { renderItemList(q.toLowerCase()); }
@@ -269,80 +344,211 @@ function renderGoodsTable(){
     if(!addedItems.length){t.innerHTML='<tr><td colspan="8" style="text-align:center;padding:28px 16px;color:#9ca3af;">No items added yet.</td></tr>';return;}
     t.innerHTML=addedItems.map((it,i)=>`<tr>
         <td>${i+1}</td>
-        <td style="font-family: monospace; font-weight: 600; color: var(--primary);">
-            ${it.id}<input type="hidden" name="items[${it.idx}][item_id]" value="${it.id}">
-        </td>
+        <td style="font-family: monospace; font-weight: 600; color: var(--primary);">${it.id}<input type="hidden" name="items[${it.idx}][item_id]" value="${it.id}"></td>
         <td><input class="form-control" name="items[${it.idx}][item_name]" value="${it.name}" required></td>
         <td><input type="number" class="form-control" name="items[${it.idx}][quantity]" value="${it.qty}" min="1" required></td>
-        <td><input class="form-control" name="items[${it.idx}][unit]" value="${it.unit}" required></td>
+        <td><select class="form-control" name="items[${it.idx}][unit]" required>${unitOptionsHtml}</select></td>
         <td><input class="form-control" name="items[${it.idx}][specification]" value="${it.spec||''}"></td>
         <td><input class="form-control" name="items[${it.idx}][item_notes]" value="${it.notes||''}"></td>
         <td style="text-align:center;"><button type="button" onclick="removeGoods(${it.idx})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:18px;">&times;</button></td>
     </tr>`).join('');
+    addedItems.forEach((it) => { document.querySelector(`select[name="items[${it.idx}][unit]"]`).value = it.unit; });
 }
 
-// -- SERVICE LOGIC --
-let sJobs = [], jobIdCounter = 0, itemIdCounter = 0;
-function addJob() { sJobs.push({ jId: jobIdCounter++, desc: '', items: [] }); renderServiceJobs(); }
-function removeJob(jId) { sJobs = sJobs.filter(j => j.jId !== jId); renderServiceJobs(); }
-function addServiceItem(jId) {
-    const job = sJobs.find(j => j.jId === jId);
-    if (job) { job.items.push({ iId: itemIdCounter++, name: '', qty: 1, unit: 'm2', spec: '' }); renderServiceJobs(); }
+/* SERVICE LOGIC */
+const existingServices = [
+    { id: 'SRV-01', service_name: 'Overhaul Mesin Produksi A', jobs: [{description: 'Membongkar Core Engine', items: [{name: 'Seal Gasket', qty: 2, unit: 'Pcs', spec: 'Karet Viton'}]}] },
+    { id: 'SRV-02', service_name: 'Renovasi Fasilitas Kantor', jobs: [{description: 'Pengecatan Ruang IT', items: [{name: 'Cat Tembok Putih', qty: 2, unit: 'Box', spec: '25 KG'}]}] }
+];
+
+let mainServicesData = []; 
+let selectedSvcTemplateId = null;
+let modalJobsList = [];
+let modalJobIdCounter = 0;
+let modalItemIdCounter = 0;
+
+function filterSvcList(q) { renderSvcSelectionList(q.toLowerCase()); }
+function renderSvcSelectionList(q='') {
+    const filtered = existingServices.filter(s => !q || s.service_name.toLowerCase().includes(q));
+    document.getElementById('svc-list-container').innerHTML = filtered.map(s => `
+        <div class="item-option ${selectedSvcTemplateId===s.id?'selected':''}" onclick="selectSvcTemplate('${s.id}')">
+            <div class="item-option-name">${s.service_name}</div>
+            <div class="item-option-desc">Contains ${s.jobs.length} job scope(s)</div>
+        </div>`).join('');
 }
-function removeServiceItem(jId, iId) {
-    const job = sJobs.find(j => j.jId === jId);
-    if (job) { job.items = job.items.filter(i => i.iId !== iId); renderServiceJobs(); }
+function selectSvcTemplate(id) { selectedSvcTemplateId=id; renderSvcSelectionList(document.getElementById('svc-search').value.toLowerCase()); }
+function openSvcListModal() { selectedSvcTemplateId=null; document.getElementById('svc-search').value=''; renderSvcSelectionList(); document.getElementById('svc-list-modal').classList.add('open'); }
+function closeSvcListModal() { document.getElementById('svc-list-modal').classList.remove('open'); }
+function addSelectedSvcTemplate() {
+    if(!selectedSvcTemplateId) { alert('Please select a template.'); return; }
+    const template = existingServices.find(x => x.id === selectedSvcTemplateId);
+    if(template) { mainServicesData.push(JSON.parse(JSON.stringify(template))); renderMainServicesTable(); closeSvcListModal(); }
 }
-function updateJobDesc(jId, val) { sJobs.find(j => j.jId === jId).desc = val; }
-function updateSvcItem(jId, iId, field, val) { 
-    const j = sJobs.find(j => j.jId === jId);
-    if(j) { const i = j.items.find(it => it.iId === iId); if(i) i[field] = val; }
+
+function openNewSvcModal() {
+    closeSvcListModal();
+    document.getElementById('modal-service-name').value = '';
+    modalJobsList = [];
+    addJobBlockToModal();
+    document.getElementById('new-svc-modal').classList.add('open');
 }
-function renderServiceJobs() {
-    const container = document.getElementById('jobs-container');
-    if (!sJobs.length) { container.innerHTML = ''; return; }
-    container.innerHTML = sJobs.map((job, jIdx) => `
-        <div class="job-container">
-            <div class="job-header">
-                <div class="form-group" style="flex:1;">
-                    <label class="form-label">Job Description (Scope of Work) <span class="req">*</span></label>
-                    <input class="form-control" name="jobs[${jIdx}][description]" value="${job.desc}" oninput="updateJobDesc(${job.jId}, this.value)" required>
+function closeNewSvcModal() { document.getElementById('new-svc-modal').classList.remove('open'); }
+
+function addJobBlockToModal() {
+    const jId = modalJobIdCounter++;
+    modalJobsList.push({ id: jId, description: '', items: [] });
+    renderModalJobsDOM();
+    addDraftItemToJob(jId);
+}
+function removeJobBlockFromModal(jId) { modalJobsList = modalJobsList.filter(j => j.id !== jId); renderModalJobsDOM(); }
+function addDraftItemToJob(jId) {
+    const job = modalJobsList.find(j => j.id === jId);
+    if(job) { job.items.push({ id: modalItemIdCounter++, name: '', qty: 1, unit: 'Pcs', spec: '' }); renderModalJobsDOM(); }
+}
+function removeDraftItemFromJob(jId, iId) {
+    const job = modalJobsList.find(j => j.id === jId);
+    if(job) { job.items = job.items.filter(i => i.id !== iId); renderModalJobsDOM(); }
+}
+
+function saveCurrentModalInputValuesToState() {
+    modalJobsList.forEach(job => {
+        const jDescInput = document.getElementById(`modal-j-desc-${job.id}`);
+        if(jDescInput) job.description = jDescInput.value;
+        job.items.forEach(it => {
+            const iName = document.getElementById(`modal-i-name-${it.id}`);
+            const iQty  = document.getElementById(`modal-i-qty-${it.id}`);
+            const iUnit = document.getElementById(`modal-i-unit-${it.id}`);
+            const iSpec = document.getElementById(`modal-i-spec-${it.id}`);
+            if(iName) it.name = iName.value;
+            if(iQty)  it.qty  = parseFloat(iQty.value) || 1;
+            if(iUnit) it.unit = iUnit.value;
+            if(iSpec) it.spec = iSpec.value;
+        });
+    });
+}
+
+function renderModalJobsDOM() {
+    saveCurrentModalInputValuesToState();
+    const container = document.getElementById('modal-jobs-container');
+    if(!modalJobsList.length) { container.innerHTML = '<div style="text-align:center; padding:20px; color:#9ca3af;">No job scopes added.</div>'; return; }
+
+    container.innerHTML = modalJobsList.map((job) => `
+        <div class="modal-job-block">
+            <div class="modal-job-header">
+                <div class="form-group" style="flex:1; margin-bottom:0;">
+                    <label class="form-label">Job Description / Scope of Work <span class="req">*</span></label>
+                    <input class="form-control" id="modal-j-desc-${job.id}" value="${job.description}" placeholder="e.g. Pembongkaran jaringan instalasi">
                 </div>
-                <button type="button" class="btn btn-outline btn-sm" style="color:#ef4444; border-color:#fca5a5;" onclick="removeJob(${job.jId})">Remove Job</button>
+                <button type="button" class="btn btn-outline btn-sm" style="color:#ef4444; border-color:#fca5a5; background:#fff;" onclick="removeJobBlockFromModal(${job.id})">Remove</button>
             </div>
-            <div class="item-container">
+            <div style="background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px;">
                 <div class="flex-between mb-2">
-                    <label class="form-label mb-0">Items Required for this Job</label>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="addServiceItem(${job.jId})">+ Add Item</button>
+                    <label class="form-label mb-0" style="color:var(--text-muted);">Required Items & Services</label>
+                    <button type="button" class="btn btn-primary btn-sm" style="padding:4px 10px; font-size:11.5px;" onclick="addDraftItemToJob(${job.id})">+ Add Item Line</button>
                 </div>
                 <table class="item-table">
-                    <thead><tr><th>Item Name <span class="req">*</span></th><th style="width:80px;">Qty <span class="req">*</span></th><th style="width:100px;">Unit <span class="req">*</span></th><th>Specification</th><th style="width:30px;"></th></tr></thead>
+                    <thead style="background:#f9fafb;"><tr><th>Description <span class="req">*</span></th><th style="width:75px;">Qty</th><th style="width:100px;">Unit</th><th>Spec</th><th style="width:30px;"></th></tr></thead>
                     <tbody>
-                        ${job.items.length === 0 ? `<tr><td colspan="5" style="text-align:center;padding:16px;color:#9ca3af;">No items in this job. Click "+ Add Item".</td></tr>` : 
-                        job.items.map((it, iIdx) => `
-                        <tr>
-                            <td><input class="form-control" name="jobs[${jIdx}][items][${iIdx}][item_name]" value="${it.name}" oninput="updateSvcItem(${job.jId}, ${it.iId}, 'name', this.value)" required></td>
-                            <td><input type="number" step="0.01" class="form-control" name="jobs[${jIdx}][items][${iIdx}][quantity]" value="${it.qty}" oninput="updateSvcItem(${job.jId}, ${it.iId}, 'qty', this.value)" required></td>
-                            <td><input class="form-control" name="jobs[${jIdx}][items][${iIdx}][unit]" value="${it.unit}" oninput="updateSvcItem(${job.jId}, ${it.iId}, 'unit', this.value)" required></td>
-                            <td><input class="form-control" name="jobs[${jIdx}][items][${iIdx}][specification]" value="${it.spec}" oninput="updateSvcItem(${job.jId}, ${it.iId}, 'spec', this.value)"></td>
-                            <td style="text-align:center;"><button type="button" onclick="removeServiceItem(${job.jId}, ${it.iId})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:18px;">&times;</button></td>
-                        </tr>`).join('')}
+                        ${job.items.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:12px; color:#9ca3af;">No rows added.</td></tr>` : 
+                        job.items.map(it => `<tr>
+                                <td><input class="form-control" id="modal-i-name-${it.id}" value="${it.name}"></td>
+                                <td><input type="number" step="0.01" class="form-control" id="modal-i-qty-${it.id}" value="${it.qty}"></td>
+                                <td><select class="form-control" id="modal-i-unit-${it.id}">${unitOptionsHtml}</select></td>
+                                <td><input class="form-control" id="modal-i-spec-${it.id}" value="${it.spec}"></td>
+                                <td style="text-align:center;"><button type="button" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:18px;" onclick="removeDraftItemFromJob(${job.id}, ${it.id})">&times;</button></td>
+                            </tr>`).join('')}
                     </tbody>
                 </table>
             </div>
-        </div>
-    `).join('');
+        </div>`).join('');
+
+    modalJobsList.forEach(job => {
+        job.items.forEach(it => {
+            const selectEl = document.getElementById(`modal-i-unit-${it.id}`);
+            if(selectEl) selectEl.value = it.unit;
+        });
+    });
 }
+
+function commitModalServiceToMainTable() {
+    const svcName = document.getElementById('modal-service-name').value.trim();
+    if(!svcName) { alert('Service Name is required!'); return; }
+    saveCurrentModalInputValuesToState();
+    if(!modalJobsList.length) { alert('Please create at least one job scope.'); return; }
+    
+    for(let j of modalJobsList) {
+        if(!j.description.trim()) { alert('Job description cannot be empty!'); return; }
+        if(!j.items.length) { alert('Each Job Scope needs at least one item.'); return; }
+        for(let it of j.items) { if(!it.name.trim()) { alert('Item description is required!'); return; } }
+    }
+
+    mainServicesData.push({
+        service_name: svcName,
+        jobs: modalJobsList.map(j => ({
+            description: j.description,
+            items: j.items.map(it => ({ name: it.name, qty: it.qty, unit: it.unit, spec: it.spec }))
+        }))
+    });
+    renderMainServicesTable();
+    closeNewSvcModal();
+}
+
+function removeServiceRecord(sIdx) { mainServicesData.splice(sIdx, 1); renderMainServicesTable(); }
+
+function renderMainServicesTable() {
+    const tbody = document.getElementById('service-tbody');
+    const hiddenContainer = document.getElementById('hidden-service-inputs');
+    document.getElementById('service-count-label').textContent = `${mainServicesData.length} service(s) added`;
+    
+    if(!mainServicesData.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:28px 16px;color:#9ca3af;">No services added yet. Click "+ Add Service" to begin.</td></tr>';
+        hiddenContainer.innerHTML = '';
+        return;
+    }
+
+    let tableHtml = ''; let hiddenHtml = '';
+    mainServicesData.forEach((svc, sIdx) => {
+        let detailsBlockHtml = '';
+        svc.jobs.forEach((job) => {
+            detailsBlockHtml += `<div class="main-svc-container"><div class="main-job-title"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg> ${job.description}</div><ul class="nested-items-list">`;
+            job.items.forEach(it => { detailsBlockHtml += `<li><span>• <b>${it.name}</b> <small style="color:#9ca3af;">(${it.spec || '-'})</small></span> <span>${it.qty} ${it.unit}</span></li>`; });
+            detailsBlockHtml += `</ul></div>`;
+        });
+
+        tableHtml += `<tr>
+            <td>${sIdx + 1}</td>
+            <td><div style="font-weight:700; color:var(--primary); font-size:13.5px;">${svc.service_name}</div></td>
+            <td>${detailsBlockHtml}</td>
+            <td style="text-align:center;"><button type="button" onclick="removeServiceRecord(${sIdx})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:18px;">&times;</button></td>
+        </tr>`;
+
+        hiddenHtml += `<input type="hidden" name="services[${sIdx}][service_name]" value="${svc.service_name}">`;
+        svc.jobs.forEach((job, jIdx) => {
+            hiddenHtml += `<input type="hidden" name="services[${sIdx}][jobs][${jIdx}][description]" value="${job.description}">`;
+            job.items.forEach((it, iIdx) => {
+                hiddenHtml += `
+                    <input type="hidden" name="services[${sIdx}][jobs][${jIdx}][items][${iIdx}][item_name]" value="${it.name}">
+                    <input type="hidden" name="services[${sIdx}][jobs][${jIdx}][items][${iIdx}][quantity]" value="${it.qty}">
+                    <input type="hidden" name="services[${sIdx}][jobs][${jIdx}][items][${iIdx}][unit]" value="${it.unit}">
+                    <input type="hidden" name="services[${sIdx}][jobs][${jIdx}][items][${iIdx}][specification]" value="${it.spec}">
+                `;
+            });
+        });
+    });
+
+    tbody.innerHTML = tableHtml; hiddenContainer.innerHTML = hiddenHtml;
+}
+
+const modalIds = ['item-modal','new-item-modal','svc-list-modal','new-svc-modal'];
+modalIds.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) { el.addEventListener('click', function(e) { if(e.target===this) this.classList.remove('open'); }); }
+});
 
 document.getElementById('pr-form').addEventListener('submit', function(e) {
     const type = document.getElementById('item_type_field').value;
     if (type === 'goods' && addedItems.length === 0) { e.preventDefault(); alert('Please add at least one item.'); return; }
-    if (type === 'service') {
-        if (sJobs.length === 0) { e.preventDefault(); alert('Please add at least one job scope.'); return; }
-        for (let j of sJobs) { if (j.items.length === 0) { e.preventDefault(); alert('Every job scope must have at least one item.'); return; } }
-    }
+    if (type === 'service' && mainServicesData.length === 0) { e.preventDefault(); alert('Please register at least one complete service module.'); return; }
 });
-
-['item-modal','new-item-modal'].forEach(id=>{ document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');}); });
 </script>
 @endsection

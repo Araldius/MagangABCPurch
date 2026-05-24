@@ -68,25 +68,25 @@ class PurchaseRequestController extends Controller
     public function store(Request $request)
     {
         if ($request->item_type === 'service') {
-            $request->validate([
-                'service_name'       => 'required|string',
-                'plant'              => 'required|string',
-                'requested_date'     => 'required|date',
-                'jobs'               => 'required|array|min:1',
-                'jobs.*.description' => 'required|string',
-                'jobs.*.items'       => 'required|array|min:1',
-            ]);
+        // Validasi data array input services bertingkat
+        $request->validate([
+            'requested_date' => 'required|date',
+            'plant'          => 'required|string',
+            'services'       => 'required|array|min:1',
+        ]);
 
+        // Lakukan perulangan untuk setiap Service yang ditambahkan
+        foreach ($request->services as $svcData) {
             $sr = ServiceRequest::create([
                 'user_id'         => Auth::id(),
-                'service_name'    => $request->service_name,
+                'service_name'    => $svcData['service_name'],
                 'submission_date' => now(),
                 'requested_date'  => $request->requested_date,
                 'plant'           => $request->plant,
                 'status'          => 'awaiting_approval',
             ]);
 
-            foreach ($request->jobs as $jobData) {
+            foreach ($svcData['jobs'] as $jobData) {
                 $job = ServiceRequestJob::create([
                     'service_request_id' => $sr->id,
                     'job_description'    => $jobData['description'],
@@ -97,47 +97,12 @@ class PurchaseRequestController extends Controller
                         'job_id'        => $job->id,
                         'item_name'     => $itemData['item_name'],
                         'quantity'      => $itemData['quantity'],
-                        'unit'          => $itemData['unit'],
+                        'unit'          => $itemData['unit'], // Mengambil nilai drop-down terpilih
                         'specification' => $itemData['specification'] ?? null,
                     ]);
                 }
             }
             $docInfo = 'SR-' . str_pad($sr->id, 4, '0', STR_PAD_LEFT);
-
-        } else {
-            $request->validate([
-                'document_number' => 'required|unique:purchase_requests',
-                'title'           => 'required|string',
-                'department'      => 'required|string',
-                'plant'           => 'required|string',
-                'requested_date'  => 'required|date',
-                'items'           => 'required|array|min:1',
-                'items.*.item_id' => 'required|string',
-            ]);
-
-            $pr = PurchaseRequest::create([
-                'user_id'             => Auth::id(),
-                'document_number'     => $request->document_number,
-                'title'               => $request->title,
-                'department'          => $request->department,
-                'plant'               => $request->plant,
-                'submission_date'     => now(),
-                'requested_date'      => $request->requested_date,
-                'status'              => 'awaiting_approval',
-            ]);
-
-            foreach ($request->items as $item) {
-                PurchaseRequestItem::create([
-                    'purchase_request_id' => $pr->id,
-                    'item_id'             => $item['item_id'],
-                    'item_name'           => $item['item_name'],
-                    'quantity'            => $item['quantity'],
-                    'unit'                => $item['unit'],
-                    'specification'       => $item['specification'] ?? null,
-                    'item_notes'          => $item['item_notes'] ?? null,
-                ]);
-            }
-            $docInfo = $request->document_number;
         }
 
         History::create([
@@ -149,5 +114,6 @@ class PurchaseRequestController extends Controller
         ]);
 
         return redirect()->route('pr.list')->with('success', "Request $docInfo berhasil dibuat.");
+        }
     }
 }

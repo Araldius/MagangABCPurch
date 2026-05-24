@@ -56,7 +56,7 @@
                         <td class="text-muted text-sm">{{ $loop->iteration }}</td>
                         <td>
                             <div style="font-weight:600;">{{ $item->item_name ?? $item->name }}</div>
-                            <div class="td-sub">{{ $item->item_id ?? $item->item_code }}</div>
+                            <div class="td-sub">{{ $item->item_id }}</div>
                         </td>
                         <td class="text-muted text-sm">{{ $item->specification ?? '—' }}</td>
                         <td style="font-weight:700;text-align:center;">{{ $item->quantity }}</td>

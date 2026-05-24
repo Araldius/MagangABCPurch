@@ -61,7 +61,7 @@
                 <thead>
                     <tr style="background:#f9fafb">
                         <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">NO</th>
-                        <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">ITEM ID</th>
+                        <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">ITEM CODE</th>
                         <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">ITEM NAME</th>
                         <th style="padding:8px 16px;text-align:right;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">TARGET QTY</th>
                         <th style="padding:8px 16px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">STATUS PEMENUHAN</th>
@@ -217,7 +217,6 @@ const serverVendors = @json($vendors);
  
 /* ─── State ──────────────────────────────────────────────────────────────── */
 let currentPR = null;
-/* Struktur selections: { "vendorId_itemId" : { vendor_id, item_id, item_name, unit_price, quantity, unit, subtotal } } */
 let selections = {}; 
  
 /* ─── Vendor mock-offers ─────────────────────────────────────────────────── */
@@ -226,7 +225,7 @@ function mockOffers(prItems, vendors) {
     vendors.forEach(v => {
         offers[v.id] = { vendor: v, lead_days: Math.floor(Math.random()*8)+2, items: {} };
         prItems.forEach(item => {
-            const offered = Math.random()>0.1; /* 90% chance vendor offers item */
+            const offered = Math.random()>0.1; 
             if (!offered) return;
             const qtyOff = Math.random()>0.5 ? item.quantity : Math.floor(Math.random() * (item.quantity - 1)) + 1;
             const basePrice = Math.floor(Math.random()*500+50)*1000;
@@ -292,7 +291,14 @@ function renderRequirementsTable(){
     const tbody=document.getElementById('items-requirement-tbody');
     tbody.innerHTML=currentPR.items.map((item,i)=>{
         const [label,bg,tc,dot]=getItemStatus(item.id);
-        return `<tr style="border-bottom:1px solid #f3f4f6">
+        
+        let rowBg = '';
+        if (label === 'Full Match')              rowBg = '#f0fdf4';
+        else if (label.startsWith('Partial'))    rowBg = '#fefce8';
+        else if (label.startsWith('Over'))       rowBg = '#eff6ff';
+        else if (label !== 'Pending')            rowBg = '#fff5f5';
+
+        return `<tr style="border-bottom:1px solid #f3f4f6;background:${rowBg};transition:background .2s">
             <td style="padding:11px 16px;color:#6b7280">${i+1}</td>
             <td style="padding:11px 16px;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_id||'—'}</td>
             <td style="padding:11px 16px;font-weight:500;color:#111827">${item.item_name}</td>
@@ -319,13 +325,11 @@ function renderVendorCards(){
             const selKey = `${v.id}_${item.id}`;
             const isSelected = !!selections[selKey];
 
-            // Hitung Qty yang sudah terpenuhi secara global untuk item ini
             let totalSelectedQty = 0;
             for(let key in selections) {
                 if (selections[key].item_id == item.id) totalSelectedQty += selections[key].quantity;
             }
             
-            // Kunci checkbox jika item sudah "Full Match" DAN card ini belum di-select
             const isFullMatch = totalSelectedQty >= item.quantity;
             const disableSelection = isFullMatch && !isSelected;
 
@@ -338,7 +342,6 @@ function renderVendorCards(){
                 ? `<span style="color:#ef4444;font-weight:700">(Stok hanya ${o.qty_offered})</span>` 
                 : `<span style="color:#10b981;font-weight:700">(Stok Aman)</span>`;
 
-            // PERUBAHAN UI: Warna Harga dan Subtotal disamakan logikanya
             return `<div style="background:#fff;border:2px solid ${isSelected?'#3b5bdb':'#e5e7eb'};border-radius:8px;padding:12px;margin-bottom:10px;cursor:${disableSelection?'not-allowed':'pointer'};opacity:${disableSelection?'0.5':'1'};transition:all .15s"
                 ${disableSelection ? '' : `onclick="toggleSelect(${v.id}, ${item.id})"`}>
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
@@ -388,7 +391,6 @@ function isBestPrice(vid,itemId){
     return bestVid===vid;
 }
 
-/* Update Qty secara manual saat diketik */
 function updateQty(vendorId, itemId, val) {
     const selKey = `${vendorId}_${itemId}`;
     if (selections[selKey]) {
@@ -406,7 +408,6 @@ function updateQty(vendorId, itemId, val) {
     }
 }
  
-/* Toggle selection. Auto-kalkulasi Qty yang belum terpenuhi jika split PO */
 function toggleSelect(vendorId, itemId){
     const selKey = `${vendorId}_${itemId}`;
 
@@ -420,11 +421,7 @@ function toggleSelect(vendorId, itemId){
             for(let key in selections) {
                 if (selections[key].item_id == itemId) qtyAlreadySelected += selections[key].quantity;
             }
-            
-            // Proteksi berlapis, cegah select jika item sudah terpenuhi
-            if (qtyAlreadySelected >= item.quantity) {
-                return;
-            }
+            if (qtyAlreadySelected >= item.quantity) return;
 
             let remainingNeed = item.quantity - qtyAlreadySelected;
             if (remainingNeed < 1) remainingNeed = 1; 
@@ -434,7 +431,7 @@ function toggleSelect(vendorId, itemId){
             selections[selKey] = {
                 vendor_id: vendorId,
                 item_id: itemId,
-                item_name: item.item_name || item.name,
+                item_name: item.name,
                 unit_price: offer.unit_price,
                 quantity: defaultBuyQty,
                 unit: item.unit,
@@ -466,8 +463,6 @@ function updateCounts(){
     document.getElementById('footer-sel').textContent = itemsMet;
     const btn = document.getElementById('show-result-btn');
     
-    // Tombol submit selalu aktif asalkan minimal 1 item ada yang terpilih. 
-    // Validasinya dipindah ke saat tombol diklik.
     if(Object.keys(selections).length > 0) {
         btn.style.opacity='1'; btn.style.pointerEvents='auto'; btn.style.background='#16a34a';
         btn.innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Review & Submit`;
@@ -493,7 +488,6 @@ function updateVendorTotals(){
 function showSelectionResult() {
     if (!currentPR) return;
 
-    // VALIDASI JIKA TARGET QTY MASIH KURANG
     let itemsMet = 0;
     currentPR.items.forEach(item => {
         let t = 0;
@@ -503,16 +497,13 @@ function showSelectionResult() {
         if (t >= item.quantity) itemsMet++;
     });
 
-    // Jika masih ada item yang kurang, Tampilkan Custom Modal Warning
     if (itemsMet < currentPR.items.length) {
         document.getElementById('warning-modal').style.display = 'flex';
     } else {
-        // Jika sudah terpenuhi semua, langsung ke workspace hasil
         renderResultWorkspace();
     }
 }
 
-/* ─── Fungsi Logika Navigasi Modal Warning ───────────────────────────────── */
 function closeWarningModal() {
     document.getElementById('warning-modal').style.display = 'none';
 }
@@ -528,7 +519,6 @@ function renderResultWorkspace() {
  
     document.getElementById('res-pr-label').textContent='Summary Split PO untuk '+currentPR.document_number;
  
-    /* Selected Items table */
     let grandTotal=0;
     let rowNum=1;
     
@@ -553,7 +543,6 @@ function renderResultWorkspace() {
     document.getElementById('selected-items-tbody').innerHTML = itemsArr;
     document.getElementById('grand-total-cell').textContent = fmt(grandTotal);
  
-    /* Vendor summary cards */
     const vSummaries={};
     Object.values(selections).forEach(s => {
         const v = serverVendors.find(x => x.id == s.vendor_id) || {};
@@ -570,7 +559,7 @@ function renderResultWorkspace() {
                 <div style="font-size:13.5px;font-weight:800;color:#111827">${fmt(vs.total)}</div>
             </div>
             ${vs.items.map(it=>`<div style="margin-bottom:8px">
-                <div style="font-size:12.5px;font-weight:600;color:#374151">${it.name}</div>
+                <div style="font-size:12.5px;font-weight:600;color:#374151">${it.item_name}</div>
                 <div style="font-size:11.5px;color:#9ca3af">${it.qty} ${it.unit} × Rp ${Number(it.price).toLocaleString('id-ID')} <span style="float:right;font-weight:700;color:#4b5563">${fmt(it.sub)}</span></div>
             </div>`).join('')}
         </div>
