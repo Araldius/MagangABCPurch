@@ -1,11 +1,12 @@
 <?php
- 
+
 namespace App\Http\Controllers;
- 
+
 use App\Models\PurchaseRequest;
+use App\Models\ServiceRequest;
 use App\Models\VendorSelection;
 use Illuminate\Support\Facades\Auth;
- 
+
 class DashboardController extends Controller
 {
     public function index()
@@ -15,67 +16,110 @@ class DashboardController extends Controller
             ? $this->purchasingDashboard()
             : $this->userDashboard();
     }
- 
+
     private function userDashboard()
     {
         $userId = Auth::id();
- 
-        $requests = PurchaseRequest::with(['items', 'user'])
+
+        // FIX: Query KEDUA model, bukan hanya PurchaseRequest
+        $prs = PurchaseRequest::with(['items', 'user'])
             ->where('user_id', $userId)
             ->latest()
-            ->get();
- 
-        $activePrs        = $requests->where('status', '!=', 'completed')->count();
+            ->get()
+            ->map(function ($req) {
+                $req->type         = 'goods';
+                $req->display_doc  = $req->document_number;
+                $req->display_title = $req->title;
+                $req->item_count   = $req->items->count();
+                return $req;
+            });
+
+        $srs = ServiceRequest::with(['jobs.items', 'user'])
+            ->where('user_id', $userId)
+            ->latest()
+            ->get()
+            ->map(function ($req) {
+                $req->type         = 'service';
+                $req->display_doc  = 'SR-' . str_pad($req->id, 4, '0', STR_PAD_LEFT);
+                $req->display_title = $req->service_name;
+                $itemCount = 0;
+                foreach ($req->jobs as $job) { $itemCount += $job->items->count(); }
+                $req->item_count   = $itemCount;
+                return $req;
+            });
+
+        // Merge dan sort descending by created_at, sama seperti PurchaseRequestController::index()
+        $requests = $prs->concat($srs)->sortByDesc('created_at')->values();
+
+        // FIX: Hitung stat cards dari merged collection (sudah termasuk SR)
+        $activePrs        = $requests->whereNotIn('status', ['completed', 'rejected', 'cancelled'])->count();
         $awaitingApproval = $requests->where('status', 'awaiting_approval')->count();
         $inProcess        = $requests->where('status', 'in_process')->count();
         $completedMonth   = $requests->where('status', 'completed')
             ->filter(fn($r) => $r->updated_at->month === now()->month
                             && $r->updated_at->year  === now()->year)
             ->count();
- 
-        // Ubah: Hanya tampilkan PR yang sudah Completed dan memiliki Vendor Selection
+
         $recentHistory = VendorSelection::with(['vendor', 'rfq.purchaseRequest', 'selectionItems'])
-            ->whereHas('rfq.purchaseRequest', function($q) use ($userId) {
+            ->whereHas('rfq.purchaseRequest', function ($q) use ($userId) {
                 $q->where('user_id', $userId)->where('status', 'completed');
             })
             ->latest('decided_at')
             ->limit(5)
             ->get();
- 
+
         return view('dashboard.user', compact(
             'requests', 'activePrs', 'awaitingApproval', 'inProcess',
             'completedMonth', 'recentHistory'
         ));
     }
- 
+
     private function purchasingDashboard()
     {
-        $totalRequests       = PurchaseRequest::count();
-        $pendingRequests     = PurchaseRequest::where('status', 'awaiting_approval')->count();
-        $openRfqs            = PurchaseRequest::where('status', 'in_process')->count();
-        $completedQuotations = PurchaseRequest::where('status', 'approved')->count();
-        $completedMonth      = PurchaseRequest::where('status', 'completed')
-            ->whereMonth('updated_at', now()->month)
-            ->whereYear('updated_at',  now()->year)
+        // FIX: Purchasing juga perlu lihat SR — merge kedua model untuk tabel
+        $prs = PurchaseRequest::with(['items', 'user'])
+            ->latest()
+            ->get()
+            ->map(function ($req) {
+                $req->type          = 'goods';
+                $req->display_doc   = $req->document_number;
+                $req->display_title = $req->title;
+                $req->item_count    = $req->items->count();
+                return $req;
+            });
+
+        $srs = ServiceRequest::with(['jobs.items', 'user'])
+            ->latest()
+            ->get()
+            ->map(function ($req) {
+                $req->type          = 'service';
+                $req->display_doc   = 'SR-' . str_pad($req->id, 4, '0', STR_PAD_LEFT);
+                $req->display_title = $req->service_name;
+                $itemCount = 0;
+                foreach ($req->jobs as $job) { $itemCount += $job->items->count(); }
+                $req->item_count    = $itemCount;
+                return $req;
+            });
+
+        $requests = $prs->concat($srs)->sortByDesc('created_at')->values();
+
+        // Stat cards purchasing — hitung dari merged collection
+        $activePrs        = $requests->count();
+        $awaitingApproval = $requests->where('status', 'awaiting_approval')->count();
+        $inProcess        = $requests->where('status', 'in_process')->count();
+        $completedMonth   = $requests->where('status', 'completed')
+            ->filter(fn($r) => $r->updated_at->month === now()->month
+                            && $r->updated_at->year  === now()->year)
             ->count();
- 
-        $latestRequests = PurchaseRequest::with(['user', 'items'])->latest()->limit(10)->get();
- 
-        // Ubah: Hanya tampilkan PR yang sudah Completed dan memiliki Vendor Selection
+
         $recentHistory = VendorSelection::with(['vendor', 'rfq.purchaseRequest', 'selectionItems'])
-            ->whereHas('rfq.purchaseRequest', function($q) {
+            ->whereHas('rfq.purchaseRequest', function ($q) {
                 $q->where('status', 'completed');
             })
             ->latest('decided_at')
             ->limit(5)
             ->get();
- 
-        /* Re-use user dashboard view with same var names */
-        $requests         = $latestRequests;
-        $activePrs        = $totalRequests;
-        $awaitingApproval = $pendingRequests;
-        $inProcess        = $openRfqs;
- 
+
         return view('dashboard.user', compact(
             'requests', 'activePrs', 'awaitingApproval', 'inProcess',
             'completedMonth', 'recentHistory'
