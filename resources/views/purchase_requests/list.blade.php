@@ -11,68 +11,97 @@
     ];
 @endphp
 @section('content')
- 
+
 <div style="margin-bottom:20px">
     <h1 style="font-size:20px;font-weight:700;color:#111827;margin:0 0 3px">PR List</h1>
     <p style="font-size:12.5px;color:#6b7280;margin:0">{{ $isPurchasing?'All purchase requests from all departments.':'All your submitted purchase requests.' }}</p>
 </div>
- 
+
 <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px">
+    {{-- Card Header --}}
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f3f4f6;gap:10px;flex-wrap:wrap">
         <span style="font-size:14px;font-weight:700;color:#111827">All Purchase Requests</span>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            @if($isPurchasing)
-            <div style="position:relative">
-                <select id="dept-filter" onchange="applyFilters()" style="padding:6px 28px 6px 10px;border:1px solid #d1d5db;border-radius:7px;font-size:12px;color:#374151;background:#fff;appearance:none;cursor:pointer;min-width:120px;font-family:inherit">
-                    <option value="">All Dept.</option>
-                    @foreach($requests->pluck('department')->unique()->filter()->sort()->values() as $dept)
-                    <option value="{{ $dept }}">{{ $dept }}</option>
-                    @endforeach
-                </select>
-                <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
-            </div>
-            @endif
-            <div style="position:relative">
-                <select id="status-filter" onchange="applyFilters()" style="padding:6px 28px 6px 10px;border:1px solid #d1d5db;border-radius:7px;font-size:12px;color:#374151;background:#fff;appearance:none;cursor:pointer;min-width:140px;font-family:inherit">
-                    <option value="">All Status</option>
-                    <option value="awaiting_approval">Awaiting Approval</option>
-                    <option value="in_process">In Process</option>
-                    <option value="approved">Approved</option>
-                    <option value="completed">Completed</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
-                <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
-            </div>
-            <a href="{{ route('purchase_requests.create') }}" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#111827;color:#fff;border-radius:7px;font-size:12.5px;font-weight:600;text-decoration:none" onmouseover="this.style.background='#1f2937'" onmouseout="this.style.background='#111827'">+ New PR</a>
-        </div>
+        <a href="{{ route('purchase_requests.create') }}" style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;background:#111827;color:#fff;border-radius:7px;font-size:12.5px;font-weight:600;text-decoration:none" onmouseover="this.style.background='#1f2937'" onmouseout="this.style.background='#111827'">+ New PR</a>
     </div>
+
+    {{-- Toolbar --}}
+    <div style="display:flex;gap:8px;align-items:center;padding:12px 20px;border-bottom:1px solid #f3f4f6;flex-wrap:wrap;">
+        <input type="text" id="pr-search" placeholder="Search PR, doc number..."
+            oninput="applyFilters()"
+            style="height:32px;border:1px solid #e5e7eb;border-radius:7px;padding:0 10px;font-size:12.5px;width:200px;outline:none;font-family:inherit;">
+        <div style="position:relative;">
+            <select id="category-filter" onchange="applyFilters()"
+                style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit;">
+                <option value="">All Category</option>
+                <option value="goods">📦 Goods</option>
+                <option value="service">🔧 Service</option>
+            </select>
+            <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
+        </div>
+        <div style="position:relative;">
+            <select id="status-filter" onchange="applyFilters()"
+                style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit;">
+                <option value="">All Status</option>
+                <option value="awaiting_approval">Awaiting Approval</option>
+                <option value="in_process">In Process</option>
+                <option value="approved">Approved</option>
+                <option value="completed">Completed</option>
+            </select>
+            <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
+        </div>
+        @if($isPurchasing)
+        <div style="position:relative;">
+            <select id="dept-filter" onchange="applyFilters()"
+                style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit;">
+                <option value="">All Dept.</option>
+                @foreach($requests->pluck('department')->unique()->filter()->sort()->values() as $dept)
+                <option value="{{ $dept }}">{{ $dept }}</option>
+                @endforeach
+            </select>
+            <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
+        </div>
+        @endif
+    </div>
+
     <div style="overflow-x:auto">
-        <table id="pr-table" style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
             <thead>
                 <tr style="background:#f9fafb">
-                    <th style="padding:9px 20px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">DOC NO.</th>
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">DESCRIPTION</th>
-                    @if($isPurchasing)<th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">REQUESTER</th>@endif
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">ITEMS</th>
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">STATUS</th>
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">SUBMITTED</th>
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap">LAST UPDATE</th>
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em">ACTION</th>
+                    <th onclick="prSort(0)" style="padding:9px 20px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;cursor:pointer;">DOC NO. <span id="ps0" style="font-size:9px;">↕</span></th>
+                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">DESCRIPTION</th>
+                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">CATEGORY</th>
+                    @if($isPurchasing)<th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">REQUESTER</th>@endif
+                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">ITEMS</th>
+                    <th onclick="prSort({{ $isPurchasing?5:4 }})" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">STATUS <span id="ps{{ $isPurchasing?5:4 }}" style="font-size:9px;">↕</span></th>
+                    <th onclick="prSort({{ $isPurchasing?6:5 }})" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;cursor:pointer;">SUBMITTED <span id="ps{{ $isPurchasing?6:5 }}" style="font-size:9px;">↕</span></th>
+                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;">LAST UPDATE</th>
+                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">ACTION</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="pr-tbody">
                 @forelse($requests as $pr)
                 @php
                     [$sLabel,$sBg,$sText,$sDot]=$statusCfg[$pr->status]??[ucfirst(str_replace('_',' ',$pr->status)),'#f3f4f6','#374151','#9ca3af'];
                     $upd=$pr->updated_at;
                     $lu=$upd->isToday()?'Today, '.$upd->format('H:i'):($upd->isYesterday()?'Yesterday, '.$upd->format('H:i'):$upd->format('d M').', '.$upd->format('H:i'));
+                    $prCategory = $pr->type ?? 'goods';
                 @endphp
-                <tr data-status="{{ $pr->status }}" data-dept="{{ $pr->department }}" style="border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='transparent'">
+                <tr data-status="{{ $pr->status }}"
+                    data-dept="{{ $pr->department }}"
+                    data-category="{{ $prCategory }}"
+                    style="border-bottom:1px solid #f3f4f6"
+                    onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='transparent'">
                     <td style="padding:13px 20px"><span style="font-family:'Courier New',monospace;font-size:12px;font-weight:600;color:#111827">{{ $pr->document_number }}</span></td>
                     <td style="padding:13px 14px;max-width:200px">
                         <div style="font-size:12.5px;font-weight:500;color:#111827">{{ $pr->title }}</div>
                         <div style="font-size:11px;color:#9ca3af;margin-top:1px">{{ $pr->plant }}</div>
+                    </td>
+                    <td style="padding:13px 14px;">
+                        @if($prCategory === 'service')
+                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#f0fdf4;color:#16a34a;">🔧 Service</span>
+                        @else
+                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#f1f5f9;color:#475569;">📦 Goods</span>
+                        @endif
                     </td>
                     @if($isPurchasing)
                     <td style="padding:13px 14px">
@@ -93,13 +122,14 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="{{ $isPurchasing?8:7 }}" style="text-align:center;padding:36px 20px;color:#9ca3af;font-size:12.5px">No purchase requests found. <a href="{{ route('purchase_requests.create') }}" style="color:#3b5bdb;font-weight:600;text-decoration:none">Create one →</a></td></tr>
+                <tr id="pr-empty"><td colspan="{{ $isPurchasing?9:8 }}" style="text-align:center;padding:36px 20px;color:#9ca3af;font-size:12.5px">No purchase requests found. <a href="{{ route('purchase_requests.create') }}" style="color:#3b5bdb;font-weight:600;text-decoration:none">Create one →</a></td></tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+    <div id="pr-pager" style="padding:12px 20px;border-top:1px solid #f3f4f6;"></div>
 </div>
- 
+
 {{-- DETAIL MODAL --}}
 <div id="pr-detail-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px">
     <div style="background:#fff;border-radius:14px;width:100%;max-width:700px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.12)">
@@ -108,7 +138,7 @@
                 <div id="detail-title" style="font-size:15px;font-weight:700;color:#111827"></div>
                 <div id="detail-sub" style="font-size:12px;color:#3b5bdb;font-weight:500;margin-top:2px"></div>
             </div>
-            <button onclick="closePRDetail()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;border-radius:6px" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">
+            <button onclick="closePRDetail()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px;border-radius:6px">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
             </button>
         </div>
@@ -121,11 +151,11 @@
         </div>
     </div>
 </div>
- 
+
 <script>
-const allPRs=@json($requests->load('items','user')->keyBy('id')->toArray());
-const isPurchasing={{ $isPurchasing?'true':'false' }};
-const statusCfg={
+const allPRs = @json($requests->load('items','user')->keyBy('id')->toArray());
+const isPurchasing = {{ $isPurchasing?'true':'false' }};
+const statusCfg = {
     awaiting_approval:['Awaiting Approval','#fff7ed','#c2410c','#f97316'],
     in_process:['In Process','#f0f9ff','#0369a1','#0ea5e9'],
     approved:['Approved','#f0fdf4','#15803d','#22c55e'],
@@ -133,58 +163,98 @@ const statusCfg={
     rejected:['Rejected','#fef2f2','#b91c1c','#ef4444'],
     cancelled:['Cancelled','#f3f4f6','#374151','#9ca3af']
 };
-const steps=[{label:'PR\nSubmitted'},{label:'Vendor\nSearch\n(Purchasing)'},{label:'Vendor\nSelection'},{label:'Completed'}];
- 
-function getStep(s){
-    if(s==='completed') return 4;
-    if(s==='approved') return 3;
-    if(s==='in_process') return 2;
-    return 1;
-}
- 
-// FUNGSI INI TELAH DIUPDATE: Mengakomodasi checklist hijau untuk Completed dan X merah/abu untuk Failed.
+const steps = [{label:'PR\nSubmitted'},{label:'Vendor\nSearch\n(Purchasing)'},{label:'Vendor\nSelection'},{label:'Completed'}];
+
+function getStep(s){ return s==='completed'?4:s==='approved'?3:s==='in_process'?2:1; }
+
 function buildProgressBar(status){
-    const cur = getStep(status);
-    const isFail = (status === 'rejected' || status === 'cancelled');
-    
+    const cur=getStep(status), isFail=(status==='rejected'||status==='cancelled');
     return `<div style="display:flex;align-items:flex-start">${steps.map((s,i)=>{
-        const n = i+1;
-        let done = n < cur;
-        let active = n === cur;
-        
-        // Memaksa Langkah 4 (Completed) menjadi Hijau Penuh
-        if (status === 'completed' && n === 4) {
-            done = true;
-            active = false;
-        }
-        
-        let cb = done ? '#22c55e' : active ? '#3b5bdb' : '#e5e7eb';
-        let cc = done || active ? '#fff' : '#9ca3af';
-        let lc = active ? '#3b5bdb' : done ? '#22c55e' : '#9ca3af';
-        let circleText = done ? '✓' : n;
-
-        // Memunculkan tanda silang merah/abu untuk Rejected & Cancelled
-        if (isFail && active) {
-            cb = status === 'rejected' ? '#ef4444' : '#9ca3af';
-            lc = cb; 
-            circleText = '✕';
-        }
-
-        return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;position:relative">${i<3?`<div style="position:absolute;top:13px;left:50%;width:100%;height:2px;background:${done?'#22c55e':'#e5e7eb'};z-index:0"></div>`:''}
-            <div style="width:26px;height:26px;border-radius:50%;background:${cb};color:${cc};font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;flex-shrink:0">${circleText}</div>
+        const n=i+1;
+        let done=n<cur, active=n===cur;
+        if(status==='completed'&&n===4){done=true;active=false;}
+        let cb=done?'#22c55e':active?'#3b5bdb':'#e5e7eb';
+        let cc=done||active?'#fff':'#9ca3af';
+        let lc=active?'#3b5bdb':done?'#22c55e':'#9ca3af';
+        let ct=done?'✓':n;
+        if(isFail&&active){cb=status==='rejected'?'#ef4444':'#9ca3af';lc=cb;ct='✕';}
+        return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;position:relative">
+            ${i<3?`<div style="position:absolute;top:13px;left:50%;width:100%;height:2px;background:${done?'#22c55e':'#e5e7eb'};z-index:0"></div>`:''}
+            <div style="width:26px;height:26px;border-radius:50%;background:${cb};color:${cc};font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;flex-shrink:0">${ct}</div>
             <div style="font-size:10px;font-weight:600;color:${lc};text-align:center;margin-top:4px;line-height:1.3;white-space:pre-line">${s.label}</div>
         </div>`;
     }).join('')}</div>`;
 }
- 
-function applyFilters(){
-    const s=document.getElementById('status-filter').value;
-    const d=isPurchasing?document.getElementById('dept-filter').value:'';
-    document.querySelectorAll('#pr-table tbody tr[data-status]').forEach(r=>{
-        r.style.display=(!s||r.dataset.status===s)&&(!d||r.dataset.dept===d)?'':'none';
+
+/* ── Table engine ── */
+let prSortState = { col: null, dir: 'asc' };
+let prPage = 1, prPageSize = 10;
+
+function applyFilters() {
+    const q      = (document.getElementById('pr-search')?.value || '').toLowerCase();
+    const cat    = document.getElementById('category-filter')?.value || '';
+    const status = document.getElementById('status-filter')?.value || '';
+    const dept   = isPurchasing ? (document.getElementById('dept-filter')?.value || '') : '';
+
+    let rows = Array.from(document.querySelectorAll('#pr-tbody tr[data-status]'));
+    let filtered = rows.filter(r => {
+        if (cat    && r.dataset.category !== cat)   return false;
+        if (status && r.dataset.status   !== status) return false;
+        if (dept   && r.dataset.dept     !== dept)   return false;
+        if (q && !r.textContent.toLowerCase().includes(q)) return false;
+        return true;
     });
+
+    if (prSortState.col !== null) {
+        filtered.sort((a, b) => {
+            const at = (a.querySelectorAll('td')[prSortState.col]?.textContent || '').trim();
+            const bt = (b.querySelectorAll('td')[prSortState.col]?.textContent || '').trim();
+            return prSortState.dir === 'asc' ? at.localeCompare(bt,'id') : bt.localeCompare(at,'id');
+        });
+    }
+
+    rows.forEach(r => r.style.display = 'none');
+    const empty = document.getElementById('pr-empty');
+    const pages = Math.max(1, Math.ceil(filtered.length / prPageSize));
+    if (prPage > pages) prPage = 1;
+    const start = (prPage - 1) * prPageSize;
+    const end   = Math.min(prPage * prPageSize, filtered.length);
+    const tbody = document.getElementById('pr-tbody');
+    filtered.slice(start, end).forEach(r => { r.style.display = ''; tbody.appendChild(r); });
+    if (empty) empty.style.display = filtered.length === 0 ? '' : 'none';
+
+    let btns = '';
+    for (let i = 1; i <= pages; i++) {
+        btns += `<button onclick="prGoto(${i})" style="min-width:28px;height:28px;border-radius:6px;border:1px solid ${i===prPage?'#111827':'#e5e7eb'};background:${i===prPage?'#111827':'#fff'};color:${i===prPage?'#fff':'#374151'};font-size:12px;font-weight:600;cursor:pointer;padding:0 6px;">${i}</button>`;
+    }
+    const pager = document.getElementById('pr-pager');
+    if (pager) pager.innerHTML = `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:12px;color:#6b7280;">${filtered.length===0?'No results':`Showing ${start+1}–${end} of ${filtered.length}`}</span>
+        <div style="display:flex;gap:4px;">
+            <button onclick="prGoto(${prPage-1})" ${prPage<=1?'disabled':''} style="min-width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:13px;opacity:${prPage<=1?.35:1};">‹</button>
+            ${btns}
+            <button onclick="prGoto(${prPage+1})" ${prPage>=pages?'disabled':''} style="min-width:28px;height:28px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:13px;opacity:${prPage>=pages?.35:1};">›</button>
+        </div>
+        <select onchange="prSetPageSize(this.value)" style="height:28px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;padding:0 6px;background:#fff;">
+            ${[5,10,20].map(n=>`<option value="${n}" ${n===prPageSize?'selected':''}>${n} / page</option>`).join('')}
+        </select>
+    </div>`;
 }
- 
+
+function prSort(col) {
+    if (prSortState.col === col) prSortState.dir = prSortState.dir==='asc'?'desc':'asc';
+    else { prSortState.col = col; prSortState.dir = 'asc'; }
+    document.querySelectorAll('[id^="ps"]').forEach(el => el.textContent = '↕');
+    const el = document.getElementById('ps'+col);
+    if (el) el.textContent = prSortState.dir==='asc'?'↑':'↓';
+    applyFilters();
+}
+function prGoto(p) { prPage = p; applyFilters(); }
+function prSetPageSize(s) { prPageSize = parseInt(s); prPage = 1; applyFilters(); }
+
+document.addEventListener('DOMContentLoaded', applyFilters);
+
+/* ── Detail modal ── */
 function openPRDetail(id){
     const pr=allPRs[id]; if(!pr)return;
     document.getElementById('detail-title').textContent=pr.title||'Purchase Request';
@@ -193,7 +263,7 @@ function openPRDetail(id){
     const itemRows=items.map((item,i)=>`<tr>
         <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#6b7280">${i+1}</td>
         <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-family:'Courier New',monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_code||'—'}</td>
-        <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-weight:500;color:#111827">${item.name}</td>
+        <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-weight:500;color:#111827">${item.name||item.item_name||''}</td>
         <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;font-size:11.5px;color:#6b7280">${item.specification||'—'}</td>
         <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#374151">${item.quantity}</td>
         <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#374151">${item.unit}</td>
@@ -201,7 +271,6 @@ function openPRDetail(id){
         <td style="padding:9px 12px;border-bottom:1px solid #f9fafb;color:#9ca3af">—</td>
     </tr>`).join('')||'<tr><td colspan="8" style="padding:16px;text-align:center;color:#9ca3af">No items</td></tr>';
     const subDate=pr.created_at?new Date(pr.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'—';
-    const [sLabel,sBg,sText,sDot]=statusCfg[pr.status]||[pr.status,'#f3f4f6','#374151','#9ca3af'];
     document.getElementById('detail-body').innerHTML=`
         <div style="background:#f9fafb;border-radius:8px;padding:12px 14px;margin-bottom:14px">
             <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Progress Status</div>
@@ -221,14 +290,14 @@ function openPRDetail(id){
         <div style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:14px">
             <table style="width:100%;border-collapse:collapse;font-size:12px">
                 <thead><tr style="background:#f9fafb">
-                    <th style="padding:8px 12px;text-align:left;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">NO</th>
-                    <th style="padding:8px 12px;text-align:left;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">ITEM ID</th>
-                    <th style="padding:8px 12px;text-align:left;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">ITEM NAME</th>
-                    <th style="padding:8px 12px;text-align:left;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">SPEC</th>
-                    <th style="padding:8px 12px;text-align:left;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">QTY</th>
-                    <th style="padding:8px 12px;text-align:left;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">UNIT</th>
-                    <th style="padding:8px 12px;text-align:left;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">UNIT PRICE (RP)</th>
-                    <th style="padding:8px 12px;text-align:left;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">TOTAL (RP)</th>
+                    <th style="padding:8px 12px;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">NO</th>
+                    <th style="padding:8px 12px;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">ITEM ID</th>
+                    <th style="padding:8px 12px;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">ITEM NAME</th>
+                    <th style="padding:8px 12px;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">SPEC</th>
+                    <th style="padding:8px 12px;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">QTY</th>
+                    <th style="padding:8px 12px;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">UNIT</th>
+                    <th style="padding:8px 12px;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">UNIT PRICE (RP)</th>
+                    <th style="padding:8px 12px;font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase">TOTAL (RP)</th>
                 </tr></thead>
                 <tbody>${itemRows}</tbody>
                 <tfoot><tr style="background:#f9fafb"><td colspan="7" style="padding:8px 12px;text-align:right;font-size:11.5px;font-weight:700;color:#374151;border-top:1px solid #e5e7eb">Total Request Value</td><td style="padding:8px 12px;font-weight:700;color:#374151;border-top:1px solid #e5e7eb">Rp —</td></tr></tfoot>
@@ -237,7 +306,8 @@ function openPRDetail(id){
         <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Activity Log</div>
         <div style="display:flex;gap:9px;align-items:flex-start">
             <div style="width:6px;height:6px;background:#6b7280;border-radius:50%;margin-top:4px;flex-shrink:0"></div>
-            <div><div style="font-size:12.5px;font-weight:500;color:#111827">PR created and submitted to supervisor</div><div style="font-size:11.5px;color:#9ca3af;margin-top:1px">${subDate} — ${pr.user?.name||'You'}</div></div>
+            <div><div style="font-size:12.5px;font-weight:500;color:#111827">PR created and submitted to supervisor</div>
+            <div style="font-size:11.5px;color:#9ca3af;margin-top:1px">${subDate} — ${pr.user?.name||'You'}</div></div>
         </div>`;
     document.getElementById('pr-detail-modal').style.display='flex';
 }
