@@ -34,6 +34,7 @@ class RfqController extends Controller
  
         $rfq = Rfq::create([
             'purchase_request_id' => $data['purchase_request_id'],
+            'service_request_id'  => $request->service_request_id,
             'rfq_number'          => $rfqNumber,
             'note'                => $data['note'] ?? null,
             'status'              => 'open',
@@ -64,7 +65,7 @@ class RfqController extends Controller
             'action_date'         => now(),
         ]);
  
-        return redirect()->route('vendors.select', $rfq)
+        return redirect()->route('vendors.index', $rfq)
             ->with('success', 'RFQ ' . $rfqNumber . ' berhasil dibuat. Silakan pilih vendor.');
     }
 }

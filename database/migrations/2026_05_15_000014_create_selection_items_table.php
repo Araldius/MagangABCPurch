@@ -12,6 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('vendor_selection_id')->constrained()->cascadeOnDelete();
             $table->foreignId('quotation_summary_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('purchase_request_item_id')->nullable()->constrained('purchase_request_items')->onDelete('cascade');
+            $table->foreignId('service_request_item_id')->nullable()->constrained('service_request_items')->onDelete('cascade');
             $table->decimal('final_price_per_item', 16, 2);
             $table->integer('final_quantity');
             $table->text('notes')->nullable();

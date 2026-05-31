@@ -13,6 +13,7 @@ class Rfq extends Model
 
     protected $fillable = [
         'purchase_request_id',
+        'service_request_id',
         'rfq_number',
         'vendor_id',
         'note',
@@ -35,6 +36,11 @@ class Rfq extends Model
         return $this->belongsTo(PurchaseRequest::class);
     }
 
+    public function serviceRequest()
+    {
+        return $this->belongsTo(ServiceRequest::class);
+    }
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
@@ -44,6 +50,12 @@ class Rfq extends Model
     public function quotation()
     {
         return $this->hasOne(Quotation::class)->latestOfMany();
+    }
+
+    /** ALL quotations for this RFQ (one per vendor) — used by vendor selection */
+    public function quotations()
+    {
+        return $this->hasMany(Quotation::class);
     }
 
     public function quotationPeriods()

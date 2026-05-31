@@ -9,6 +9,7 @@ class QuotationDetail extends Model
     protected $fillable = [
         'quotation_id',
         'purchase_request_item_id',
+        'service_request_item_id',
         'offered_price_per_item',
         'offered_quantity',
     ];
@@ -21,6 +22,11 @@ class QuotationDetail extends Model
     public function purchaseRequestItem()
     {
         return $this->belongsTo(PurchaseRequestItem::class);
+    }
+
+    public function serviceRequestItem()
+    {
+        return $this->belongsTo(ServiceRequestItem::class);
     }
 
     public function quotationSummaries()

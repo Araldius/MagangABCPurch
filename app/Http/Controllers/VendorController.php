@@ -1,93 +1,140 @@
 <?php
- 
+
 namespace App\Http\Controllers;
- 
+
 use App\Models\History;
 use App\Models\PurchaseRequest;
+use App\Models\ServiceRequest;
 use App\Models\Rfq;
 use App\Models\SelectionItem;
 use App\Models\Vendor;
 use App\Models\VendorQuotation;
 use App\Models\VendorSelection;
+use App\Models\QuotationDetail;
+use App\Models\QuotationSummary;
 use Illuminate\Http\Request;
- 
+
 class VendorController extends Controller
 {
-    /**
-     * Vendor Selection main page (step 1 — select PR).
-     * Route: GET /vendor-selection  → vendors.list
-     */
-    public function index()
+    // ─────────────────────────────────────────────
+    // Shared data builder (used by index + select)
+    // ─────────────────────────────────────────────
+    private function buildViewData(): array
     {
         $user = auth()->user();
+        $validStatuses = ['in_process', 'approved', 'awaiting_approval'];
 
-        // Mulai query untuk PR yang siap dipilih vendornya
-        $query = PurchaseRequest::with(['items', 'rfqs.vendorQuotations.vendor'])
-            ->whereIn('status', ['in_process', 'approved', 'awaiting_approval'])
-            ->latest();
+        $prs = PurchaseRequest::with(['items', 'rfqs.quotations.details'])
+            ->whereIn('status', $validStatuses)
+            ->when($user->role !== 'purchasing', fn($q) => $q->where('user_id', $user->id))
+            ->latest()
+            ->get()
+            ->map(function ($pr) {
+                $pr->setAttribute('type', 'goods');
+                $pr->setAttribute('display_doc', $pr->document_number);
+                $pr->setAttribute('display_title', $pr->title);
+                $pr->setAttribute('document_number', $pr->document_number);
+                $pr->setAttribute('title', $pr->title);
+                return $pr;
+            });
 
-        // LOGIKA PEMBATASAN AKSES:
-        // Jika yang login BUKAN purchasing, batasi agar hanya muncul PR buatannya sendiri
-        if ($user->role !== 'purchasing') {
-            $query->where('user_id', $user->id);
-        }
+        $srs = ServiceRequest::with(['jobs.items', 'rfqs.quotations.details'])
+            ->whereIn('status', $validStatuses)
+            ->when($user->role !== 'purchasing', fn($q) => $q->where('user_id', $user->id))
+            ->latest()
+            ->get()
+            ->map(function ($sr) {
+                $docNum = $sr->document_number
+                    ?? ('SR-' . ($sr->created_at ?? now())->format('Y') . '-' . str_pad($sr->id, 4, '0', STR_PAD_LEFT));
+                $sr->setAttribute('type', 'service');
+                $sr->setAttribute('display_doc', $docNum);
+                $sr->setAttribute('display_title', $sr->service_name);
+                $sr->setAttribute('document_number', $docNum);
+                $sr->setAttribute('title', $sr->service_name);
+                return $sr;
+            });
 
-        $prs = $query->get();
-        $vendors = Vendor::all();
- 
-        return view('vendors.index', compact('prs', 'vendors'));
+        return [
+            'prs'     => $prs->concat($srs),
+            'vendors' => Vendor::where('status', 'active')->get(),
+        ];
     }
- 
-    /**
-     * Vendor selection for a specific RFQ (old flow — kept for compat).
-     * Route: GET /vendor/select/{rfq}  → vendors.select
-     */
+
+    // ─────────────────────────────────────────────
+    // GET /vendor-selection[?key=type_id]
+    // ─────────────────────────────────────────────
+    public function index(Request $request)
+    {
+        // ?key=goods_1 or ?key=service_1 — passed from modal "Select Vendor" button
+        $selectedKey = $request->query('key', '');
+
+        return view('vendors.index', array_merge(
+            $this->buildViewData(),
+            ['selectedKey' => $selectedKey]
+        ));
+    }
+
+    // ─────────────────────────────────────────────
+    // GET /vendor/select/{rfq}  — construct key and redirect
+    // ─────────────────────────────────────────────
     public function select(Rfq $rfq)
     {
-        $rfq->load(['purchaseRequest.items', 'vendorQuotations.vendor']);
-        $vendors = Vendor::all();
-        return view('vendors.select', compact('rfq', 'vendors'));
+        if ($rfq->purchase_request_id) {
+            $key = 'goods_' . $rfq->purchase_request_id;
+        } elseif ($rfq->service_request_id) {
+            $key = 'service_' . $rfq->service_request_id;
+        } else {
+            $key = '';
+        }
+
+        return redirect()->route('vendors.list', $key ? ['key' => $key] : []);
     }
- 
-    /**
-     * Store vendor selection items (new flow — called via POST from vendors.index).
-     * Receives: pr_id, selections[] = [{vendor_id, item_id, price, qty, notes}]
-     * Route: POST /vendor-selection/store  → vendors.store.selection
-     */
+
+    // ─────────────────────────────────────────────
+    // POST /vendor-selection/store
+    // ─────────────────────────────────────────────
     public function storeSelection(Request $request)
     {
         $request->validate([
-            'purchase_request_id'                    => ['required', 'exists:purchase_requests,id'],
+            'purchase_request_id'      => ['required'],
+            'item_type'                => ['required', 'string'],
             'selection_notes'          => ['nullable', 'string'],
             'selections'               => ['required', 'array', 'min:1'],
             'selections.*.vendor_id'   => ['required', 'exists:vendors,id'],
-            'selections.*.item_id'     => ['required', 'exists:purchase_request_items,id'],
+            'selections.*.item_id'     => ['required'],
             'selections.*.unit_price'  => ['required', 'numeric', 'min:0'],
             'selections.*.quantity'    => ['required', 'integer', 'min:1'],
             'selections.*.notes'       => ['nullable', 'string'],
         ]);
- 
-        $pr = PurchaseRequest::findOrFail($request->purchase_request_id);
- 
-        /* Get or create RFQ for this PR */
+
+        $isService = ($request->item_type === 'service');
+
+        if ($isService) {
+            $pr     = ServiceRequest::findOrFail($request->purchase_request_id);
+            $docNum = $pr->document_number
+                ?? ('SR-' . ($pr->created_at ?? now())->format('Y') . '-' . str_pad($pr->id, 4, '0', STR_PAD_LEFT));
+        } else {
+            $pr     = PurchaseRequest::findOrFail($request->purchase_request_id);
+            $docNum = $pr->document_number;
+        }
+
         $rfq = $pr->rfqs()->first();
         if (!$rfq) {
             $todayCount = Rfq::whereDate('created_at', today())->count() + 1;
             $rfq = Rfq::create([
-                'purchase_request_id' => $pr->id,
+                'purchase_request_id' => $isService ? null : $pr->id,
+                'service_request_id'  => $isService ? $pr->id : null,
                 'rfq_number'          => 'RFQ-' . now()->format('Y-md') . '-' . str_pad($todayCount, 3, '0', STR_PAD_LEFT),
                 'status'              => 'closed',
                 'opened_at'           => now(),
             ]);
         }
- 
-        /* Group selections by vendor */
+
         $byVendor = collect($request->selections)->groupBy('vendor_id');
- 
+
         foreach ($byVendor as $vendorId => $items) {
             $vendor = Vendor::find($vendorId);
- 
-            /* Upsert VendorSelection per vendor per RFQ */
+
             $sel = VendorSelection::updateOrCreate(
                 ['rfq_id' => $rfq->id, 'vendor_id' => $vendorId],
                 [
@@ -96,25 +143,34 @@ class VendorController extends Controller
                     'decided_at'     => now(),
                 ]
             );
- 
-            /* Delete old SelectionItems for this selection */
+
             $sel->selectionItems()->delete();
- 
-            $totalValue = 0;
+
             foreach ($items as $row) {
-                $subtotal = $row['unit_price'] * $row['quantity'];
-                $totalValue += $subtotal;
+                $qd = QuotationDetail::whereHas('quotation', function ($q) use ($rfq, $vendorId) {
+                    $q->where('rfq_id', $rfq->id)->where('vendor_id', $vendorId);
+                })->where(
+                    $isService ? 'service_request_item_id' : 'purchase_request_item_id',
+                    $row['item_id']
+                )->first();
+
+                $qsId = null;
+                if ($qd) {
+                    $qs   = QuotationSummary::where('quotation_detail_id', $qd->id)->first();
+                    $qsId = $qs ? $qs->id : null;
+                }
+
                 SelectionItem::create([
-                    'vendor_selection_id'  => $sel->id,
-                    'quotation_summary_id' => null,
-                    'final_price_per_item' => $row['unit_price'],
-                    'final_quantity'       => $row['quantity'],
-                    'notes'                => $row['notes'] ?? 'Selected',
-                    /* Store item ref via notes for display */
-                    'purchase_request_item_id' => $row['item_id'],
+                    'vendor_selection_id'       => $sel->id,
+                    'quotation_summary_id'      => $qsId ?? 1,
+                    'final_price_per_item'      => $row['unit_price'],
+                    'final_quantity'            => $row['quantity'],
+                    'notes'                     => $row['notes'] ?? 'Selected',
+                    'purchase_request_item_id'  => $isService ? null : $row['item_id'],
+                    'service_request_item_id'   => $isService ? $row['item_id'] : null,
                 ]);
             }
- 
+
             History::create([
                 'user_id'             => auth()->id(),
                 'vendor_id'           => $vendorId,
@@ -122,67 +178,19 @@ class VendorController extends Controller
                 'vendor_selection_id' => $sel->id,
                 'action'              => 'Vendor Selection Submitted',
                 'transaction_status'  => 'completed',
-                'notes'               => 'Vendor ' . $vendor->name . ' dipilih untuk '
-                                       . count($items) . ' item pada PR ' . $pr->document_number,
+                'notes'               => 'Vendor ' . $vendor->vendor_name . ' dipilih untuk '
+                                        . count($items) . ' item pada dokumen ' . $docNum,
                 'action_date'         => now(),
-                'total_value'         => $totalValue,
             ]);
         }
- 
-        /* Update PR status → approved */
+
         $pr->update(['status' => 'approved']);
- 
+
         return response()->json([
-            'success' => true,
-            'message' => 'Vendor selection submitted for PR ' . $pr->document_number,
-            'pr_number' => $pr->document_number,
-            'notes'   => $request->selection_notes ?? '—',
+            'success'   => true,
+            'message'   => 'Vendor selection submitted for ' . $docNum,
+            'pr_number' => $docNum,
+            'notes'     => $request->selection_notes ?? '—',
         ]);
-    }
- 
-    /**
-     * Old store (kept for backward compat with vendors.store route).
-     */
-    public function store(Request $request, Rfq $rfq)
-    {
-        $data = $request->validate([
-            'vendor_id'       => ['nullable', 'exists:vendors,id'],
-            'vendor_name'     => ['nullable', 'string', 'max:255'],
-            'vendor_location' => ['nullable', 'string', 'max:255'],
-            'note'            => ['nullable', 'string'],
-        ]);
- 
-        $vendor = !empty($data['vendor_name'])
-            ? Vendor::create(['name' => $data['vendor_name'], 'location' => $data['vendor_location'] ?? null, 'status' => 'active'])
-            : Vendor::find($data['vendor_id']);
- 
-        if (!$vendor) {
-            return back()->withErrors(['vendor_id' => 'Pilih vendor yang valid.']);
-        }
- 
-        $rfq->update(['vendor_id' => $vendor->id]);
-        $rfq->purchaseRequest->update(['status' => 'in_process']);
- 
-        VendorQuotation::create([
-            'rfq_id'       => $rfq->id,
-            'vendor_id'    => $vendor->id,
-            'notes'        => $data['note'] ?? '',
-            'status'       => 'submitted',
-            'submitted_at' => now(),
-        ]);
- 
-        History::create([
-            'user_id'             => auth()->id(),
-            'vendor_id'           => $vendor->id,
-            'rfq_id'              => $rfq->id,
-            'vendor_selection_id' => null,
-            'action'              => 'Vendor Selected',
-            'transaction_status'  => 'completed',
-            'notes'               => 'Vendor ' . $vendor->name . ' dipilih.',
-            'action_date'         => now(),
-        ]);
- 
-        return redirect()->route('quotations.status', $rfq)
-            ->with('success', 'Vendor ' . $vendor->name . ' dipilih.');
     }
 }

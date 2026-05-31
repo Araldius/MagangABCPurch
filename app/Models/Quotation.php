@@ -29,9 +29,9 @@ class Quotation extends Model
         return $this->belongsTo(Vendor::class);
     }
 
-    public function quotationDetails()
+    public function details()
     {
-        return $this->hasMany(QuotationDetail::class);
+        return $this->hasMany(QuotationDetail::class, 'quotation_id');
     }
 
     public function vendorSelections()

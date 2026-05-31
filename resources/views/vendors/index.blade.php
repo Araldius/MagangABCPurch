@@ -19,7 +19,7 @@ h1 { font-size:20px;font-weight:700;color:#111827;margin:0 0 3px }
 /* Service Hierarchy Styles in Tables */
 .tr-service td { background:#f3f4f6; font-weight:700; color:#111827; border-bottom:2px solid #e5e7eb; padding:8px 16px; font-size:13px; }
 .tr-job td { background:#f9fafb; font-weight:600; color:#374151; padding:8px 16px 8px 30px; font-size:12px; border-bottom:1px dashed #e5e7eb; }
-.tr-item td { padding:10px 16px 10px 45px; } /* Indented items */
+.tr-item td { padding:10px 16px 10px 45px; }
 
 /* Service Hierarchy Styles in Vendor Cards */
 .vc-svc-header { background:#e5e7eb; padding:8px 10px; font-size:12.5px; font-weight:700; color:#111827; display:flex; align-items:center; gap:8px; border-radius:6px; margin-bottom:8px; }
@@ -37,13 +37,16 @@ h1 { font-size:20px;font-weight:700;color:#111827;margin:0 0 3px }
     <div style="font-size:13.5px;font-weight:700;color:#111827;margin-bottom:14px">Select Request Number</div>
     <div style="display:flex;gap:10px;align-items:center">
         <div style="flex:1;position:relative">
-            <select id="pr-select" onchange="loadPR(this.value)"
+            <select id="pr-select"
                 style="width:100%;padding:9px 32px 9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit">
                 <option value="">— Select PR/SR number to view vendor offers —</option>
                 @foreach($prs as $pr)
-                <option value="{{ $pr->id }}">{{ $pr->document_number }} | {{ $pr->title }}</option>
+                <option value="{{ $pr->type }}_{{ $pr->id }}"
+                    {{ isset($selectedKey) && $selectedKey === $pr->type.'_'.$pr->id ? 'selected' : '' }}>
+                    {{ $pr->document_number }} | {{ $pr->title }}
+                </option>
                 @endforeach
-                </select>
+            </select>
             <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
         </div>
         <button class="btn-primary" onclick="loadPR(document.getElementById('pr-select').value)">
@@ -110,6 +113,7 @@ h1 { font-size:20px;font-weight:700;color:#111827;margin:0 0 3px }
         </button>
     </div>
 </div>
+
 {{-- STEP 3: Selection Result / Summary --}}
 <div id="result-workspace" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -152,101 +156,81 @@ h1 { font-size:20px;font-weight:700;color:#111827;margin:0 0 3px }
     </div>
 </div>
 
+{{-- MODALS --}}
 <div id="warning-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)"><div style="background:#fff;border-radius:12px;width:100%;max-width:440px;box-shadow:0 10px 40px rgba(0,0,0,.2);overflow:hidden"><div style="background:#fef2f2;padding:20px;border-bottom:1px solid #fee2e2;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;flex-shrink:0"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div><div><div style="font-size:16px;font-weight:700;color:#991b1b;line-height:1.2">Peringatan Kuantitas</div><div style="font-size:12.5px;color:#b91c1c;margin-top:2px">Target Qty belum sepenuhnya terpenuhi</div></div></div><div style="padding:22px;font-size:13.5px;color:#374151;line-height:1.6">Masih ada item yang kuantitasnya <strong>BELUM TERPENUHI</strong>.<br>Apakah Anda yakin ingin mengabaikannya dan melanjutkan?</div><div style="padding:16px 22px;border-top:1px solid #f3f4f6;background:#f9fafb;display:flex;justify-content:flex-end;gap:10px"><button onclick="closeWarningModal()" class="btn-outline">Batalkan</button><button onclick="forceShowSelectionResult()" style="padding:9px 18px;background:#ef4444;color:#fff;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;">Ya, Lanjutkan</button></div></div></div>
 <div id="submit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:20px"><div style="background:#fff;border-radius:12px;width:100%;max-width:440px;"><div style="padding:18px 20px;border-bottom:1px solid #f3f4f6;display:flex;align-items:flex-start;justify-content:space-between"><div><div style="font-size:14px;font-weight:700;color:#111827">Submission Notes</div></div><button onclick="closeSubmitModal()" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px">✕</button></div><div style="padding:18px 20px"><textarea id="submit-notes" rows="4" placeholder="Catatan untuk tim Purchasing..." style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;outline:none"></textarea></div><div style="padding:14px 20px;border-top:1px solid #f3f4f6;display:flex;justify-content:flex-end;gap:10px"><button onclick="closeSubmitModal()" class="btn-outline">Cancel</button><button onclick="submitToServer()" style="padding:7px 18px;background:#16a34a;color:#fff;border-radius:7px;font-size:12.5px;font-weight:600;border:none;cursor:pointer;">Final Submit</button></div></div></div>
 <div id="success-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:center;justify-content:center;padding:20px"><div style="background:#fff;border-radius:12px;padding:32px;width:100%;max-width:400px;text-align:center;"><div style="font-size:22px;font-weight:700;color:#16a34a;margin-bottom:12px">Success!</div><div style="font-size:13px;color:#374151;margin-bottom:4px">PR/SR: <span id="popup-pr" style="font-weight:700"></span></div><button onclick="closeSuccess()" style="margin-top:20px;padding:8px 24px;border:1px solid #d1d5db;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Close</button></div></div>
+
 <script>
-const serverPRs = @json($prs->load('items')->keyBy('id'));
+// Data dikirim secara flat dari Controller untuk mencegah ID Conflict PR dan SR
+const serverRequests = @json($prs);
 const serverVendors = @json($vendors);
 
-/* --- MOCK DATA UNTUK SERVICE (DIINJEKSI OTOMATIS) --- */
-const mockServiceRequest = {
-    id: 'SR-MOCK-999',
-    document_number: 'SR-2026-999',
-    title: 'Setup & Renovasi Ruang IT',
-    type: 'service', // Penanda mode Service
-    services: [
-        {
-            id: 'SVC-1', service_name: 'Pekerjaan Sipil & Interior',
-            jobs: [
-                {
-                    id: 'JOB-1', description: 'Pengecatan Ruangan & Partisi',
-                    items: [
-                        { id: 'ITM-S1', item_name: 'Cat Putih 25kg', quantity: 4, unit: 'Pail' },
-                        { id: 'ITM-S2', item_name: 'Jasa Pengecatan (Borongan)', quantity: 1, unit: 'Lot' }
-                    ]
-                }
-            ]
-        },
-        {
-            id: 'SVC-2', service_name: 'Instalasi Jaringan Listrik & Data',
-            jobs: [
-                {
-                    id: 'JOB-2', description: 'Penarikan Kabel LAN',
-                    items: [
-                        { id: 'ITM-S3', item_name: 'Kabel UTP Cat6 Supreme', quantity: 2, unit: 'Roll' },
-                        { id: 'ITM-S4', item_name: 'RJ45 Connector', quantity: 50, unit: 'Pcs' }
-                    ]
-                },
-                {
-                    id: 'JOB-3', description: 'Instalasi Access Point',
-                    items: [
-                        { id: 'ITM-S5', item_name: 'Router Access Point Aruba', quantity: 3, unit: 'Unit' },
-                        { id: 'ITM-S6', item_name: 'Jasa Setting Jaringan', quantity: 1, unit: 'Jasa' }
-                    ]
-                }
-            ]
-        }
-    ]
-};
-// Flatten items agar logika pencarian ID tetap kompatibel
-mockServiceRequest.items = [];
-mockServiceRequest.services.forEach(s => s.jobs.forEach(j => j.items.forEach(i => mockServiceRequest.items.push(i))));
-serverPRs[mockServiceRequest.id] = mockServiceRequest;
-
-// Auto-inject mock option to HTML dropdown
-document.addEventListener('DOMContentLoaded', () => {
-    const select = document.getElementById('pr-select');
-    select.innerHTML += `<option value="${mockServiceRequest.id}" style="color:#1d4ed8; font-weight:bold;">🛠️ [DUMMY SERVICE] ${mockServiceRequest.document_number} | ${mockServiceRequest.title}</option>`;
-});
-
-/* --- CORE LOGIC --- */
 let currentPR = null;
 let selections = {}; 
 let vendorOffers = {};
 
 function fmt(n){return 'Rp '+Number(n).toLocaleString('id-ID');}
 
-function mockOffers(prItems, vendors) {
+function buildVendorOffers(pr, vendors) {
     const offers = {};
-    vendors.forEach(v => {
-        offers[v.id] = { vendor: v, lead_days: Math.floor(Math.random()*8)+2, items: {} };
-        prItems.forEach(item => {
-            const offered = Math.random()>0.15; // 85% chance vendor offers it
-            if (!offered) return;
-            const qtyOff = Math.random()>0.4 ? item.quantity : Math.floor(Math.random() * (item.quantity - 1)) + 1;
-            const basePrice = Math.floor(Math.random()*500+50)*1000;
-            offers[v.id].items[item.id] = { qty_offered: qtyOff, unit_price: basePrice };
+    vendors.forEach(v => { offers[v.id] = { items: {} }; });
+    
+    let rfqs = pr.rfqs || pr.rfq || [];
+    if (!Array.isArray(rfqs)) rfqs = [rfqs];
+    
+    rfqs.forEach(rfq => {
+        if (!rfq) return;
+        let quots = rfq.quotations || rfq.vendorQuotations || rfq.vendor_quotations || [];
+        if (!Array.isArray(quots)) quots = [quots];
+        
+        quots.forEach(quot => {
+            if (!quot) return;
+            const vId = quot.vendor_id;
+            let details = quot.details || quot.quotation_details || quot.quotationDetails || [];
+            if (!Array.isArray(details)) details = [details];
+            
+            if (offers[vId]) {
+                details.forEach(det => {
+                    const itemId = det.purchase_request_item_id || det.service_request_item_id;
+                    if (itemId) {
+                        offers[vId].items[itemId] = {
+                            qty_offered: det.offered_quantity || det.quantity || 0,
+                            unit_price: det.offered_price_per_item || det.price || 0
+                        };
+                    }
+                });
+            }
         });
     });
     return offers;
 }
 
-function loadPR(prId) {
-    if (!prId) return;
-    currentPR = serverPRs[prId];
+function loadPR(uniqueKey) {
+    if (!uniqueKey) return;
+    const [type, id] = uniqueKey.split('_');
+    currentPR = serverRequests.find(r => r.type === type && r.id == id);
     if (!currentPR) return;
     selections = {};
-    // Gunakan array items rata (flattened) untuk meng-generate tawaran vendor
-    vendorOffers = mockOffers(currentPR.items, serverVendors);
+    
+    let flatItems = [];
+    if (currentPR.type === 'service') {
+        flatItems = currentPR.jobs ? currentPR.jobs.flatMap(j => j.items || []) : [];
+        currentPR.items = flatItems; 
+    } else {
+        flatItems = currentPR.items || [];
+    }
+
+    vendorOffers = buildVendorOffers(currentPR, serverVendors);
  
     document.getElementById('selection-workspace').style.display='block';
     document.getElementById('result-workspace').style.display='none';
-    document.getElementById('ws-title').textContent='Vendor Selection: '+currentPR.document_number;
-    document.getElementById('ws-sub').textContent=currentPR.document_number+' | '+currentPR.title;
-    document.getElementById('ws-item-count').textContent=currentPR.items.length+' items/services required';
-    document.getElementById('sel-total').textContent=currentPR.items.length;
-    document.getElementById('footer-total').textContent=currentPR.items.length;
+    
+    document.getElementById('ws-title').textContent='Vendor Selection: '+ currentPR.display_doc;
+    document.getElementById('ws-sub').textContent= currentPR.display_doc +' | '+ currentPR.display_title;
+    document.getElementById('ws-item-count').textContent=flatItems.length+' items/services required';
+    document.getElementById('sel-total').textContent=flatItems.length;
+    document.getElementById('footer-total').textContent=flatItems.length;
     
     renderRequirementsTable();
     renderVendorCards();
@@ -256,21 +240,23 @@ function loadPR(prId) {
 function backToStep1(){
     document.getElementById('selection-workspace').style.display='none';
     document.getElementById('result-workspace').style.display='none';
+    document.getElementById('step1-card').style.display='block';
     currentPR=null; selections={};
 }
-/* =========================================================
-   GANTIKAN SCRIPT INI DARI function getItemStatus(itemId) 
-   HINGGA SEBELUM TAG 
-========================================================= */
 
 function getItemStatus(itemId) {
     const item = currentPR.items.find(i => i.id == itemId);
+    if (!item) return ['Pending','#fff7ed','#c2410c','#f97316'];
+    // FIX: parseFloat prevents string-concat bug ("0"+"1.00"="01.00") when quantity comes as string from DB
     let totalSel = 0;
-    for (let key in selections) { if (selections[key].item_id == itemId) totalSel += selections[key].quantity; }
+    for (let key in selections) {
+        if (selections[key].item_id == itemId) totalSel += parseFloat(selections[key].quantity) || 0;
+    }
+    const target = parseFloat(item.quantity) || 0;
 
     if (totalSel === 0) return ['Pending','#fff7ed','#c2410c','#f97316'];
-    if (totalSel < item.quantity) return [`Partial (${totalSel}/${item.quantity})`,'#fef9c3','#854d0e','#eab308'];
-    if (totalSel > item.quantity) return [`Over (${totalSel}/${item.quantity})`,'#dbeafe','#1d4ed8','#3b82f6'];
+    if (totalSel < target) return [`Partial (${totalSel}/${target})`,'#fef9c3','#854d0e','#eab308'];
+    if (totalSel > target) return [`Over (${totalSel}/${target})`,'#dbeafe','#1d4ed8','#3b82f6'];
     return ['Full Match','#f0fdf4','#15803d','#22c55e'];
 }
 
@@ -285,28 +271,23 @@ function getRowBg(label) {
 function renderRequirementsTable(){
     const tbody = document.getElementById('items-requirement-tbody');
     
-    // Jika tipe SERVICE, render secara hirarki
     if (currentPR.type === 'service') {
-        let html = '';
-        currentPR.services.forEach((svc, sIdx) => {
-            html += `<tr class="tr-service"><td colspan="5">📁 Service ${sIdx+1}: ${svc.service_name}</td></tr>`;
-            svc.jobs.forEach(job => {
-                html += `<tr class="tr-job"><td colspan="5">↳ 🛠️ Scope: ${job.description}</td></tr>`;
-                job.items.forEach(item => {
-                    const [label,bg,tc,dot] = getItemStatus(item.id);
-                    html += `<tr class="tr-item" style="background:${getRowBg(label)}">
-                        <td style="color:#6b7280">-</td>
-                        <td style="font-family:monospace;font-size:11.5px;color:#3b5bdb">${item.id}</td>
-                        <td style="font-weight:500;color:#111827">${item.item_name}</td>
-                        <td style="font-weight:600;text-align:right">${item.quantity} ${item.unit}</td>
-                        <td><span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:${bg};font-size:11px;font-weight:600;color:${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dot}"></span>${label}</span></td>
-                    </tr>`;
-                });
+        let html = `<tr class="tr-service"><td colspan="5">📁 Service: ${currentPR.display_title}</td></tr>`;
+        currentPR.jobs.forEach(job => {
+            html += `<tr class="tr-job"><td colspan="5">↳ 🛠️ Scope: ${job.job_description}</td></tr>`;
+            job.items.forEach(item => {
+                const [label,bg,tc,dot] = getItemStatus(item.id);
+                html += `<tr class="tr-item" style="background:${getRowBg(label)}">
+                    <td style="color:#6b7280">-</td>
+                    <td style="font-family:monospace;font-size:11.5px;color:#3b5bdb">${item.id}</td>
+                    <td style="font-weight:500;color:#111827">${item.item_name}</td>
+                    <td style="font-weight:600;text-align:right">${item.quantity} ${item.unit}</td>
+                    <td><span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:${bg};font-size:11px;font-weight:600;color:${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dot}"></span>${label}</span></td>
+                </tr>`;
             });
         });
         tbody.innerHTML = html;
     } else {
-        // Mode GOODS biasa
         tbody.innerHTML = currentPR.items.map((item,i)=>{
             const [label,bg,tc,dot] = getItemStatus(item.id);
             return `<tr style="border-bottom:1px solid #f3f4f6;background:${getRowBg(label)}">
@@ -320,54 +301,31 @@ function renderRequirementsTable(){
     }
 }
 
-/* --- LOGIKA CHECKBOX HIERARKI (MEMPERBAIKI BUG SHORTCUT) --- */
-function processJobItemsSelection(vId, job, isChecked) {
-    job.items.forEach(item => {
-        const selKey = `${vId}_${item.id}`;
-        const isCurrentlySelected = !!selections[selKey];
-        const offer = vendorOffers[vId].items[item.id];
-
-        // Hanya diproses jika vendor memang menawarkan item ini
-        if (offer) {
-            if (isChecked && !isCurrentlySelected) {
-                // Centang & set full qty
-                toggleSelect(vId, item.id, true);
-            } else if (!isChecked && isCurrentlySelected) {
-                // Hapus centang
-                toggleSelect(vId, item.id, true);
-            } else if (isChecked && isCurrentlySelected) {
-                // Jika sudah tercentang sebagian, shortcut ini memaksimalkan kuantitasnya
-                const prItem = currentPR.items.find(i => i.id == item.id);
-                let qtyAlreadySelected = 0;
-                for(let key in selections) { if (key !== selKey && selections[key].item_id == item.id) qtyAlreadySelected += selections[key].quantity; }
-                let remainingNeed = prItem.quantity - qtyAlreadySelected;
-                let maxBuy = Math.min(Math.max(1, remainingNeed), offer.qty_offered);
-                
-                selections[selKey].quantity = maxBuy;
-                selections[selKey].subtotal = maxBuy * offer.unit_price;
+function toggleVendorService(vId, isChecked) {
+    if (isChecked) {
+        selections = {}; // Paksa Radio Button (hanya 1 vendor untuk service)
+        currentPR.items.forEach(item => {
+            const offer = vendorOffers[vId].items[item.id];
+            if (offer) {
+                selections[`${vId}_${item.id}`] = {
+                    vendor_id: vId,
+                    item_id: item.id,
+                    item_name: item.item_name,
+                    unit_price: offer.unit_price,
+                    quantity: item.quantity,
+                    unit: item.unit,
+                    subtotal: item.quantity * offer.unit_price
+                };
+            }
+        });
+    } else {
+        for (let key in selections) {
+            if (selections[key].vendor_id == vId) {
+                delete selections[key];
             }
         }
-    });
-}
-
-function toggleSvcCheckbox(vId, svcId, isChecked) {
-    const svc = currentPR.services.find(s => s.id === svcId);
-    if(svc) {
-        svc.jobs.forEach(j => processJobItemsSelection(vId, j, isChecked));
     }
-    // WAJIB MERENDER ULANG UI SETELAH LOOPING SELESAI
-    renderRequirementsTable();
-    renderVendorCards();
-    updateCounts();
-}
 
-function toggleJobCheckbox(vId, jobId, isChecked) {
-    let job = null;
-    currentPR.services.forEach(s => { const f = s.jobs.find(j => j.id === jobId); if(f) job = f; });
-    if(job) {
-        processJobItemsSelection(vId, job, isChecked);
-    }
-    // WAJIB MERENDER ULANG UI SETELAH LOOPING SELESAI
     renderRequirementsTable();
     renderVendorCards();
     updateCounts();
@@ -375,38 +333,54 @@ function toggleJobCheckbox(vId, jobId, isChecked) {
 
 function renderVendorCards(){
     const grid = document.getElementById('vendor-cards-grid');
-    grid.innerHTML = serverVendors.map(v => {
+
+    // FIX: filter out vendors that have zero offered items for this PR
+    const activeVendors = serverVendors.filter(v => {
+        const off = vendorOffers[v.id];
+        if (!off) return false;
+        const items = currentPR.items || [];
+        return items.some(item => off.items[item.id] != null);
+    });
+
+    if (activeVendors.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:#9ca3af;font-size:13px;">
+            Tidak ada vendor yang menawarkan item untuk request ini.
+        </div>`;
+        return;
+    }
+
+    grid.innerHTML = activeVendors.map(v => {
         const vName = v.vendor_name || v.name || 'Vendor';
         const off = vendorOffers[v.id];
-        
+
         let contentHtml = '';
+        let isVendorChecked = false;
+
         if (currentPR.type === 'service') {
-            currentPR.services.forEach(svc => {
-                // Kalkulasi UI Status untuk Checkbox Service (Two-Way Binding)
-                const svcItems = svc.jobs.flatMap(j => j.items);
-                const offeredSvcItems = svcItems.filter(i => vendorOffers[v.id].items[i.id]);
-                const isSvcChecked = offeredSvcItems.length > 0 && offeredSvcItems.every(i => selections[`${v.id}_${i.id}`]);
+            const vendorSelCount = Object.values(selections).filter(s => s.vendor_id == v.id).length;
+            isVendorChecked = vendorSelCount > 0;
 
-                contentHtml += `<div class="vc-svc-header"><input type="checkbox" ${isSvcChecked ? 'checked' : ''} onchange="toggleSvcCheckbox(${v.id}, '${svc.id}', this.checked)"> ${svc.service_name}</div>`;
+            contentHtml += `<div class="vc-svc-header">${currentPR.display_title}</div>`;
 
-                svc.jobs.forEach(job => {
-                    // Kalkulasi UI Status untuk Checkbox Job (Two-Way Binding)
-                    const offeredJobItems = job.items.filter(i => vendorOffers[v.id].items[i.id]);
-                    const isJobChecked = offeredJobItems.length > 0 && offeredJobItems.every(i => selections[`${v.id}_${i.id}`]);
-
-                    contentHtml += `<div class="vc-job-header"><input type="checkbox" ${isJobChecked ? 'checked' : ''} onchange="toggleJobCheckbox(${v.id}, '${job.id}', this.checked)"> ${job.description}</div><div class="vc-item-box">`;
-
-                    job.items.forEach(item => { contentHtml += renderItemCard(v, item, off); });
+            if(currentPR.jobs) {
+                currentPR.jobs.forEach(job => {
+                    contentHtml += `<div class="vc-job-header">${job.job_description}</div><div class="vc-item-box">`;
+                    if(job.items) { job.items.forEach(item => { contentHtml += renderItemCard(v, item, off); }); }
                     contentHtml += `</div>`;
                 });
-            });
+            }
         } else {
             contentHtml = currentPR.items.map(item => renderItemCard(v, item, off)).join('');
         }
-        
-        return `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
-            <div style="padding:12px 14px;border-bottom:1px solid #e5e7eb;background:#fff">
-                <div style="font-size:13.5px;font-weight:700;color:#111827">${vName}</div>
+
+        return `<div style="background:#f9fafb;border:1px solid ${isVendorChecked?'#3b5bdb':'#e5e7eb'};border-radius:12px;overflow:hidden;transition:all .15s">
+            <div style="padding:12px 14px;border-bottom:1px solid #e5e7eb;background:${isVendorChecked?'#eff6ff':'#fff'};display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-size:13.5px;font-weight:700;color:${isVendorChecked?'#1d4ed8':'#111827'}">${vName}</div>
+                ${currentPR.type === 'service' ?
+                    `<label style="font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer;color:${isVendorChecked?'#1d4ed8':'#6b7280'};">
+                        <input type="checkbox" ${isVendorChecked ? 'checked' : ''} onchange="toggleVendorService(${v.id}, this.checked)" style="width:16px;height:16px;accent-color:#3b5bdb;">
+                        Vendor Terpilih
+                    </label>` : ''}
             </div>
             <div style="padding:10px;max-height:650px;overflow-y:auto">${contentHtml}</div>
             <div style="padding:10px 14px;border-top:1px solid #e5e7eb;background:#fff;font-size:12.5px;font-weight:700;color:#111827">Total Quote <span id="vendor-total-${v.id}" style="float:right">${fmt(0)}</span></div>
@@ -416,48 +390,52 @@ function renderVendorCards(){
 }
 
 function renderItemCard(v, item, off) {
-    const o = off.items[item.id];
+    const o = off ? off.items[item.id] : null;
     if(!o) return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px;margin-bottom:8px">
         <div style="font-size:12.5px;font-weight:700;color:#111827;margin-bottom:6px">${item.item_name}</div>
         <div style="background:#fef2f2;border-radius:6px;padding:4px;font-size:11px;color:#b91c1c;font-weight:600;text-align:center">❌ NOT OFFERED</div>
     </div>`;
     
+    const isService = currentPR.type === 'service';
     const selKey = `${v.id}_${item.id}`;
     const isSelected = !!selections[selKey];
+    // FIX: parseFloat prevents string-concat bug
     let totalSel = 0;
-    for(let key in selections) { if (selections[key].item_id == item.id) totalSel += selections[key].quantity; }
-    
-    const isFullMatch = totalSel >= item.quantity;
+    for(let key in selections) { if (selections[key].item_id == item.id) totalSel += parseFloat(selections[key].quantity) || 0; }
+    const targetQty = parseFloat(item.quantity) || 0;
+
+    const isFullMatch = totalSel >= targetQty;
     const disableSel = isFullMatch && !isSelected;
 
-    const buyQty = isSelected ? selections[selKey].quantity : Math.min(o.qty_offered, Math.max(1, item.quantity - totalSel));
+    const buyQty = isSelected ? parseFloat(selections[selKey].quantity) : Math.min(o.qty_offered, Math.max(1, targetQty - totalSel));
     const subtotal = isSelected ? selections[selKey].subtotal : (buyQty * o.unit_price);
-    
-    const stokBadge = o.qty_offered < item.quantity ? `<span style="color:#ef4444">(Tersedia ${o.qty_offered})</span>` : `<span style="color:#10b981">(Tersedia)</span>`;
+    const stokBadge = o.qty_offered < targetQty ? `<span style="color:#ef4444">(Tersedia ${o.qty_offered})</span>` : `<span style="color:#10b981">(Tersedia)</span>`;
 
-    return `<div style="background:#fff;border:2px solid ${isSelected?'#3b5bdb':'#e5e7eb'};border-radius:8px;padding:10px;margin-bottom:8px;cursor:${disableSel?'not-allowed':'pointer'};opacity:${disableSel?'0.5':'1'};transition:all .15s"
-        ${disableSel ? '' : `onclick="toggleSelect(${v.id}, '${item.id}')"`}>
+    return `<div style="background:#fff;border:2px solid ${isSelected?'#3b5bdb':'#e5e7eb'};border-radius:8px;padding:10px;margin-bottom:8px;${!isService ? `cursor:${disableSel?'not-allowed':'pointer'}` : ''};opacity:${disableSel?'0.5':'1'};transition:all .15s"
+        ${!isService && !disableSel ? `onclick="toggleSelect(${v.id}, '${item.id}')"` : ''}>
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
             <div style="font-size:12.5px;font-weight:700;color:#111827;line-height:1.2">${item.item_name} <br><span style="font-size:10px;font-weight:600;margin-top:2px;display:inline-block">${stokBadge}</span></div>
-            <input type="checkbox" ${isSelected?'checked':''} ${disableSel?'disabled':''} onclick="event.stopPropagation(); ${disableSel ? '' : `toggleSelect(${v.id}, '${item.id}')`}" style="width:16px;height:16px;accent-color:#3b5bdb;">
+            ${!isService ? `<input type="checkbox" ${isSelected?'checked':''} ${disableSel?'disabled':''} onclick="event.stopPropagation(); toggleSelect(${v.id}, '${item.id}')" style="width:16px;height:16px;accent-color:#3b5bdb;">` : ''}
         </div>
         <div style="font-size:11px;display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center">
             <span style="color:#6b7280;font-weight:500">Harga</span>
-            <span style="font-weight:600;color:${isSelected?'#111827':'#6b7280'}">${fmt(o.unit_price)}</span>
-            <span style="color:${isSelected?'#3b5bdb':'#6b7280'};font-weight:${isSelected?'700':'500'}">Qty Beli</span>
+            <span style="font-weight:600;color:#111827">${fmt(o.unit_price)}</span>
+            <span style="color:#6b7280;font-weight:500">Qty Beli</span>
             <span style="display:flex;align-items:center;gap:5px">
                 <input type="number" onclick="event.stopPropagation()" onchange="updateQty(${v.id}, '${item.id}', this.value)"
                     value="${buyQty}" min="1" max="${o.qty_offered}"
                     style="width:50px;padding:3px 5px;border:1px solid ${isSelected?'#3b5bdb':'#d1d5db'};border-radius:4px;font-size:11px;font-weight:600;background:${isSelected?'#eff6ff':'#f9fafb'};"
-                    ${!isSelected || disableSel ? 'disabled' : ''}> <span style="color:#6b7280">/ ${item.quantity}</span>
+                    ${!isSelected || disableSel || isService ? 'disabled' : ''}> <span style="color:#6b7280">/ ${item.quantity}</span>
             </span>
             <span style="color:#6b7280;font-weight:500">Subtotal</span>
-            <span style="font-weight:700;color:${isSelected?'#111827':'#6b7280'}">${fmt(subtotal)}</span>
+            <span style="font-weight:700;color:#111827">${fmt(subtotal)}</span>
         </div>
     </div>`;
 }
 
 function toggleSelect(vId, itemId, forceRenderOnlyAtEnd = false) {
+    if (currentPR.type === 'service') return; 
+
     const selKey = `${vId}_${itemId}`;
     if(selections[selKey]){
         delete selections[selKey];
@@ -466,10 +444,10 @@ function toggleSelect(vId, itemId, forceRenderOnlyAtEnd = false) {
         const offer = vendorOffers[vId].items[itemId];
         if(item && offer) {
             let qtyAlreadySelected = 0;
-            for(let key in selections) { if (selections[key].item_id == itemId) qtyAlreadySelected += selections[key].quantity; }
-            if (qtyAlreadySelected >= item.quantity) return; // Limit penuh
+            for(let key in selections) { if (selections[key].item_id == itemId) qtyAlreadySelected += parseFloat(selections[key].quantity) || 0; }
+            if (qtyAlreadySelected >= parseFloat(item.quantity)) return;
 
-            let remainingNeed = item.quantity - qtyAlreadySelected;
+            let remainingNeed = parseFloat(item.quantity) - qtyAlreadySelected;
             let defaultBuyQty = Math.min(Math.max(1, remainingNeed), offer.qty_offered);
 
             selections[selKey] = { vendor_id: vId, item_id: itemId, item_name: item.item_name, unit_price: offer.unit_price, quantity: defaultBuyQty, unit: item.unit };
@@ -477,11 +455,8 @@ function toggleSelect(vId, itemId, forceRenderOnlyAtEnd = false) {
         }
     }
     
-    // Cegah lag dengan me-render hanya di akhir batch-loop saat menggunakan shortcut checkbox
     if(!forceRenderOnlyAtEnd) {
-        renderRequirementsTable(); 
-        renderVendorCards(); 
-        updateCounts();
+        renderRequirementsTable(); renderVendorCards(); updateCounts();
     }
 }
 
@@ -499,11 +474,12 @@ function updateQty(vendorId, itemId, val) {
 
 function updateCounts(){
     let itemsMet = 0;
-    if (currentPR) {
+    if (currentPR && currentPR.items) {
         currentPR.items.forEach(item => {
             let t = 0;
-            for(let key in selections) { if(selections[key].item_id == item.id) t += selections[key].quantity; }
-            if (t >= item.quantity) itemsMet++;
+            // FIX: parseFloat prevents string-concat bug
+            for(let key in selections) { if(selections[key].item_id == item.id) t += parseFloat(selections[key].quantity) || 0; }
+            if (t >= parseFloat(item.quantity)) itemsMet++;
         });
     }
     document.getElementById('sel-count').textContent = itemsMet; document.getElementById('footer-sel').textContent = itemsMet;
@@ -518,7 +494,12 @@ function updateCounts(){
 function updateVendorTotals(){
     serverVendors.forEach(v=>{
         let t=0;
-        currentPR.items.forEach(item=>{ const o = vendorOffers[v.id]?.items[item.id]; if(o) t += (o.qty_offered * o.unit_price); });
+        if(currentPR && currentPR.items) {
+            currentPR.items.forEach(item=>{
+                const o = vendorOffers[v.id]?.items[item.id];
+                if(o) t += (parseFloat(item.quantity) * o.unit_price);
+            });
+        }
         const el=document.getElementById('vendor-total-'+v.id); if(el) el.textContent=fmt(t);
     });
 }
@@ -527,10 +508,10 @@ function showSelectionResult() {
     let itemsMet = 0;
     currentPR.items.forEach(item => {
         let t = 0;
-        for(let key in selections) { if(selections[key].item_id == item.id) t += selections[key].quantity; }
-        if (t >= item.quantity) itemsMet++;
+        for(let key in selections) { if(selections[key].item_id == item.id) t += parseFloat(selections[key].quantity) || 0; }
+        if (t >= parseFloat(item.quantity)) itemsMet++;
     });
-    if (itemsMet < currentPR.items.length) { document.getElementById('warning-modal').style.display = 'flex'; } 
+    if (itemsMet < currentPR.items.length) { document.getElementById('warning-modal').style.display = 'flex'; }
     else { renderResultWorkspace(); }
 }
 
@@ -540,35 +521,81 @@ function forceShowSelectionResult() { closeWarningModal(); renderResultWorkspace
 function renderResultWorkspace() {
     document.getElementById('selection-workspace').style.display='none';
     document.getElementById('result-workspace').style.display='block';
-    document.getElementById('res-pr-label').textContent='Summary Split PO untuk '+currentPR.document_number;
- 
-    let grandTotal=0; let rowNum=1;
-    const itemsArr = Object.values(selections).map((s) => {
-        const item = currentPR.items.find(x => x.id == s.item_id);
-        const v = serverVendors.find(x => x.id == s.vendor_id) || {};
-        const vName = v.vendor_name || v.name || s.vendor_id;
-        grandTotal += s.subtotal;
-        
-        return `<tr style="border-bottom:1px solid #f3f4f6">
-            <td style="padding:10px 14px;color:#6b7280">${rowNum++}</td>
-            <td style="padding:10px 14px;font-weight:600;color:#111827">${s.item_name}</td>
-            <td style="padding:10px 14px"><span style="padding:3px 8px;border-radius:6px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700">${vName}</span></td>
-            <td style="padding:10px 14px;text-align:right;font-weight:700;font-size:13px">${s.quantity}</td>
-            <td style="padding:10px 14px">${s.unit}</td>
-            <td style="padding:10px 14px;text-align:right">${Number(s.unit_price).toLocaleString('id-ID')}</td>
-            <td style="padding:10px 14px;text-align:right;font-weight:700;color:#111827">${Number(s.subtotal).toLocaleString('id-ID')}</td>
-        </tr>`;
-    }).join('');
     
-    document.getElementById('selected-items-tbody').innerHTML = itemsArr;
+    document.getElementById('res-pr-label').textContent='Summary PO untuk '+ currentPR.display_doc;
+ 
+    let grandTotal=0; 
+    let rowNum=1;
+    let itemsArrHtml = '';
+
+    if (currentPR.type === 'service') {
+        currentPR.jobs.forEach(job => {
+            const jobItemsSelected = job.items.filter(i => Object.values(selections).some(s => s.item_id == i.id));
+            if(jobItemsSelected.length > 0) {
+                itemsArrHtml += `<tr style="background:#f3f4f6; border-bottom:1px dashed #d1d5db;">
+                    <td colspan="7" style="font-weight:700; color:#374151; padding:10px 14px;">🛠️ Scope: ${job.job_description}</td>
+                </tr>`;
+                
+                job.items.forEach(item => {
+                    const selKeys = Object.keys(selections).filter(k => selections[k].item_id == item.id);
+                    selKeys.forEach(k => {
+                        const s = selections[k];
+                        const v = serverVendors.find(x => x.id == s.vendor_id) || {};
+                        const vName = v.vendor_name || v.name || s.vendor_id;
+                        grandTotal += s.subtotal;
+                        
+                        itemsArrHtml += `<tr style="border-bottom:1px solid #f3f4f6; background:#fff">
+                            <td style="padding:10px 14px;color:#6b7280;padding-left:35px;">${rowNum++}</td>
+                            <td style="padding:10px 14px;font-weight:600;color:#111827">${s.item_name}</td>
+                            <td style="padding:10px 14px"><span style="padding:3px 8px;border-radius:6px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700">${vName}</span></td>
+                            <td style="padding:10px 14px;text-align:right;font-weight:700;font-size:13px">${s.quantity}</td>
+                            <td style="padding:10px 14px">${s.unit}</td>
+                            <td style="padding:10px 14px;text-align:right">${Number(s.unit_price).toLocaleString('id-ID')}</td>
+                            <td style="padding:10px 14px;text-align:right;font-weight:700;color:#111827">${Number(s.subtotal).toLocaleString('id-ID')}</td>
+                        </tr>`;
+                    });
+                });
+            }
+        });
+    } else {
+        itemsArrHtml = Object.values(selections).map((s) => {
+            const v = serverVendors.find(x => x.id == s.vendor_id) || {};
+            const vName = v.vendor_name || v.name || s.vendor_id;
+            grandTotal += s.subtotal;
+            
+            return `<tr style="border-bottom:1px solid #f3f4f6">
+                <td style="padding:10px 14px;color:#6b7280">${rowNum++}</td>
+                <td style="padding:10px 14px;font-weight:600;color:#111827">${s.item_name}</td>
+                <td style="padding:10px 14px"><span style="padding:3px 8px;border-radius:6px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700">${vName}</span></td>
+                <td style="padding:10px 14px;text-align:right;font-weight:700;font-size:13px">${s.quantity}</td>
+                <td style="padding:10px 14px">${s.unit}</td>
+                <td style="padding:10px 14px;text-align:right">${Number(s.unit_price).toLocaleString('id-ID')}</td>
+                <td style="padding:10px 14px;text-align:right;font-weight:700;color:#111827">${Number(s.subtotal).toLocaleString('id-ID')}</td>
+            </tr>`;
+        }).join('');
+    }
+    
+    document.getElementById('selected-items-tbody').innerHTML = itemsArrHtml;
     document.getElementById('grand-total-cell').textContent = fmt(grandTotal);
  
     const vSummaries={};
     Object.values(selections).forEach(s => {
         const v = serverVendors.find(x => x.id == s.vendor_id) || {};
         const vName = v.vendor_name || v.name || s.vendor_id;
-        if(!vSummaries[s.vendor_id]) { vSummaries[s.vendor_id] = { name:vName, items:[], total:0 }; }
-        vSummaries[s.vendor_id].items.push({ name:s.item_name, qty:s.quantity, unit:s.unit, price:s.unit_price, sub:s.subtotal });
+        if(!vSummaries[s.vendor_id]) { vSummaries[s.vendor_id] = { name:vName, total:0, jobs:{}, items:[] }; }
+
+        if (currentPR.type === 'service') {
+            // FIX: find which job scope this item belongs to
+            let jobDesc = null;
+            (currentPR.jobs || []).forEach(job => {
+                if ((job.items || []).some(it => it.id == s.item_id)) jobDesc = job.job_description;
+            });
+            jobDesc = jobDesc || '—';
+            if (!vSummaries[s.vendor_id].jobs[jobDesc]) vSummaries[s.vendor_id].jobs[jobDesc] = [];
+            vSummaries[s.vendor_id].jobs[jobDesc].push({ name:s.item_name, qty:s.quantity, unit:s.unit, price:s.unit_price, sub:s.subtotal });
+        } else {
+            vSummaries[s.vendor_id].items.push({ name:s.item_name, qty:s.quantity, unit:s.unit, price:s.unit_price, sub:s.subtotal });
+        }
         vSummaries[s.vendor_id].total += s.subtotal;
     });
 
@@ -577,10 +604,20 @@ function renderResultWorkspace() {
             <div style="display:flex;justify-content:space-between;border-bottom:1px solid #f3f4f6;padding-bottom:10px;margin-bottom:10px">
                 <div style="font-size:13.5px;font-weight:700;color:#1d4ed8">${vs.name}</div><div style="font-size:13.5px;font-weight:800;color:#111827">${fmt(vs.total)}</div>
             </div>
-            ${vs.items.map(it=>`<div style="margin-bottom:8px">
-                <div style="font-size:12.5px;font-weight:600;color:#374151">${it.name}</div>
-                <div style="font-size:11.5px;color:#9ca3af">${it.qty} ${it.unit} × Rp ${Number(it.price).toLocaleString('id-ID')} <span style="float:right;font-weight:700;color:#4b5563">${fmt(it.sub)}</span></div>
-            </div>`).join('')}
+            ${currentPR.type === 'service'
+                ? Object.entries(vs.jobs).map(([jobDesc, items]) => `
+                    <div style="margin-bottom:10px">
+                        <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px dashed #e5e7eb;">🛠️ ${jobDesc}</div>
+                        ${items.map(it=>`<div style="margin-bottom:6px">
+                            <div style="font-size:12.5px;font-weight:600;color:#374151">${it.name}</div>
+                            <div style="font-size:11.5px;color:#9ca3af">${it.qty} ${it.unit} × Rp ${Number(it.price).toLocaleString('id-ID')} <span style="float:right;font-weight:700;color:#4b5563">${fmt(it.sub)}</span></div>
+                        </div>`).join('')}
+                    </div>`).join('')
+                : vs.items.map(it=>`<div style="margin-bottom:8px">
+                    <div style="font-size:12.5px;font-weight:600;color:#374151">${it.name}</div>
+                    <div style="font-size:11.5px;color:#9ca3af">${it.qty} ${it.unit} × Rp ${Number(it.price).toLocaleString('id-ID')} <span style="float:right;font-weight:700;color:#4b5563">${fmt(it.sub)}</span></div>
+                </div>`).join('')
+            }
         </div>
     `).join('');
 }
@@ -590,19 +627,42 @@ function closeSubmitModal(){document.getElementById('submit-modal').style.displa
 function closeSuccess(){document.getElementById('success-popup').style.display='none'; backToStep1();}
 
 function submitToServer(){
-    const notes=document.getElementById('submit-notes').value.trim();
-    const payload={
-        purchase_request_id:currentPR.id, selection_notes:notes,
+    const notes = document.getElementById('submit-notes').value.trim();
+    const payload = {
+        purchase_request_id: currentPR.id,
+        item_type: currentPR.type,
+        selection_notes: notes,
         selections: Object.values(selections).map(s => ({ vendor_id: s.vendor_id, item_id: s.item_id, unit_price: s.unit_price, quantity: s.quantity, notes: s.notes })),
-        _token:document.querySelector('meta[name=csrf-token]')?.content||'',
+        _token: document.querySelector('meta[name=csrf-token]')?.content||'',
     };
     
-    fetch('{{ route("vendors.store.selection") }}',{ method:'POST', headers:{'Content-Type':'application/json','X-CSRF-TOKEN':payload._token}, body:JSON.stringify(payload) })
+    fetch('{{ route("vendors.store.selection") }}', { 
+        method:'POST', 
+        headers:{'Content-Type':'application/json','X-CSRF-TOKEN':payload._token}, 
+        body:JSON.stringify(payload) 
+    })
     .then(r=>r.json()).then(data=>{
-        closeSubmitModal(); document.getElementById('popup-pr').textContent=data.pr_number||currentPR.document_number; document.getElementById('success-popup').style.display='flex';
+        closeSubmitModal(); 
+        document.getElementById('popup-pr').textContent=data.pr_number || currentPR.display_doc; 
+        document.getElementById('success-popup').style.display='flex';
     }).catch(()=>{
-        closeSubmitModal(); document.getElementById('popup-pr').textContent=currentPR.document_number; document.getElementById('success-popup').style.display='flex';
+        closeSubmitModal(); 
+        document.getElementById('popup-pr').textContent=currentPR.display_doc; 
+        document.getElementById('success-popup').style.display='flex';
     });
 }
+
+// Auto-load PR/SR when arriving from "Select Vendor" button in modal (?key=type_id)
+document.addEventListener('DOMContentLoaded', function () {
+    const preKey = @json($selectedKey ?? '');
+    if (preKey) {
+        const sel = document.getElementById('pr-select');
+        if (sel) sel.value = preKey;
+        loadPR(preKey);
+        // Hide step1 dropdown so user lands directly on vendor cards
+        const step1 = document.getElementById('step1-card');
+        if (step1) step1.style.display = 'none';
+    }
+});
 </script>
 @endsection

@@ -43,4 +43,20 @@ class PurchaseRequest extends Model
     {
         return $this->hasMany(History::class);
     }
+
+    public function getDisplayDocAttribute()
+    {
+        return $this->document_number;
+    }
+
+    public function getDisplayTitleAttribute()
+    {
+        return $this->title;
+    }
+
+    public function getItemCountAttribute()
+    {
+        // Menghitung jumlah item barang
+        return $this->items ? $this->items->count() : 0;
+    }
 }

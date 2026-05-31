@@ -19,71 +19,136 @@ use App\Models\Vendor;
 use App\Models\VendorQuotation;
 use App\Models\VendorSelection;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. USERS
-        $admin = User::factory()->create(['name' => 'Admin Purchasing', 'email' => 'admin@purchasing.local', 'password' => bcrypt('password'), 'role' => 'purchasing', 'department' => 'Procurement']);
-        $req1  = User::factory()->create(['name' => 'Budi Santoso', 'email' => 'budi@company.local', 'password' => bcrypt('password'), 'role' => 'requester', 'department' => 'Operations']);
-        $req2  = User::factory()->create(['name' => 'John Smith', 'email' => 'john.smith@company.local', 'password' => bcrypt('password'), 'role' => 'requester', 'department' => 'Engineering']);
-        $req3  = User::factory()->create(['name' => 'Sarah Johnson', 'email' => 'sarah.johnson@company.local', 'password' => bcrypt('password'), 'role' => 'requester', 'department' => 'Maintenance']);
-
-        // 2. VENDORS
-        $v1 = Vendor::create(['vendor_name' => 'PT Sumber Mandiri', 'location' => 'Jakarta',  'contact' => '021-5551234', 'status' => 'active']);
-        $v2 = Vendor::create(['vendor_name' => 'PT Prima Niaga',    'location' => 'Bandung',  'contact' => '022-5559876', 'status' => 'active']);
-        $v3 = Vendor::create(['vendor_name' => 'CV Karya Teknik',   'location' => 'Surabaya', 'contact' => '031-5554321', 'status' => 'active']);
-
-        // 3. SKENARIO PURCHASE REQUESTS (GOODS)
-        
-        /* TEST CASE 1: PR Normal Selesai */
-        $pr1 = PurchaseRequest::create(['user_id' => $req1->id, 'document_number' => 'PR-2026-0101-001', 'title' => 'Pengadaan ATK Bulanan', 'department' => 'Operations', 'priority' => 'high', 'plant' => 'Cikarang', 'submission_date' => now()->subDays(20), 'requested_date' => now()->subDays(18), 'need_date' => now()->addDays(5), 'note' => 'Urgent for Q2', 'status' => 'completed']);
-        
-        $i1 = PurchaseRequestItem::create(['purchase_request_id' => $pr1->id, 'item_id' => 'OFF-001', 'item_name' => 'Kertas A4 80 GSM', 'quantity' => 50, 'unit' => 'Ream', 'specification' => 'Sinar Dunia / PaperOne', 'item_notes' => 'Tolong dipacking rapi']);
-        $i1_2 = PurchaseRequestItem::create(['purchase_request_id' => $pr1->id, 'item_id' => 'OFF-002', 'item_name' => 'Tinta Printer Epson 003', 'quantity' => 20, 'unit' => 'Botol', 'specification' => 'Black, Original', 'item_notes' => null]);
-        
-        $rfq1 = Rfq::create(['purchase_request_id' => $pr1->id, 'rfq_number' => 'RFQ-2026-0102-001', 'is_sent_to_user' => true, 'sent_to_user_at' => now()->subDays(15), 'status' => 'closed']);
-        QuotationPeriod::create(['rfq_id' => $rfq1->id, 'round' => 1, 'start_date' => now()->subDays(19), 'end_date' => now()->subDays(12), 'status' => 'closed']);
-        VendorQuotation::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v1->id, 'status' => 'submitted', 'submitted_at' => now()->subDays(17)]);
-        
-        $quot1 = Quotation::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v1->id, 'total_price' => 2500000, 'status' => 'finalized']);
-        $qd1 = QuotationDetail::create(['quotation_id' => $quot1->id, 'purchase_request_item_id' => $i1->id, 'offered_price_per_item' => 30000, 'offered_quantity' => 50]);
-        
-        $qs1 = QuotationSummary::create(['rfq_id' => $rfq1->id, 'quotation_detail_id' => $qd1->id, 'is_sent_to_user' => true, 'sent_to_user_at' => now()->subDays(14)]);
-        $vs1 = VendorSelection::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v1->id, 'quotation_id' => $quot1->id, 'decision_notes' => 'Best Price', 'decided_at' => now()->subDays(10)]);
-        SelectionItem::create(['vendor_selection_id' => $vs1->id, 'quotation_summary_id' => $qs1->id, 'final_price_per_item' => 30000, 'final_quantity' => 50]);
-
-        /* TEST CASE 2: Split PO / Multi-Vendor */
-        $prSplit = PurchaseRequest::create(['user_id' => $req3->id, 'document_number' => 'PR-2026-0105-SPLIT', 'title' => 'Peralatan Pabrik Kompleks', 'department' => 'Maintenance', 'priority' => 'high', 'plant' => 'Cibitung', 'submission_date' => now()->subDays(30), 'requested_date' => now()->subDays(29), 'need_date' => now()->addDays(10), 'note' => 'Harus dibagi ke vendor termurah', 'status' => 'in_process']);
-        PurchaseRequestItem::create(['purchase_request_id' => $prSplit->id, 'item_id' => 'TOL-001', 'item_name' => 'Bor Listrik Bosch', 'quantity' => 10, 'unit' => 'Unit', 'specification' => 'Bosch GSB 550 Professional', 'item_notes' => null]);
-        PurchaseRequestItem::create(['purchase_request_id' => $prSplit->id, 'item_id' => 'TOL-002', 'item_name' => 'Mata Bor Set', 'quantity' => 20, 'unit' => 'Set', 'specification' => 'HSS-R Metal Drill Bits', 'item_notes' => null]);
-
-        /* TEST CASE 3: PR Zonk */
-        $prZonk = PurchaseRequest::create(['user_id' => $req3->id, 'document_number' => 'PR-2026-0110-ZONK', 'title' => 'Sewa Genset Darurat', 'department' => 'Maintenance', 'priority' => 'high', 'plant' => 'Cikarang', 'submission_date' => now()->subDays(15), 'requested_date' => now()->subDays(15), 'need_date' => now()->addDays(2), 'note' => 'Butuh cepat tapi ga ada vendor yang merespon', 'status' => 'in_process']);
-        PurchaseRequestItem::create(['purchase_request_id' => $prZonk->id, 'item_id' => 'SVC-GEN-01', 'item_name' => 'Sewa Genset 500kVA', 'quantity' => 7, 'unit' => 'Hari', 'specification' => 'Service', 'item_notes' => null]);
-        $rfqZonk = Rfq::create(['purchase_request_id' => $prZonk->id, 'rfq_number' => 'RFQ-ZONK-001', 'is_sent_to_user' => false, 'sent_to_user_at' => null, 'status' => 'closed']);
-
-        // 4. SKENARIO SERVICE REQUEST (JASA NESTED)
-        $sr1 = ServiceRequest::create([
-            'user_id' => $req3->id,
-            'service_name' => 'Renovasi Atap Gudang Utama',
-            'submission_date' => now()->subDays(10),
-            'requested_date' => now()->subDays(8),
-            'plant' => 'Cikarang',
-            'status' => 'awaiting_approval'
+        // ── Wipe all tables in safe order (FK checks off) ──────────────────
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        DB::table('history')->truncate();
+        DB::table('selection_items')->truncate();
+        DB::table('vendor_selections')->truncate();
+        DB::table('quotation_summaries')->truncate();
+        DB::table('quotation_details')->truncate();
+        DB::table('quotations')->truncate();
+        DB::table('quotation_periods')->truncate();
+        DB::table('vendor_quotations')->truncate();
+        DB::table('rfqs')->truncate();
+        DB::table('service_request_items')->truncate();
+        DB::table('service_request_jobs')->truncate();
+        DB::table('service_requests')->truncate();
+        DB::table('purchase_request_items')->truncate();
+        DB::table('purchase_requests')->truncate();
+        DB::table('vendors')->truncate();
+        DB::table('users')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        // ───────────────────────────────────────────────────────────────────
+        // 1. SETUP USERS (1 Admin, 1 User)
+        $admin = User::create([
+            'name' => 'Admin Purchasing', 'email' => 'admin@company.com', 
+            'password' => Hash::make('password'), 'role' => 'purchasing', 'department' => 'Procurement'
         ]);
 
-        // JOB 1: Pembongkaran
-        $job1 = ServiceRequestJob::create(['service_request_id' => $sr1->id, 'job_description' => 'Pembongkaran Atap Lama']);
-        ServiceRequestItem::create(['job_id' => $job1->id, 'item_name' => 'Pekerja Lepas', 'quantity' => 5, 'unit' => 'Orang', 'specification' => 'Tenaga kasar']);
-        ServiceRequestItem::create(['job_id' => $job1->id, 'item_name' => 'Sewa Scaffolding', 'quantity' => 10, 'unit' => 'Set', 'specification' => 'Tinggi 3 meter']);
+        $user = User::create([
+            'name' => 'John Requester', 'email' => 'user@company.com', 
+            'password' => Hash::make('password'), 'role' => 'requester', 'department' => 'Operations'
+        ]);
 
-        // JOB 2: Pemasangan
-        $job2 = ServiceRequestJob::create(['service_request_id' => $sr1->id, 'job_description' => 'Pemasangan Atap Galvalum Baru']);
-        ServiceRequestItem::create(['job_id' => $job2->id, 'item_name' => 'Seng Galvalum 0.3mm', 'quantity' => 200, 'unit' => 'Lembar', 'specification' => 'Ukuran 2 meter']);
+        // 2. SETUP VENDORS
+        $v1 = Vendor::create(['vendor_name' => 'PT Tekno Mandiri', 'location' => 'Jakarta', 'contact' => '021-111111', 'status' => 'active']);
+        $v2 = Vendor::create(['vendor_name' => 'CV Maju Komputer', 'location' => 'Bandung', 'contact' => '022-222222', 'status' => 'active']);
+        $v3 = Vendor::create(['vendor_name' => 'PT Karya Jasa', 'location' => 'Surabaya', 'contact' => '031-333333', 'status' => 'active']);
+        $v4 = Vendor::create(['vendor_name' => 'CV Bangun Nusantara', 'location' => 'Semarang', 'contact' => '024-444444', 'status' => 'active']);
+
+        // 3. SKENARIO 1: GOODS - COMPLETED (SPLIT PO)
+        $pr1 = PurchaseRequest::create([
+            'user_id' => $user->id, 'document_number' => 'PR-2026-0001', 'title' => 'Pengadaan Perangkat IT Baru', 'department' => 'Operations', 'priority' => 'high', 'plant' => 'Cikarang', 
+            'submission_date' => now()->subDays(30), 'requested_date' => now()->subDays(29), 'need_date' => now()->addDays(5), 'note' => 'Untuk karyawan baru', 'status' => 'completed'
+        ]);
         
-        // 5. HISTORY DUMMY
-        History::create(['user_id' => $req1->id, 'action' => 'Purchase Request Created', 'transaction_status' => 'completed', 'notes' => 'PR Office Supplies Dibuat', 'action_date' => now()->subDays(20)]);
+        $pr1_i1 = PurchaseRequestItem::create(['purchase_request_id' => $pr1->id, 'item_id' => 'IT-001', 'item_name' => 'Laptop Thinkpad', 'quantity' => 2, 'unit' => 'Unit', 'specification' => 'Core i7']);
+        $pr1_i2 = PurchaseRequestItem::create(['purchase_request_id' => $pr1->id, 'item_id' => 'IT-002', 'item_name' => 'Mouse Wireless', 'quantity' => 5, 'unit' => 'Pcs', 'specification' => 'M220']);
+
+        $rfq1 = Rfq::create(['purchase_request_id' => $pr1->id, 'rfq_number' => 'RFQ-2026-001', 'is_sent_to_user' => true, 'sent_to_user_at' => now()->subDays(25), 'status' => 'closed', 'opened_at' => now()->subDays(28), 'closed_at' => now()->subDays(26)]);
+        QuotationPeriod::create(['rfq_id' => $rfq1->id, 'round' => 1, 'start_date' => now()->subDays(28), 'end_date' => now()->subDays(26), 'status' => 'closed']);
+        
+        // V1 Offer
+        VendorQuotation::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v1->id, 'status' => 'submitted', 'submitted_at' => now()->subDays(27)]);
+        $quot1_v1 = Quotation::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v1->id, 'total_price' => 30500000, 'status' => 'finalized']);
+        $qd1_v1_i1 = QuotationDetail::create(['quotation_id' => $quot1_v1->id, 'purchase_request_item_id' => $pr1_i1->id, 'offered_price_per_item' => 15000000, 'offered_quantity' => 2]);
+        $qd1_v1_i2 = QuotationDetail::create(['quotation_id' => $quot1_v1->id, 'purchase_request_item_id' => $pr1_i2->id, 'offered_price_per_item' => 100000, 'offered_quantity' => 5]);
+        $qs1_v1_i1 = QuotationSummary::create(['rfq_id' => $rfq1->id, 'quotation_detail_id' => $qd1_v1_i1->id, 'is_sent_to_user' => true]);
+        $qs1_v1_i2 = QuotationSummary::create(['rfq_id' => $rfq1->id, 'quotation_detail_id' => $qd1_v1_i2->id, 'is_sent_to_user' => true]);
+
+        // V2 Offer
+        VendorQuotation::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v2->id, 'status' => 'submitted', 'submitted_at' => now()->subDays(27)]);
+        $quot1_v2 = Quotation::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v2->id, 'total_price' => 32400000, 'status' => 'finalized']);
+        $qd1_v2_i1 = QuotationDetail::create(['quotation_id' => $quot1_v2->id, 'purchase_request_item_id' => $pr1_i1->id, 'offered_price_per_item' => 16000000, 'offered_quantity' => 2]); 
+        $qd1_v2_i2 = QuotationDetail::create(['quotation_id' => $quot1_v2->id, 'purchase_request_item_id' => $pr1_i2->id, 'offered_price_per_item' => 80000, 'offered_quantity' => 5]); 
+        $qs1_v2_i1 = QuotationSummary::create(['rfq_id' => $rfq1->id, 'quotation_detail_id' => $qd1_v2_i1->id, 'is_sent_to_user' => true]);
+        $qs1_v2_i2 = QuotationSummary::create(['rfq_id' => $rfq1->id, 'quotation_detail_id' => $qd1_v2_i2->id, 'is_sent_to_user' => true]);
+
+        // Split Selection: Laptop dari V1, Mouse dari V2
+        $sel1_v1 = VendorSelection::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v1->id, 'quotation_id' => $quot1_v1->id, 'decision_notes' => 'Pilih V1', 'decided_at' => now()->subDays(24)]);
+        SelectionItem::create(['vendor_selection_id' => $sel1_v1->id, 'quotation_summary_id' => $qs1_v1_i1->id, 'purchase_request_item_id' => $pr1_i1->id, 'final_price_per_item' => 15000000, 'final_quantity' => 2]);
+        
+        $sel1_v2 = VendorSelection::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v2->id, 'quotation_id' => $quot1_v2->id, 'decision_notes' => 'Pilih V2', 'decided_at' => now()->subDays(24)]);
+        SelectionItem::create(['vendor_selection_id' => $sel1_v2->id, 'quotation_summary_id' => $qs1_v2_i2->id, 'purchase_request_item_id' => $pr1_i2->id, 'final_price_per_item' => 80000, 'final_quantity' => 5]);
+
+        // 4. SKENARIO 2: GOODS - IN PROCESS (WAITING SELECTION)
+        $pr2 = PurchaseRequest::create([
+            'user_id' => $user->id, 'document_number' => 'PR-2026-0002', 'title' => 'Restock Alat Tulis Kantor', 'department' => 'Operations', 'priority' => 'normal', 'plant' => 'Cikarang', 
+            'submission_date' => now()->subDays(10), 'requested_date' => now()->subDays(9), 'need_date' => now()->addDays(14), 'note' => 'Stok habis', 'status' => 'in_process'
+        ]);
+        
+        $pr2_i1 = PurchaseRequestItem::create(['purchase_request_id' => $pr2->id, 'item_id' => 'ATK-01', 'item_name' => 'Kertas A4', 'quantity' => 100, 'unit' => 'Ream']);
+
+        $rfq2 = Rfq::create(['purchase_request_id' => $pr2->id, 'rfq_number' => 'RFQ-2026-002', 'is_sent_to_user' => true, 'sent_to_user_at' => now()->subDays(1), 'status' => 'closed']);
+        
+        // Tawaran V1
+        $quot2_v1 = Quotation::create(['rfq_id' => $rfq2->id, 'vendor_id' => $v1->id, 'total_price' => 4500000, 'status' => 'finalized']);
+        $qd2_v1_i1 = QuotationDetail::create(['quotation_id' => $quot2_v1->id, 'purchase_request_item_id' => $pr2_i1->id, 'offered_price_per_item' => 45000, 'offered_quantity' => 100]);
+        QuotationSummary::create(['rfq_id' => $rfq2->id, 'quotation_detail_id' => $qd2_v1_i1->id, 'is_sent_to_user' => true]);
+
+        // Tawaran V2
+        $quot2_v2 = Quotation::create(['rfq_id' => $rfq2->id, 'vendor_id' => $v2->id, 'total_price' => 4800000, 'status' => 'finalized']);
+        $qd2_v2_i1 = QuotationDetail::create(['quotation_id' => $quot2_v2->id, 'purchase_request_item_id' => $pr2_i1->id, 'offered_price_per_item' => 48000, 'offered_quantity' => 100]);
+        QuotationSummary::create(['rfq_id' => $rfq2->id, 'quotation_detail_id' => $qd2_v2_i1->id, 'is_sent_to_user' => true]);
+
+
+        // 5. SKENARIO 3: SERVICE - IN PROCESS (WAITING SELECTION)
+        $sr2 = ServiceRequest::create([
+            'user_id' => $user->id, 'document_number' => 'SR-2026-0001', 'service_name' => 'Renovasi Pantry', 'submission_date' => now()->subDays(5), 'requested_date' => now()->subDays(4), 'plant' => 'Cikarang', 'status' => 'in_process'
+        ]);
+
+        $sr2_job1 = ServiceRequestJob::create(['service_request_id' => $sr2->id, 'job_description' => 'Pembongkaran & Pembuangan']);
+        $sr2_i1 = ServiceRequestItem::create(['job_id' => $sr2_job1->id, 'item_name' => 'Jasa Bongkar Keramik', 'quantity' => 1, 'unit' => 'Lot']);
+        
+        $sr2_job2 = ServiceRequestJob::create(['service_request_id' => $sr2->id, 'job_description' => 'Pemasangan Interior Baru']);
+        $sr2_i2 = ServiceRequestItem::create(['job_id' => $sr2_job2->id, 'item_name' => 'Pemasangan Kitchen Set', 'quantity' => 1, 'unit' => 'Set']);
+
+        $rfq4 = Rfq::create(['service_request_id' => $sr2->id, 'rfq_number' => 'RFQ-SR-2026-002', 'is_sent_to_user' => true, 'sent_to_user_at' => now(), 'status' => 'closed']);
+        
+        // Tawaran V3 (Jasa)
+        $quot4_v3 = Quotation::create(['rfq_id' => $rfq4->id, 'vendor_id' => $v3->id, 'total_price' => 10500000, 'status' => 'finalized']);
+        $qd4_v3_i1 = QuotationDetail::create(['quotation_id' => $quot4_v3->id, 'service_request_item_id' => $sr2_i1->id, 'offered_price_per_item' => 1000000, 'offered_quantity' => 1]);
+        $qd4_v3_i2 = QuotationDetail::create(['quotation_id' => $quot4_v3->id, 'service_request_item_id' => $sr2_i2->id, 'offered_price_per_item' => 9500000, 'offered_quantity' => 1]);
+        QuotationSummary::create(['rfq_id' => $rfq4->id, 'quotation_detail_id' => $qd4_v3_i1->id, 'is_sent_to_user' => true]);
+        QuotationSummary::create(['rfq_id' => $rfq4->id, 'quotation_detail_id' => $qd4_v3_i2->id, 'is_sent_to_user' => true]);
+
+        // Tawaran V4 (Jasa Lebih Murah)
+        $quot4_v4 = Quotation::create(['rfq_id' => $rfq4->id, 'vendor_id' => $v4->id, 'total_price' => 9100000, 'status' => 'finalized']);
+        $qd4_v4_i1 = QuotationDetail::create(['quotation_id' => $quot4_v4->id, 'service_request_item_id' => $sr2_i1->id, 'offered_price_per_item' => 800000, 'offered_quantity' => 1]);
+        $qd4_v4_i2 = QuotationDetail::create(['quotation_id' => $quot4_v4->id, 'service_request_item_id' => $sr2_i2->id, 'offered_price_per_item' => 8300000, 'offered_quantity' => 1]);
+        QuotationSummary::create(['rfq_id' => $rfq4->id, 'quotation_detail_id' => $qd4_v4_i1->id, 'is_sent_to_user' => true]);
+        QuotationSummary::create(['rfq_id' => $rfq4->id, 'quotation_detail_id' => $qd4_v4_i2->id, 'is_sent_to_user' => true]);
+
+        // ==========================================
+        // 6. HISTORY UMUM
+        // ==========================================
+        History::create(['user_id' => $user->id, 'action' => 'User Account Created', 'notes' => 'Akun User John Requester dibuat.', 'action_date' => now()]);
     }
 }

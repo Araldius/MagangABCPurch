@@ -132,7 +132,13 @@
 
         <div id="goods-panel">
             <div class="form-row form-row-2">
-                <div class="form-group"><label class="form-label">Document Number <span class="req">*</span></label><input class="form-control" name="document_number" value="PR-{{ now()->format('Ymd') }}-XXX" id="goods-doc" required></div>
+                <div class="form-group">
+                    <label class="form-label">Document Number</label>
+                    <input class="form-control" id="goods-doc" value="{{ $nextPrDocNum ?? 'PR-'.now()->format('Y').'-XXXX' }}" readonly
+                        style="background:#f9fafb;color:#6b7280;cursor:not-allowed;"
+                        title="Auto-generated">
+                    <span style="font-size:11px;color:#9ca3af;margin-top:4px">Auto-generated saat submit</span>
+                </div>
                 <div class="form-group"><label class="form-label">Title / Project Name <span class="req">*</span></label><input class="form-control" name="title" id="goods-title" placeholder="e.g. Pengadaan ATK Bulanan" required></div>
             </div>
             <div class="form-group"><label class="form-label">Department</label><input class="form-control" name="department" value="{{ Auth::user()->department ?? '' }}"></div>
@@ -356,10 +362,7 @@ function renderGoodsTable(){
 }
 
 /* SERVICE LOGIC */
-const existingServices = [
-    { id: 'SRV-01', service_name: 'Overhaul Mesin Produksi A', jobs: [{description: 'Membongkar Core Engine', items: [{name: 'Seal Gasket', qty: 2, unit: 'Pcs', spec: 'Karet Viton'}]}] },
-    { id: 'SRV-02', service_name: 'Renovasi Fasilitas Kantor', jobs: [{description: 'Pengecatan Ruang IT', items: [{name: 'Cat Tembok Putih', qty: 2, unit: 'Box', spec: '25 KG'}]}] }
-];
+const existingServices = @json($existingServiceTemplates ?? []);
 
 let mainServicesData = []; 
 let selectedSvcTemplateId = null;
@@ -373,7 +376,7 @@ function renderSvcSelectionList(q='') {
     document.getElementById('svc-list-container').innerHTML = filtered.map(s => `
         <div class="item-option ${selectedSvcTemplateId===s.id?'selected':''}" onclick="selectSvcTemplate('${s.id}')">
             <div class="item-option-name">${s.service_name}</div>
-            <div class="item-option-desc">Contains ${s.jobs.length} job scope(s)</div>
+            <div class="item-option-desc">${s.doc_number ? s.doc_number+' — ' : ''}${s.jobs.length} job scope(s)</div>
         </div>`).join('');
 }
 function selectSvcTemplate(id) { selectedSvcTemplateId=id; renderSvcSelectionList(document.getElementById('svc-search').value.toLowerCase()); }

@@ -21,16 +21,20 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        // FIX: Query KEDUA model, bukan hanya PurchaseRequest
-        $prs = PurchaseRequest::with(['items', 'user'])
+        $prs = PurchaseRequest::with([
+            'items', 'user',
+            'rfqs.vendorSelections.vendor',
+            'rfqs.vendorSelections.selectionItems',
+            'rfqs.histories.user',
+        ])
             ->where('user_id', $userId)
             ->latest()
             ->get()
             ->map(function ($req) {
-                $req->type         = 'goods';
-                $req->display_doc  = $req->document_number;
+                $req->type          = 'goods';
+                $req->display_doc   = $req->document_number;
                 $req->display_title = $req->title;
-                $req->item_count   = $req->items->count();
+                $req->item_count    = $req->items->count();
                 return $req;
             });
 
@@ -39,19 +43,17 @@ class DashboardController extends Controller
             ->latest()
             ->get()
             ->map(function ($req) {
-                $req->type         = 'service';
-                $req->display_doc  = 'SR-' . str_pad($req->id, 4, '0', STR_PAD_LEFT);
+                $req->type          = 'service';
+                $req->display_doc   = $req->document_number ?? ('SR-' . now()->format('Y') . '-' . str_pad($req->id, 4, '0', STR_PAD_LEFT));
                 $req->display_title = $req->service_name;
                 $itemCount = 0;
                 foreach ($req->jobs as $job) { $itemCount += $job->items->count(); }
-                $req->item_count   = $itemCount;
+                $req->item_count = $itemCount;
                 return $req;
             });
 
-        // Merge dan sort descending by created_at, sama seperti PurchaseRequestController::index()
         $requests = $prs->concat($srs)->sortByDesc('created_at')->values();
 
-        // FIX: Hitung stat cards dari merged collection (sudah termasuk SR)
         $activePrs        = $requests->whereNotIn('status', ['completed', 'rejected', 'cancelled'])->count();
         $awaitingApproval = $requests->where('status', 'awaiting_approval')->count();
         $inProcess        = $requests->where('status', 'in_process')->count();
@@ -76,8 +78,12 @@ class DashboardController extends Controller
 
     private function purchasingDashboard()
     {
-        // FIX: Purchasing juga perlu lihat SR — merge kedua model untuk tabel
-        $prs = PurchaseRequest::with(['items', 'user'])
+        $prs = PurchaseRequest::with([
+            'items', 'user',
+            'rfqs.vendorSelections.vendor',
+            'rfqs.vendorSelections.selectionItems',
+            'rfqs.histories.user',
+        ])
             ->latest()
             ->get()
             ->map(function ($req) {
@@ -93,17 +99,16 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($req) {
                 $req->type          = 'service';
-                $req->display_doc   = 'SR-' . str_pad($req->id, 4, '0', STR_PAD_LEFT);
+                $req->display_doc   = $req->document_number ?? ('SR-' . now()->format('Y') . '-' . str_pad($req->id, 4, '0', STR_PAD_LEFT));
                 $req->display_title = $req->service_name;
                 $itemCount = 0;
                 foreach ($req->jobs as $job) { $itemCount += $job->items->count(); }
-                $req->item_count    = $itemCount;
+                $req->item_count = $itemCount;
                 return $req;
             });
 
         $requests = $prs->concat($srs)->sortByDesc('created_at')->values();
 
-        // Stat cards purchasing — hitung dari merged collection
         $activePrs        = $requests->count();
         $awaitingApproval = $requests->where('status', 'awaiting_approval')->count();
         $inProcess        = $requests->where('status', 'in_process')->count();

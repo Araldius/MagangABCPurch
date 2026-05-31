@@ -13,6 +13,7 @@ class ServiceRequest extends Model
 
     protected $fillable = [
         'user_id',
+        'document_number',
         'service_name',
         'submission_date',
         'requested_date',
@@ -36,5 +37,29 @@ class ServiceRequest extends Model
     public function rfqs()
     {
         return $this->hasMany(Rfq::class, 'service_request_id');
+    }
+
+    public function getDisplayDocAttribute()
+    {
+        return $this->document_number
+            ?? 'SR-' . ($this->created_at ?? now())->format('Y') . '-' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
+    }
+
+    public function getDisplayTitleAttribute()
+    {
+        // Service Request menggunakan kolom service_name sebagai judul
+        return $this->service_name;
+    }
+
+    public function getItemCountAttribute()
+    {
+        // Menghitung total item di dalam semua jobdesc
+        $count = 0;
+        if ($this->jobs) {
+            foreach ($this->jobs as $job) {
+                $count += $job->items ? $job->items->count() : 0;
+            }
+        }
+        return $count;
     }
 }

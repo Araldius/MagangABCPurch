@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('rfqs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('purchase_request_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('purchase_request_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('service_request_id')->nullable()->constrained('service_requests')->onDelete('cascade');
             $table->foreignId('vendor_id')->nullable()->constrained('vendors')->nullOnDelete();
             $table->text('note')->nullable();
             $table->string('status')->default('open');
