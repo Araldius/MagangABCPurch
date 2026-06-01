@@ -58,7 +58,7 @@
 <body>
 <aside class="sidebar">
     <div class="sidebar-brand">
-        <div class="sidebar-logo">DK</div>
+        <img src="{{ asset('img/Logo_DKJ.jpeg') }}" alt="DKJ Logo" class="sidebar-logo">
         <div>
             <div class="sidebar-brand-name">PT. Dunia Kimia Jaya</div>
             <div class="sidebar-brand-sub">Procurement Portal</div>
