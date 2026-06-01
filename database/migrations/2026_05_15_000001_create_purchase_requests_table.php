@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('plant');
             $table->date('need_date');
             $table->text('note')->nullable();
-            $table->string('status')->default('in process');
+            $table->string('status')->default('submitted');
             $table->timestamps();
         });
     }

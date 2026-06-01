@@ -22,7 +22,7 @@ class VendorController extends Controller
     private function buildViewData(): array
     {
         $user = auth()->user();
-        $validStatuses = ['in_process', 'approved', 'awaiting_approval'];
+        $validStatuses = ['vendor_search', 'vendor_selection'];
 
         $prs = PurchaseRequest::with(['items', 'rfqs.quotations.details'])
             ->whereIn('status', $validStatuses)
@@ -184,7 +184,7 @@ class VendorController extends Controller
             ]);
         }
 
-        $pr->update(['status' => 'approved']);
+        $pr->update(['status' => 'completed']);
 
         return response()->json([
             'success'   => true,

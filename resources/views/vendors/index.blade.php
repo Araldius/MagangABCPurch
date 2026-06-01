@@ -363,8 +363,12 @@ function renderVendorCards(){
             contentHtml += `<div class="vc-svc-header">${currentPR.display_title}</div>`;
 
             if(currentPR.jobs) {
-                currentPR.jobs.forEach(job => {
-                    contentHtml += `<div class="vc-job-header">${job.job_description}</div><div class="vc-item-box">`;
+                currentPR.jobs.forEach((job, jIdx) => {
+                    const allSelected = job.items.every(i => selections[`${v.id}_${i.id}`]);
+                    contentHtml += `<label class="vc-job-header" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" ${allSelected ? 'checked' : ''} onchange="toggleVendorJob(${v.id}, ${jIdx}, this.checked)" style="width:16px;height:16px;accent-color:#3b5bdb;">
+                        ${job.job_description}
+                    </label><div class="vc-item-box">`;
                     if(job.items) { job.items.forEach(item => { contentHtml += renderItemCard(v, item, off); }); }
                     contentHtml += `</div>`;
                 });
@@ -376,11 +380,6 @@ function renderVendorCards(){
         return `<div style="background:#f9fafb;border:1px solid ${isVendorChecked?'#3b5bdb':'#e5e7eb'};border-radius:12px;overflow:hidden;transition:all .15s">
             <div style="padding:12px 14px;border-bottom:1px solid #e5e7eb;background:${isVendorChecked?'#eff6ff':'#fff'};display:flex;justify-content:space-between;align-items:center;">
                 <div style="font-size:13.5px;font-weight:700;color:${isVendorChecked?'#1d4ed8':'#111827'}">${vName}</div>
-                ${currentPR.type === 'service' ?
-                    `<label style="font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer;color:${isVendorChecked?'#1d4ed8':'#6b7280'};">
-                        <input type="checkbox" ${isVendorChecked ? 'checked' : ''} onchange="toggleVendorService(${v.id}, this.checked)" style="width:16px;height:16px;accent-color:#3b5bdb;">
-                        Vendor Terpilih
-                    </label>` : ''}
             </div>
             <div style="padding:10px;max-height:650px;overflow-y:auto">${contentHtml}</div>
             <div style="padding:10px 14px;border-top:1px solid #e5e7eb;background:#fff;font-size:12.5px;font-weight:700;color:#111827">Total Quote <span id="vendor-total-${v.id}" style="float:right">${fmt(0)}</span></div>
@@ -431,6 +430,43 @@ function renderItemCard(v, item, off) {
             <span style="font-weight:700;color:#111827">${fmt(subtotal)}</span>
         </div>
     </div>`;
+}
+
+function toggleVendorJob(vId, jIdx, isChecked) {
+    const job = currentPR.jobs[jIdx];
+    if (!job || !job.items) return;
+    
+    if (!isChecked) {
+        // Unselect all
+        job.items.forEach(item => {
+            const selKey = `${vId}_${item.id}`;
+            delete selections[selKey];
+        });
+    } else {
+        // Select all
+        job.items.forEach(item => {
+            const offer = vendorOffers[vId].items[item.id];
+            if(offer) {
+                const selKey = `${vId}_${item.id}`;
+                if (!selections[selKey]) {
+                    // Select this item
+                    let qtyAlreadySelected = 0;
+                    for(let key in selections) { if (selections[key].item_id == item.id) qtyAlreadySelected += parseFloat(selections[key].quantity) || 0; }
+                    if (qtyAlreadySelected >= parseFloat(item.quantity)) return;
+
+                    let remainingNeed = parseFloat(item.quantity) - qtyAlreadySelected;
+                    let defaultBuyQty = Math.min(Math.max(1, remainingNeed), offer.qty_offered);
+
+                    selections[selKey] = { vendor_id: vId, item_id: item.id, item_name: item.item_name, unit_price: offer.unit_price, quantity: defaultBuyQty, unit: item.unit };
+                    selections[selKey].subtotal = defaultBuyQty * offer.unit_price;
+                }
+            }
+        });
+    }
+    
+    renderRequirementsTable();
+    renderVendorCards();
+    updateCounts();
 }
 
 function toggleSelect(vId, itemId, forceRenderOnlyAtEnd = false) {

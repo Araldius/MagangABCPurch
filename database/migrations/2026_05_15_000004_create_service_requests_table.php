@@ -15,7 +15,7 @@ return new class extends Migration
             $table->date('submission_date');
             $table->date('requested_date');
             $table->string('plant');
-            $table->enum('status', ['awaiting_approval', 'in_process', 'completed', 'cancelled']);
+            $table->enum('status', ['submitted', 'vendor_search', 'vendor_selection', 'completed', 'rejected', 'cancelled']);
             $table->timestamps();
         });
     }

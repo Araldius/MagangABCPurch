@@ -13,7 +13,7 @@ class RfqController extends Controller
     public function create()
     {
         /* Tampilkan PR yang statusnya awaiting_approval (bukan "pending") */
-        $requests = PurchaseRequest::where('status', 'awaiting_approval')
+        $requests = PurchaseRequest::where('status', 'submitted')
             ->whereDoesntHave('rfqs', fn($q) => $q->whereIn('status', ['open', 'closed']))
             ->latest()
             ->get();
@@ -50,8 +50,8 @@ class RfqController extends Controller
             'status'     => 'open',
         ]);
  
-        /* PR status → in_process (bukan rfq_open) */
-        $rfq->purchaseRequest->update(['status' => 'in_process']);
+        /* PR status → vendor_search */
+        $rfq->purchaseRequest->update(['status' => 'vendor_search']);
  
         History::create([
             'user_id'             => auth()->id(),

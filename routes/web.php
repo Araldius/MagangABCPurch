@@ -33,7 +33,11 @@ Route::middleware('auth')->group(function () {
     Route::get( 'purchase-request/{pr}',    [PurchaseRequestController::class, 'show'])->name('purchase_requests.show');
 
     /* Procurement History */
-    Route::get('procurement-history', [HistoryController::class, 'index'])->name('history.index');
+    Route::prefix('procurement-history')->name('history.')->group(function () {
+        Route::get('orders',  [HistoryController::class, 'orders'])->name('orders');
+        Route::get('items',   [HistoryController::class, 'items'])->name('items');
+        Route::get('vendors', [HistoryController::class, 'vendors'])->name('vendors');
+    });
 
     /* RFQ */
     Route::get( 'rfq/create', [RfqController::class, 'create'])->name('rfqs.create');

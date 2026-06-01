@@ -4,9 +4,9 @@
     $user      = auth()->user();
     $firstName = explode(' ', $user->name)[0];
     $statusCfg = [
-        'awaiting_approval' => ['Awaiting Approval', '#fff7ed','#c2410c','#f97316'],
-        'in_process'        => ['In Process',        '#f0f9ff','#0369a1','#0ea5e9'],
-        'approved'          => ['Approved',           '#f0fdf4','#15803d','#22c55e'],
+        'submitted' => ['Awaiting Approval', '#fff7ed','#c2410c','#f97316'],
+        'vendor_selection'        => ['Vendor Selection',        '#f0f9ff','#0369a1','#0ea5e9'],
+        'completed'          => ['completed',           '#f0fdf4','#15803d','#22c55e'],
         'completed'         => ['Completed',          '#eff6ff','#1d4ed8','#3b82f6'],
         'rejected'          => ['Rejected',           '#fef2f2','#b91c1c','#ef4444'],
         'cancelled'         => ['Cancelled',          '#f3f4f6','#374151','#9ca3af'],
@@ -22,7 +22,7 @@
 {{-- STAT CARDS --}}
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px">
-        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Active PRs</div>
+        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Active PR</div>
         <div style="font-size:28px;font-weight:800;color:#2563eb;margin:8px 0 5px;line-height:1">{{ $activePrs }}</div>
         <div style="font-size:11.5px;color:#9ca3af">Period: {{ now()->format('M Y') }}</div>
     </div>
@@ -59,15 +59,14 @@
         </select>
         <select id="dash-pr-status" onchange="applyDashPR()" style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;background:#fff;cursor:pointer;">
             <option value="">All Status</option>
-            <option value="awaiting_approval">Awaiting Approval</option>
-            <option value="in_process">In Process</option>
-            <option value="approved">Approved</option>
+            <option value="submitted">Awaiting Approval</option>
+            <option value="vendor_search">Vendor Search</option>
+            <option value="vendor_selection">Vendor Selection</option>
             <option value="completed">Completed</option>
             <option value="rejected">Rejected</option>
             <option value="cancelled">Cancelled</option>
         </select>
     </div>
-
     <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:12.5px">
             <thead>
@@ -76,7 +75,7 @@
                     <th onclick="dashPRSortFn(1)" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer;">REQUESTED DATE <span id="dps1">↕</span></th>
                     <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;">DESCRIPTION</th>
                     <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;">CATEGORY</th>
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;">QTY</th>
+                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;">ITEMS</th>
                     <th onclick="dashPRSortFn(5)" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer;">STATUS <span id="dps5">↕</span></th>
                     <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;white-space:nowrap;">SUBMITTED</th>
                     <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;white-space:nowrap;">LAST UPDATE</th>
@@ -106,12 +105,9 @@
                         if(!$itemCount && method_exists($pr, 'jobs')) {
                             foreach($pr->jobs as $job) { $itemCount += $job->items ? $job->items->count() : 0; }
                         }
-                        $qtyLabel = $itemCount . ' Items';
+                        $qtyLabel = $itemCount . ' Item(s)';
                     } else {
-                        $units = method_exists($pr, 'items') && $pr->items ? $pr->items->pluck('unit')->unique() : collect();
-                        $qtyLabel = $units->count() === 1
-                            ? ($pr->items ? $pr->items->sum('quantity') : 0) . ' ' . $units->first()
-                            : (method_exists($pr, 'items') && $pr->items ? $pr->items->count() : 0) . ' Items';
+                        $qtyLabel = ($pr->item_count ?? (method_exists($pr, 'items') && $pr->items ? $pr->items->count() : 0)) . ' Item(s)';
                     }
 
                     $submittedDate = \Carbon\Carbon::parse($pr->submission_date ?? $pr->created_at)->format('d M Y');
@@ -155,7 +151,7 @@
 <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f3f4f6">
         <span style="font-size:14px;font-weight:700;color:#111827">Recent Procurement Activity</span>
-        <a href="{{ route('history.index') }}" style="font-size:12px;font-weight:500;color:#6b7280;text-decoration:none">View All →</a>
+        <a href="{{ route('history.orders') }}" style="font-size:12px;font-weight:500;color:#6b7280;text-decoration:none">View All →</a>
     </div>
     <div style="display:flex;gap:8px;align-items:center;padding:12px 20px;border-bottom:1px solid #f3f4f6;flex-wrap:wrap;">
         <input type="text" id="dash-h-search" placeholder="Search vendor..." oninput="applyDashH()" style="height:32px;border:1px solid #e5e7eb;border-radius:7px;padding:0 10px;font-size:12.5px;width:180px;outline:none;">
@@ -171,7 +167,8 @@
         <select id="dash-h-status" onchange="applyDashH()" style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;background:#fff;cursor:pointer;">
             <option value="">All Status</option>
             <option value="completed">Completed</option>
-            <option value="in_process">In Process</option>
+            <option value="vendor_search">Vendor Search</option>
+            <option value="vendor_selection">Vendor Selection</option>
         </select>
     </div>
     <div style="overflow-x:auto">
@@ -278,7 +275,7 @@ function smartCompare(a, b, dir) {
 }
 
 const steps = [{label:'PR\nSubmitted'},{label:'Vendor\nSearch\n(Purchasing)'},{label:'Vendor\nSelection'},{label:'Completed'}];
-function getStep(s){ return s==='completed'?4:s==='approved'?3:s==='in_process'?2:1; }
+function getStep(s){ return s==='completed'?4:s==='vendor_selection'?3:s==='vendor_search'?2:1; }
 
 function buildProgressBar(status){
     const cur = getStep(status);
@@ -448,8 +445,9 @@ function openDetailModal(id, category) {
     vendorSelections.forEach(vs => {
         const vName = (vs.vendor && (vs.vendor.vendor_name || vs.vendor.name)) || '—';
         (vs.selection_items || []).forEach(si => {
-            if (si.purchase_request_item_id) {
-                itemVS[si.purchase_request_item_id] = {
+            const key = si.purchase_request_item_id || si.service_request_item_id;
+            if (key) {
+                itemVS[key] = {
                     vendor:     vName,
                     vendor_id:  vs.vendor_id,
                     unit_price: parseFloat(si.final_price_per_item) || 0,
@@ -468,10 +466,14 @@ function openDetailModal(id, category) {
         (vs.selection_items || []).forEach(si => {
             const subtotal = (parseFloat(si.final_price_per_item)||0) * (parseInt(si.final_quantity)||0);
             vendorTotals[vid].total += subtotal;
-            const prItem = (pr.items||[]).find(it => it.id == si.purchase_request_item_id);
+            const key = si.purchase_request_item_id || si.service_request_item_id;
+            const pool = (category === 'service' || pr.type === 'service')
+                ? (pr.jobs||[]).flatMap(j => j.items || [])
+                : (pr.items || []);
+            const prItem = pool.find(it => it.id == key);
             vendorTotals[vid].items.push({
                 item_id:    prItem?.item_id || '—',
-                item_name:  prItem?.item_name || '—',
+                item_name:  prItem?.item_name || prItem?.name || '—',
                 qty:        si.final_quantity,
                 unit_price: si.final_price_per_item,
                 subtotal,
@@ -504,16 +506,24 @@ function openDetailModal(id, category) {
 
     if (category === 'service' || pr.type === 'service' || pr.jobs) {
         (pr.jobs||[]).forEach(job => {
-            itemRows += `<tr><td colspan="${hasVS?9:6}" style="background:#f3f4f6;padding:6px 10px;font-weight:700;font-size:11.5px;">💼 JOB: ${job.job_description}</td></tr>`;
+            itemRows += `<tr><td colspan="${hasVS?10:7}" style="background:#f3f4f6;padding:6px 10px;font-weight:700;font-size:11.5px;">💼 JOB: ${job.job_description}</td></tr>`;
             (job.items||[]).forEach((it, i) => {
+                const vs = itemVS[it.id];
+                if (vs) grandTotal += vs.total;
                 itemRows += `<tr>
                     <td style="${tdStyle}">${i+1}</td>
-                    <td style="${tdStyle}color:#9ca3af;">—</td>
+                    <td style="${tdStyle}color:#9ca3af;font-family:monospace;">—</td>
                     <td style="${tdStyle}font-weight:500;">${it.item_name||it.name||'—'}</td>
-                    <td style="${tdStyle}color:#6b7280;">${it.specification||'—'}</td>
+                    <td style="${tdStyle}color:#6b7280;font-size:11.5px;">${it.item_notes||it.description||'—'}</td>
+                    <td style="${tdStyle}color:#6b7280;font-size:11.5px;">${it.specification||'—'}</td>
                     <td style="${tdStyle}text-align:right;font-weight:600;">${it.quantity}</td>
                     <td style="${tdStyle}color:#6b7280;">${it.unit}</td>
-                    ${hasVS?`<td style="${tdStyle}">—</td><td style="${tdStyle}">—</td><td style="${tdStyle}">—</td>`:''}
+                    ${hasVS ? `
+                    <td style="${tdStyle}font-family:monospace;font-weight:600;color:#111827;">${vs ? fmtRp(vs.unit_price) : '—'}</td>
+                    <td style="${tdStyle}font-family:monospace;font-weight:700;color:#111827;">${vs ? fmtRp(vs.total) : '—'}</td>
+                    <td style="${tdStyle}">
+                        ${vs ? `<span style="padding:2px 8px;background:#e0f2fe;border-radius:4px;font-size:11px;font-weight:600;color:#0369a1;white-space:nowrap;">${vs.vendor}</span>` : '—'}
+                    </td>` : ''}
                 </tr>`;
             });
         });
@@ -562,7 +572,7 @@ function openDetailModal(id, category) {
                 <div style="padding:8px 12px;display:flex;flex-direction:column;gap:5px;">
                     ${v.items.map(si=>`
                     <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#374151;">
-                        <span style="color:#6b7280;">${si.item_id} — ${si.qty} × ${fmtRp(si.unit_price)}</span>
+                        <span style="color:#6b7280;">${si.item_name} — ${si.qty} × ${fmtRp(si.unit_price)}</span>
                         <span style="font-family:monospace;font-weight:600;">${fmtRp(si.subtotal)}</span>
                     </div>`).join('')}
                 </div>

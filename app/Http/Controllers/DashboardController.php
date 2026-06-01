@@ -55,8 +55,8 @@ class DashboardController extends Controller
         $requests = $prs->concat($srs)->sortByDesc('created_at')->values();
 
         $activePrs        = $requests->whereNotIn('status', ['completed', 'rejected', 'cancelled'])->count();
-        $awaitingApproval = $requests->where('status', 'awaiting_approval')->count();
-        $inProcess        = $requests->where('status', 'in_process')->count();
+        $awaitingApproval = $requests->where('status', 'submitted')->count();
+        $inProcess        = $requests->whereIn('status', ['vendor_search', 'vendor_selection'])->count();
         $completedMonth   = $requests->where('status', 'completed')
             ->filter(fn($r) => $r->updated_at->month === now()->month
                             && $r->updated_at->year  === now()->year)
@@ -110,8 +110,8 @@ class DashboardController extends Controller
         $requests = $prs->concat($srs)->sortByDesc('created_at')->values();
 
         $activePrs        = $requests->count();
-        $awaitingApproval = $requests->where('status', 'awaiting_approval')->count();
-        $inProcess        = $requests->where('status', 'in_process')->count();
+        $awaitingApproval = $requests->where('status', 'submitted')->count();
+        $inProcess        = $requests->whereIn('status', ['vendor_search', 'vendor_selection'])->count();
         $completedMonth   = $requests->where('status', 'completed')
             ->filter(fn($r) => $r->updated_at->month === now()->month
                             && $r->updated_at->year  === now()->year)

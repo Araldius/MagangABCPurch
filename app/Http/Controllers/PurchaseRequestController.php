@@ -122,7 +122,7 @@ class PurchaseRequestController extends Controller
                     'submission_date' => now(),
                     'requested_date'  => $request->requested_date,
                     'plant'           => $request->plant,
-                    'status'          => 'awaiting_approval',
+                    'status'          => 'submitted',
                 ]);
 
                 foreach ($svcData['jobs'] as $jobData) {
@@ -176,7 +176,7 @@ class PurchaseRequestController extends Controller
                 'plant'           => $request->plant,
                 'submission_date' => now(),
                 'requested_date'  => $request->requested_date,
-                'status'          => 'awaiting_approval',
+                'status'          => 'submitted',
             ]);
 
             foreach ($request->items as $item) {

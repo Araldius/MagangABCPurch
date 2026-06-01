@@ -60,15 +60,15 @@
                     @forelse($latestRequests as $pr)
                     @php
                         $badgeClass = match($pr->status) {
-                            'awaiting_approval'=> 'badge-awaiting',
+                            'submitted'=> 'badge-awaiting',
                             'rfq_open'         => 'badge-rfq',
                             'completed'        => 'badge-completed',
                             'cancelled'        => 'badge-cancelled',
                             default            => 'badge-inprocess',
                         };
                         $badgeLabel = match($pr->status) {
-                            'in_process'          => 'In Process',
-                            'awaiting_approval'=> 'Awaiting',
+                            'vendor_selection'          => 'Vendor Selection',
+                            'submitted'=> 'Awaiting',
                             'rfq_open'         => 'RFQ Open',
                             'completed'        => 'Completed',
                             'cancelled'        => 'Cancelled',
@@ -117,7 +117,7 @@
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Kelola Vendor
                 </a>
-                <a href="{{ route('history.index') }}" class="btn btn-outline" style="width:100%;justify-content:center;">
+                <a href="{{ route('history.orders') }}" class="btn btn-outline" style="width:100%;justify-content:center;">
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Riwayat Pengadaan
                 </a>

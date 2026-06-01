@@ -1,10 +1,10 @@
 @extends('layouts.app')
 @php $pageTitle = 'Procurement History'; @endphp
 @section('content')
- 
+
 <div style="margin-bottom:20px">
     <h1 style="font-size:20px;font-weight:700;color:#111827;margin:0 0 3px">Procurement History</h1>
-    <p style="font-size:12.5px;color:#6b7280;margin:0">All purchase requests and completed procurement records.</p>
+    <p style="font-size:12.5px;color:#6b7280;margin:0">All selected vendors and completed procurement records.</p>
 </div>
  
 {{-- STAT CARDS --}}
@@ -30,35 +30,29 @@
         <div style="font-size:11.5px;color:#9ca3af">PR to goods received</div>
     </div>
 </div>
- 
+
 {{-- TABLE --}}
 <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f3f4f6;gap:10px;flex-wrap:wrap">
-        <div style="font-size:14px;font-weight:700;color:#111827">Vendor &amp; Procurement Records</div>
+        <div style="font-size:14px;font-weight:700;color:#111827">Item Catalog</div>
     </div>
 
     {{-- Toolbar --}}
     <div style="display:flex;gap:8px;align-items:center;padding:12px 20px;border-bottom:1px solid #f3f4f6;flex-wrap:wrap;">
-        <input type="text" id="hist-search" placeholder="Search vendor, doc number..."
+        <input type="text" id="hist-search" placeholder="Search Item..."
             oninput="applyHFilters()"
             style="height:32px;border:1px solid #e5e7eb;border-radius:7px;padding:0 10px;font-size:12.5px;width:200px;outline:none;font-family:inherit;">
         <div style="position:relative;">
-            <select id="unit-filter" onchange="applyHFilters()"
+            <select id="period-filter" onchange="applyHFilters()"
                 style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit;">
-                <option value="">All Units</option>
-                <option value="IT">IT</option>
-                <option value="Produksi">Produksi</option>
-                <option value="Finance">Finance</option>
-                <option value="Maintenance">Maintenance</option>
+                <option value="">All Periods</option>
             </select>
             <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
         </div>
         <div style="position:relative;">
-            <select id="hist-status-filter" onchange="applyHFilters()"
+            <select id="value-filter" onchange="applyHFilters()"
                 style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit;">
-                <option value="">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="in_process">In Process</option>
+                <option value="">All Values</option>
             </select>
             <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
         </div>
@@ -68,49 +62,25 @@
         <table style="width:100%;border-collapse:collapse;font-size:12.5px">
             <thead>
                 <tr style="background:#f9fafb">
-                    <th onclick="histSort(0)" style="padding:9px 20px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">DOC NO. <span id="hs0" style="font-size:9px;">↕</span></th>
-                    <th onclick="histSort(1)" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">VENDOR NAME <span id="hs1" style="font-size:9px;">↕</span></th>
-                    <th onclick="histSort(2)" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">UNIT / DEPT. <span id="hs2" style="font-size:9px;">↕</span></th>
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">ITEM</th>
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">QTY</th>
-                    <th onclick="histSort(5)" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">VALUE (RP) <span id="hs5" style="font-size:9px;">↕</span></th>
-                    <th onclick="histSort(6)" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">LEAD TIME <span id="hs6" style="font-size:9px;">↕</span></th>
-                    <th style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">STATUS</th>
+                    <th onclick="histSort(0)" style="padding:9px 20px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">ITEM ID <span id="hs0" style="font-size:9px;">↕</span></th>
+                    <th onclick="histSort(1)" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">ITEM NAME <span id="hs1" style="font-size:9px;">↕</span></th>
+                    <th onclick="histSort(2)" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">LAST PURCHASE <span id="hs2" style="font-size:9px;">↕</span></th>
+                    <th onclick="histSort(3)" style="padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;">LAST VALUE (RP) <span id="hs3" style="font-size:9px;">↕</span></th>
+                    <th style="padding:9px 20px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;">ACTION</th>
                 </tr>
             </thead>
             <tbody id="hist-tbody">
-                @forelse($records as $rec)
-                @php
-                    $sCfg=[
-                        'awaiting_approval'=>['Awaiting Approval','#fff7ed','#c2410c','#f97316'],
-                        'in_process'=>['In Process','#f0f9ff','#0369a1','#0ea5e9'],
-                        'approved'=>['Approved','#f0fdf4','#15803d','#22c55e'],
-                        'completed'=>['Completed','#eff6ff','#1d4ed8','#3b82f6'],
-                        'rejected'=>['Rejected','#fef2f2','#b91c1c','#ef4444'],
-                        'cancelled'=>['Cancelled','#f3f4f6','#374151','#9ca3af']
-                    ];
-                    [$sLabel,$sBg,$sText,$sDot]=$sCfg[$rec->status]??[ucfirst($rec->status),'#eff6ff','#1d4ed8','#3b82f6'];
-                    $firstItem=$rec->items->first();
-                    $deptColors=['Maintenance'=>['#e0f2fe','#0369a1'],'Produksi'=>['#dcfce7','#15803d'],'Production'=>['#dcfce7','#15803d'],'IT'=>['#ede9fe','#7c3aed'],'IT & Digital'=>['#ede9fe','#7c3aed'],'Finance'=>['#fef9c3','#92400e']];
-                    [$dBg,$dText]=$deptColors[$rec->department]??['#f1f5f9','#475569'];
-                @endphp
-                <tr data-dept="{{ $rec->department }}" data-status="{{ $rec->status }}"
-                    style="border-bottom:1px solid #f3f4f6"
+                @forelse($items as $idx => $item)
+                <tr style="border-bottom:1px solid #f3f4f6"
                     onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='transparent'">
-                    <td style="padding:13px 20px"><span style="font-family:'Courier New',monospace;font-size:12px;font-weight:600;color:#111827">{{ $rec->doc_number }}</span></td>
-                    <td style="padding:13px 14px">
-                        <div style="font-size:12.5px;font-weight:500;color:#111827">{{ $rec->vendor_name }}</div>
-                        <div style="font-size:11px;color:#9ca3af;margin-top:1px">{{ $rec->vendor_city }}</div>
-                    </td>
-                    <td style="padding:13px 14px"><span style="display:inline-flex;align-items:center;padding:2px 9px;border-radius:6px;font-size:11.5px;font-weight:600;background:{{ $dBg }};color:{{ $dText }}">{{ $rec->department }}</span></td>
-                    <td style="padding:13px 14px;font-size:12.5px;color:#111827">{{ optional($firstItem)->name??'—' }}</td>
-                    <td style="padding:13px 14px;font-size:12px;color:#374151">{{ optional($firstItem)->quantity??'—' }} {{ optional($firstItem)->unit??'' }}</td>
-                    <td style="padding:13px 14px;font-size:12.5px;font-weight:600;color:#111827">{{ $rec->total_value > 0 ? number_format($rec->total_value,0,',','.') : '—' }}</td>
-                    <td style="padding:13px 14px;font-size:12px;color:#6b7280">{{ $rec->lead_days ? $rec->lead_days.' days' : '—' }}</td>
-                    <td style="padding:13px 14px"><span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:{{ $sBg }};font-size:11.5px;font-weight:600;color:{{ $sText }};white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:{{ $sDot }}"></span>{{ $sLabel }}</span></td>
+                    <td style="padding:13px 20px"><span style="font-family:'Courier New',monospace;font-size:12px;font-weight:600;color:#111827">{{ $item['item_id'] }}</span></td>
+                    <td style="padding:13px 14px;font-size:12.5px;font-weight:600;color:#111827">{{ $item['item_name'] }}</td>
+                    <td style="padding:13px 14px;font-size:12.5px;color:#374151">{{ $item['last_purchase'] }}</td>
+                    <td style="padding:13px 14px;font-size:12.5px;font-weight:600;color:#111827">{{ number_format($item['last_value'],0,',','.') }}</td>
+                    <td style="padding:13px 20px"><button onclick="openItemDetail({{ $idx }})" style="padding:4px 10px;font-size:11.5px;font-weight:600;color:#374151;background:#fff;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer">Detail</button></td>
                 </tr>
                 @empty
-                <tr id="hist-empty"><td colspan="8" style="text-align:center;padding:36px 20px;color:#9ca3af;font-size:12.5px">No procurement records found.</td></tr>
+                <tr id="hist-empty"><td colspan="5" style="text-align:center;padding:36px 20px;color:#9ca3af;font-size:12.5px">No item records found.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -118,20 +88,79 @@
     <div id="hist-pager" style="padding:12px 20px;border-top:1px solid #f3f4f6;"></div>
 </div>
 
+{{-- MODAL ITEM HISTORY --}}
+<div id="item-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(17,24,39,0.4);z-index:999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)">
+    <div style="background:#fff;border-radius:12px;width:100%;max-width:1200px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 10px 25px -5px rgba(0,0,0,0.1)">
+        <div style="padding:16px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
+            <h2 style="font-size:14px;font-weight:700;color:#111827;margin:0" id="item-modal-title">Item History —</h2>
+            <button onclick="closeItemDetail()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:20px;line-height:1">×</button>
+        </div>
+        <div style="padding:0;overflow-y:auto;flex:1">
+            <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+                <thead>
+                    <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb">
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">DOC NO.</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">ITEM NAME</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">VENDOR</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">VALUE (RP)</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">QTY</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">UNIT</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">SPEC</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">REQUESTED BY</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">LEAD TIME</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">REQ DATE</th>
+                        <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7280;text-transform:uppercase">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody id="item-modal-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <script>
+let itemsData = @json($items);
+
+function openItemDetail(idx) {
+    const item = itemsData[idx];
+    if (!item) return;
+    document.getElementById('item-modal-title').innerText = `Item History — ${item.item_id}`;
+    let tbody = '';
+    item.history.forEach(h => {
+        tbody += `
+        <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:10px 14px;font-family:monospace;font-weight:600;font-size:11px">${h.doc_no || '-'}</td>
+            <td style="padding:10px 14px;font-weight:600">${h.item_name}</td>
+            <td style="padding:10px 14px">
+                <div style="font-weight:600">${h.vendor}</div>
+                <div style="font-size:10.5px;color:#9ca3af">${h.vendor_city}</div>
+            </td>
+            <td style="padding:10px 14px;font-weight:700">${new Intl.NumberFormat('id-ID').format(h.value)}</td>
+            <td style="padding:10px 14px">${h.qty}</td>
+            <td style="padding:10px 14px">${h.unit}</td>
+            <td style="padding:10px 14px;font-size:11.5px;color:#6b7280;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${h.spec}">${h.spec}</td>
+            <td style="padding:10px 14px">${h.requested_by}</td>
+            <td style="padding:10px 14px">${h.lead_time}</td>
+            <td style="padding:10px 14px">${h.req_date}</td>
+            <td style="padding:10px 14px"><button onclick="window.location.href='/procurement-history/orders?search=${h.doc_no || ''}'" style="padding:4px 10px;font-size:11.5px;font-weight:600;color:#374151;background:#fff;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer">Detail</button></td>
+        </tr>
+        `;
+    });
+    document.getElementById('item-modal-tbody').innerHTML = tbody;
+    document.getElementById('item-modal').style.display = 'flex';
+}
+function closeItemDetail() {
+    document.getElementById('item-modal').style.display = 'none';
+}
+
 let histSortState = { col: null, dir: 'asc' };
 let histPage = 1, histPageSize = 10;
 
 function applyHFilters() {
-    const q      = (document.getElementById('hist-search')?.value || '').toLowerCase();
-    const dept   = document.getElementById('unit-filter')?.value || '';
-    const status = document.getElementById('hist-status-filter')?.value || '';
+    const q = (document.getElementById('hist-search')?.value || '').toLowerCase();
 
-    let rows = Array.from(document.querySelectorAll('#hist-tbody tr[data-dept]'));
-
+    let rows = Array.from(document.querySelectorAll('#hist-tbody tr:not(#hist-empty)'));
     let filtered = rows.filter(r => {
-        if (dept   && r.dataset.dept   !== dept)   return false;
-        if (status && r.dataset.status !== status) return false;
         if (q && !r.textContent.toLowerCase().includes(q)) return false;
         return true;
     });
