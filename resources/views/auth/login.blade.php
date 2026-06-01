@@ -1,130 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | ProcureX</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #f3f4f6;
-            min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            -webkit-font-smoothing: antialiased;
-        }
-        .auth-card {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            width: 100%; max-width: 440px;
-            box-shadow: 0 4px 32px rgba(0,0,0,0.08);
-        }
-        .auth-title { font-size: 22px; font-weight: 700; color: #111827; text-align: center; }
-        .auth-sub { font-size: 14px; color: #6b7280; text-align: center; margin-top: 6px; }
-        .form-group { margin-top: 18px; display: flex; flex-direction: column; gap: 6px; }
-        .form-label { font-size: 11.5px; font-weight: 600; color: #111827; letter-spacing: .04em; text-transform: uppercase; }
-        .form-input {
-            padding: 10px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px; color: #111827;
-            font-family: inherit;
-            transition: border-color .15s, box-shadow .15s;
-            width: 100%;
-        }
-        .form-input:focus { outline: none; border-color: #3b5bdb; box-shadow: 0 0 0 3px rgba(59,91,219,.12); }
-        .form-input::placeholder { color: #9ca3af; }
-        .input-wrap { position: relative; }
-        .input-toggle {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; cursor: pointer; color: #9ca3af;
-            padding: 4px;
-        }
-        .input-toggle:hover { color: #4b5563; }
-        .form-row { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
-        .form-check { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #374151; cursor: pointer; }
-        .form-check input[type=checkbox] { width: 14px; height: 14px; accent-color: #3b5bdb; }
-        .link { color: #3b5bdb; text-decoration: none; font-size: 12.5px; font-weight: 500; }
-        .link:hover { text-decoration: underline; }
-        .btn-submit {
-            width: 100%;
-            margin-top: 20px;
-            padding: 11px;
-            background: #3b5bdb;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px; font-weight: 600;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-family: inherit;
-            transition: background .15s, box-shadow .15s;
-        }
-        .btn-submit:hover { background: #3451c7; box-shadow: 0 4px 12px rgba(59,91,219,.25); }
-        .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
-        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
-        .divider span { font-size: 12px; color: #9ca3af; }
-        .auth-footer { text-align: center; font-size: 13px; color: #6b7280; }
-        .alert-error {
-            background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
-            border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy-dark: #0f2942;
+  --sky-blue: #0ea5e9;
+  --bg: #F1F5F9;
+  --surface: #FFFFFF;
+  --border: #E2E8F0;
+  --border-focus: #0ea5e9;
+  --text: #1A1C1E;
+  --text-secondary: #64748B;
+  --text-muted: #64748B;
+  --accent: #0f2942;
+  --danger: #EF4444;
+  --danger-light: #FEF0EF;
+  --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+}
+.brand-logo-img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.left-panel {
+  width: 50%;
+  min-height: 100vh;
+  background: var(--navy-dark);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.5rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.left-panel::before {
+  content: '';
+  position: absolute;
+  top: -120px; right: -120px;
+  width: 420px; height: 420px;
+  border-radius: 50%;
+  background: rgba(14,165,233,0.10);
+}
+.left-panel::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -180px;
+  width: 360px; height: 360px;
+  border-radius: 50%;
+  border: 1px solid rgba(14,165,233,0.15);
+}
+.brand-row { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+.brand-logo {
+  width: 46px; height: 46px;
+  background: white; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 800;
+  color: var(--navy-dark); letter-spacing: -1px;
+}
+.brand-name { font-size: 16px; font-weight: 600; color: white; }
+.left-content { position: relative; z-index: 1; }
+.left-accent-line { width: 36px; height: 3px; background: var(--sky-blue); border-radius: 2px; margin-bottom: 1.5rem; }
+.left-heading { font-size: clamp(28px, 3vw, 38px); font-weight: 700; color: white; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 1rem; }
+.left-heading span { color: var(--sky-blue); }
+.left-sub { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; max-width: 320px; }
+.left-footer { font-size: 12px; color: rgba(255,255,255,0.3); position: relative; z-index: 1; }
+.right-panel {
+  flex: 1;
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 2.5rem;
+}
+.login-box { width: 100%; max-width: 420px; }
+.login-header { margin-bottom: 2rem; }
+.login-title { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+.login-sub { font-size: 14px; color: var(--text-secondary); }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; padding: 2rem;
+}
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.25rem; }
+label { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.04em; text-transform: uppercase; }
+input {
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 11px 12px; outline: none; width: 100%; transition: all 0.15s;
+}
+input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(14,165,233,0.1); }
+.input-wrap { position: relative; }
+.input-wrap input { padding-right: 40px; }
+.eye-btn {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); display: flex; align-items: center; padding: 4px;
+}
+.row-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.remember { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); cursor: pointer; }
+.remember input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+.forgot-link { font-size: 13px; color: var(--accent); text-decoration: none; font-weight: 600; }
+.forgot-link:hover { text-decoration: underline; }
+.btn-login {
+  width: 100%; padding: 12px;
+  background: var(--accent); color: white;
+  border: none; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-login:hover { background: #1a3a5c; box-shadow: 0 4px 12px rgba(15,41,66,0.25); }
+.divider { display: flex; align-items: center; gap: 12px; margin: 1.5rem 0; }
+.divider-line { flex: 1; height: 1px; background: var(--border); }
+.divider-text { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.register-link-row { text-align: center; font-size: 13.5px; color: var(--text-secondary); margin-top: 1.5rem; }
+.register-link-row a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.err-msg {
+  background: var(--danger-light); border: 1px solid #F5C6C3;
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 13px; color: var(--danger);
+  display: flex; align-items: center; gap: 8px; margin-bottom: 1.25rem;
+}
+.err-msg.hidden { display: none; }
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  .left-panel { width: 100%; min-height: auto; padding: 2rem; }
+  .left-panel::before, .left-panel::after { display: none; }
+  .left-content { padding: 2rem 0 1rem; }
+  .left-footer { display: none; }
+  .right-panel { padding: 2rem 1.25rem; }
+}
+</style>
 </head>
 <body>
-<div class="auth-card">
-    <div class="auth-title">Selamat Datang Kembali</div>
-    <div class="auth-sub">Masuk ke sistem purchasing untuk melanjutkan</div>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="brand-row">
+    <img src="{{ asset('img/Logo_DKJ.jpeg') }}" alt="DKJ Logo" class="brand-logo-img">
+    <div class="brand-name">PT. Dunia Kimia Jaya</div>
+  </div>
+
+  <div class="left-content">
+    <div class="left-accent-line"></div>
+    <div class="left-heading">Hello, <span>Welcome</span><br>Back!</div>
+    <div class="left-sub">Sign in to your account to access the AR data management system and continue your activities.</div>
+  </div>
+
+  <div class="left-footer">© 2026 PT. Dunia Kimia Jaya</div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="login-box">
+    <div class="login-header">
+      <div class="login-title">Welcome Back</div>
+      <div class="login-sub">Sign in to the purchasing system to continue</div>
+    </div>
 
     @if($errors->any())
-    <div class="alert-error" style="margin-top: 16px;">{{ $errors->first() }}</div>
+    <div class="err-msg">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <span>{{ $errors->first() }}</span>
+    </div>
     @endif
 
-    <form action="{{ route('login.post') }}" method="post">
+    <div class="card">
+      <form method="POST" action="{{ route('login.post') }}">
         @csrf
-
         <div class="form-group">
-            <label class="form-label" for="email">Alamat Email</label>
-            <input class="form-input" type="email" id="email" name="email"
-                   value="{{ old('email') }}" placeholder="nama@perusahaan.com" required autofocus>
+          <label>Email Address</label>
+          <input type="email" name="email" value="{{ old('email') }}" placeholder="name@company.com" autocomplete="email">
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="password">Password</label>
-            <div class="input-wrap">
-                <input class="form-input" type="password" id="password" name="password"
-                       placeholder="Masukkan password Anda" required style="padding-right: 40px;">
-                <button type="button" class="input-toggle" onclick="togglePass()" title="Show/hide password">
-                    <svg id="eye-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                    </svg>
-                </button>
-            </div>
+          <label>Password</label>
+          <div class="input-wrap">
+            <input type="password" name="password" id="passInput" placeholder="Enter your password" autocomplete="current-password">
+            <button class="eye-btn" onclick="togglePass()" type="button" id="eyeBtn">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </button>
+          </div>
         </div>
 
-        <div class="form-row">
-            <label class="form-check">
-                <input type="checkbox" name="remember" value="1"> Ingat Saya
-            </label>
-            <a href="#" class="link">Lupa password?</a>
+        <div class="row-between">
+          <label class="remember">
+            <input type="checkbox" name="remember"> Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
         </div>
 
-        <button type="submit" class="btn-submit">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Masuk ke Sistem
+        <button class="btn-login" type="submit">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+          Sign In
         </button>
-    </form>
 
-    <div class="divider"><span>ATAU</span></div>
-    <div class="auth-footer">Belum memiliki akun? <a href="{{ route('register') }}" class="link">Daftar sekarang</a></div>
+        <div class="divider">
+          <div class="divider-line"></div>
+          <div class="divider-text">or</div>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="register-link-row">
+          Don't have an account? <a href="{{ route('register') }}">Register now</a>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+
 <script>
-function togglePass() {
-    const input = document.getElementById('password');
-    input.type = input.type === 'password' ? 'text' : 'password';
-}
+  function togglePass() {
+    const inp = document.getElementById('passInput');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
 </script>
 </body>
 </html>
