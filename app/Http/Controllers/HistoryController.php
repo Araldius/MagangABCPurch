@@ -38,67 +38,93 @@ class HistoryController extends Controller
     public function orders()
     {
         $prs = $this->getBaseCompletedPRs();
-        $records = collect();
+        $recordMap = [];
 
         foreach ($prs as $pr) {
             $isPR = $pr instanceof PurchaseRequest;
+            $docNo = $pr->document_number;
+
+            if (!isset($recordMap[$docNo])) {
+                $recordMap[$docNo] = (object) [
+                    'doc_number'     => $docNo,
+                    'vendor_names'   => collect(),
+                    'department'     => $pr->department ?? optional($pr->user)->department ?? '—',
+                    'items'          => collect(),
+                    'total_value'    => 0,
+                    'lead_days'      => null,
+                    'status'         => $pr->status,
+                    'decided_at'     => null,
+                    'completed_date' => $pr->updated_at ? $pr->updated_at->format('d M Y') : '-',
+                ];
+            }
+            $rec = $recordMap[$docNo];
+
             foreach ($pr->rfqs as $rfq) {
                 foreach ($rfq->vendorSelections as $sel) {
                     $vendor = $sel->vendor;
-                    $totalValue = $sel->selectionItems->sum(fn($si) => ($si->final_price_per_item ?? 0) * ($si->final_quantity ?? 0));
+                    $vName = optional($vendor)->name ?? optional($vendor)->vendor_name ?? '—';
+                    if ($vName !== '—') $rec->vendor_names->push($vName);
+
+                    $selTotal = $sel->selectionItems->sum(fn($si) => ($si->final_price_per_item ?? 0) * ($si->final_quantity ?? 0));
+                    $rec->total_value += $selTotal;
+
                     $leadDays = $sel->decided_at ? (int) \Carbon\Carbon::parse($sel->decided_at)->diffInDays($pr->created_at) : null;
+                    if ($leadDays !== null && ($rec->lead_days === null || $leadDays > $rec->lead_days)) {
+                        $rec->lead_days = $leadDays;
+                    }
+                    if ($sel->decided_at && (!$rec->decided_at || $sel->decided_at > $rec->decided_at)) {
+                        $rec->decided_at = $sel->decided_at;
+                    }
 
                     $selectionItems = $sel->selectionItems->keyBy(function($si) use ($isPR) {
                         return $isPR ? $si->purchase_request_item_id : $si->service_request_item_id;
                     });
-                    $mappedItems = collect();
+
                     if ($isPR) {
                         foreach(optional($pr)->items ?? [] as $item) {
                             $si = $selectionItems->get($item->id);
-                            $mappedItems->push((object)[
+                            if (!$si) continue;
+                            $rec->items->push((object)[
                                 'item_id' => $item->item_id ?? $item->item_code,
                                 'name' => $item->item_name,
                                 'description' => $item->description,
                                 'specification' => $item->specification,
-                                'quantity' => $si ? $si->final_quantity : $item->quantity,
+                                'quantity' => $si->final_quantity,
                                 'unit' => $item->unit,
-                                'final_price_per_item' => $si ? $si->final_price_per_item : null,
+                                'final_price_per_item' => $si->final_price_per_item,
+                                'vendor_name' => $vName,
                             ]);
                         }
                     } else {
                         foreach(optional($pr)->jobs ?? [] as $job) {
                             foreach(optional($job)->items ?? [] as $item) {
                                 $si = $selectionItems->get($item->id);
-                                $mappedItems->push((object)[
-                                    'item_id' => null,
+                                if (!$si) continue;
+                                $rec->items->push((object)[
+                                    'item_id' => $item->item_id ?? $item->item_code ?? '-',
                                     'name' => $item->item_name,
                                     'description' => $job->job_description,
                                     'specification' => $item->specification,
-                                    'quantity' => $si ? $si->final_quantity : $item->quantity,
+                                    'quantity' => $si->final_quantity,
                                     'unit' => $item->unit,
-                                    'final_price_per_item' => $si ? $si->final_price_per_item : null,
+                                    'final_price_per_item' => $si->final_price_per_item,
+                                    'vendor_name' => $vName,
                                 ]);
                             }
                         }
                     }
-
-                    $records->push((object) [
-                        'doc_number'  => $pr->document_number,
-                        'vendor_name' => optional($vendor)->name ?? optional($vendor)->vendor_name ?? 'â€”',
-                        'vendor_city' => optional($vendor)->location ?? '',
-                        'department'  => $pr->department ?? optional($pr->user)->department ?? 'â€”',
-                        'items'       => $mappedItems,
-                        'total_value' => $totalValue,
-                        'lead_days'   => $leadDays,
-                        'status'      => $pr->status,
-                        'decided_at'  => $sel->decided_at,
-                        'completed_date' => $pr->updated_at ? $pr->updated_at->format('d M Y') : '-',
-                    ]);
                 }
             }
         }
 
-        $vendorsUsed  = $records->pluck('vendor_name')->reject(fn($v) => $v === 'â€”')->unique()->count();
+        // Finalize vendor_name as comma-separated string
+        $records = collect(array_values($recordMap));
+        $records->each(function($r) {
+            $r->vendor_name = $r->vendor_names->unique()->implode(', ') ?: '—';
+            unset($r->vendor_names);
+        });
+
+        $vendorsUsed  = $records->pluck('vendor_name')->reject(fn($v) => $v === '—')->flatMap(fn($v) => explode(', ', $v))->unique()->count();
         $totalValue   = $records->sum('total_value');
         $prsCompleted = $prs->count();
         $avgLeadDays  = round($records->filter(fn($r) => $r->lead_days !== null)->avg('lead_days') ?? 0);
@@ -134,10 +160,7 @@ class HistoryController extends Controller
                         }
 
                         if (!$pri) continue;
-                        $itemId = $pri->item_id ?? $pri->item_code ?? null;
-                        if (!$itemId) {
-                            $itemId = 'SVC-00' . ($pri->id ?? rand(1000, 9999));
-                        }
+                        $itemId = $pri->item_id ?? $pri->item_code ?? '-';
 
                         if (!isset($itemMap[$itemId])) {
                             $itemMap[$itemId] = [

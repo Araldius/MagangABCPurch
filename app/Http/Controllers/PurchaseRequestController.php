@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\History;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
+use App\Models\Rfq;
 use App\Models\ServiceRequest;
 use App\Models\ServiceRequestJob;
 use App\Models\ServiceRequestItem;
@@ -202,5 +203,124 @@ class PurchaseRequestController extends Controller
 
             return redirect()->route('pr.list')->with('success', "Request $docInfo berhasil dibuat.");
         }
+    }
+
+    public function approve(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+            'type' => 'required|string|in:goods,service',
+        ]);
+
+        $isService = $request->type === 'service';
+
+        if ($isService) {
+            $req = ServiceRequest::findOrFail($request->id);
+            $docNum = $req->document_number ?? ('SR-' . str_pad($req->id, 4, '0', STR_PAD_LEFT));
+        } else {
+            $req = PurchaseRequest::findOrFail($request->id);
+            $docNum = $req->document_number;
+        }
+
+        if ($req->status !== 'submitted') {
+            return back()->with('error', 'Request cannot be approved in its current status.');
+        }
+
+        $req->status = 'vendor_search';
+        $req->save();
+
+        // Create an RFQ if none exists so Admin can immediately add Quotations
+        $rfq = $req->rfqs()->first();
+        if (!$rfq) {
+            $todayCount = Rfq::whereDate('created_at', today())->count() + 1;
+            $rfq = Rfq::create([
+                'purchase_request_id' => $isService ? null : $req->id,
+                'service_request_id'  => $isService ? $req->id : null,
+                'rfq_number'          => 'RFQ-' . now()->format('Y-md') . '-' . str_pad($todayCount, 3, '0', STR_PAD_LEFT),
+                'status'              => 'open',
+                'opened_at'           => now(),
+            ]);
+        }
+
+        History::create([
+            'user_id'            => Auth::id(),
+            'rfq_id'             => $rfq->id,
+            'action'             => 'Request Approved',
+            'transaction_status' => 'completed',
+            'notes'              => "Dokumen $docNum disetujui dan masuk ke tahap Vendor Search.",
+            'action_date'        => now(),
+        ]);
+
+        return back()->with('success', "Request $docNum berhasil di-approve. Silakan tambahkan Quotation.");
+    }
+
+    public function reject(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+            'type' => 'required|string|in:goods,service',
+        ]);
+
+        $isService = $request->type === 'service';
+
+        if ($isService) {
+            $req = ServiceRequest::findOrFail($request->id);
+            $docNum = $req->document_number ?? ('SR-' . str_pad($req->id, 4, '0', STR_PAD_LEFT));
+        } else {
+            $req = PurchaseRequest::findOrFail($request->id);
+            $docNum = $req->document_number;
+        }
+
+        if ($req->status !== 'submitted') {
+            return back()->with('error', 'Request cannot be rejected in its current status.');
+        }
+
+        $req->status = 'rejected';
+        $req->save();
+
+        History::create([
+            'user_id'            => Auth::id(),
+            'action'             => 'Request Rejected',
+            'transaction_status' => 'completed',
+            'notes'              => "Dokumen $docNum ditolak oleh Admin.",
+            'action_date'        => now(),
+        ]);
+
+        return back()->with('success', "Request $docNum berhasil ditolak.");
+    }
+
+    public function cancel(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+            'type' => 'required|string|in:goods,service',
+        ]);
+
+        $isService = $request->type === 'service';
+
+        if ($isService) {
+            $req = ServiceRequest::findOrFail($request->id);
+            $docNum = $req->document_number ?? ('SR-' . str_pad($req->id, 4, '0', STR_PAD_LEFT));
+        } else {
+            $req = PurchaseRequest::findOrFail($request->id);
+            $docNum = $req->document_number;
+        }
+
+        if (!in_array($req->status, ['vendor_search', 'vendor_selection'])) {
+            return back()->with('error', 'Request cannot be cancelled in its current status.');
+        }
+
+        $req->status = 'cancelled';
+        $req->save();
+
+        History::create([
+            'user_id'            => Auth::id(),
+            'action'             => 'Request Cancelled',
+            'transaction_status' => 'completed',
+            'notes'              => "Dokumen $docNum dibatalkan oleh Admin.",
+            'action_date'        => now(),
+        ]);
+
+        return back()->with('success', "Request $docNum berhasil dibatalkan.");
     }
 }

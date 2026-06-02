@@ -41,9 +41,9 @@ class DatabaseSeeder extends Seeder
         foreach ($tables as $t) { DB::table($t)->truncate(); }
         try { DB::statement('PRAGMA foreign_keys = ON'); }
         catch (\Exception $e) { DB::statement('SET FOREIGN_KEY_CHECKS=1'); }
-        // ════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
         // 1. USERS
-        // ════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
         $admin = User::create([
             'name' => 'Admin Purchasing', 'email' => 'admin@company.com',
             'password' => Hash::make('password'), 'role' => 'purchasing', 'department' => 'Procurement',
@@ -56,9 +56,9 @@ class DatabaseSeeder extends Seeder
             'name' => 'Budi Santoso', 'email' => 'budi@company.com',
             'password' => Hash::make('password'), 'role' => 'user', 'department' => 'Maintenance',
         ]);
-        // ════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
         // 2. VENDORS (7 active vendors)
-        // ════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
         $v1 = Vendor::create(['vendor_name' => 'PT Tekno Mandiri',    'location' => 'Jakarta',  'contact' => '021-1111111', 'status' => 'active']);
         $v2 = Vendor::create(['vendor_name' => 'CV Maju Komputer',    'location' => 'Bandung',  'contact' => '022-2222222', 'status' => 'active']);
         $v3 = Vendor::create(['vendor_name' => 'PT Karya Jasa',       'location' => 'Surabaya', 'contact' => '031-3333333', 'status' => 'active']);
@@ -66,10 +66,10 @@ class DatabaseSeeder extends Seeder
         $v5 = Vendor::create(['vendor_name' => 'PT Sumber Makmur',    'location' => 'Cikarang', 'contact' => '021-5555555', 'status' => 'active']);
         $v6 = Vendor::create(['vendor_name' => 'CV Delta Sejahtera',  'location' => 'Bekasi',   'contact' => '021-6666666', 'status' => 'active']);
         $v7 = Vendor::create(['vendor_name' => 'PT Arindo Perkasa',   'location' => 'Gresik',   'contact' => '031-7777777', 'status' => 'active']);
-        // ════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
         // ── PURCHASE REQUESTS (GOODS) ────────────────────────────────────
-        // ════════════════════════════════════════════════════════════════════
-        // ── PR-01: COMPLETED — Pengadaan Perangkat IT (Split PO: Laptop→v1, Mouse→v2) ──
+        // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+        // ── PR-01: COMPLETED - Pengadaan Perangkat IT (Split PO: Laptopâ†’v1, Mouseâ†’v2) ──
         $pr1 = PurchaseRequest::create([
             'user_id' => $user->id, 'document_number' => 'PR-2026-0001',
             'title' => 'Pengadaan Perangkat IT Baru', 'department' => 'Operations',
@@ -94,13 +94,13 @@ class DatabaseSeeder extends Seeder
         $qd1v2i2 = QuotationDetail::create(['quotation_id' => $q1v2->id, 'purchase_request_item_id' => $pr1_i2->id, 'offered_price_per_item' => 80000,    'offered_quantity' => 5]);
         $qs1v2i1 = QuotationSummary::create(['rfq_id' => $rfq1->id, 'quotation_detail_id' => $qd1v2i1->id, 'is_sent_to_user' => true]);
         $qs1v2i2 = QuotationSummary::create(['rfq_id' => $rfq1->id, 'quotation_detail_id' => $qd1v2i2->id, 'is_sent_to_user' => true]);
-        // Split PO: Laptop→v1 (lebih murah), Mouse→v2 (lebih murah)
+        // Split PO: Laptopâ†’v1 (lebih murah), Mouseâ†’v2 (lebih murah)
         $sel1v1 = VendorSelection::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v1->id, 'quotation_id' => $q1v1->id, 'decision_notes' => 'V1 lebih murah untuk laptop',  'decided_at' => now()->subDays(24)]);
         SelectionItem::create(['vendor_selection_id' => $sel1v1->id, 'quotation_summary_id' => $qs1v1i1->id, 'purchase_request_item_id' => $pr1_i1->id, 'final_price_per_item' => 15000000, 'final_quantity' => 2, 'notes' => 'Best price laptop']);
         $sel1v2 = VendorSelection::create(['rfq_id' => $rfq1->id, 'vendor_id' => $v2->id, 'quotation_id' => $q1v2->id, 'decision_notes' => 'V2 lebih murah untuk mouse',  'decided_at' => now()->subDays(24)]);
         SelectionItem::create(['vendor_selection_id' => $sel1v2->id, 'quotation_summary_id' => $qs1v2i2->id, 'purchase_request_item_id' => $pr1_i2->id, 'final_price_per_item' => 80000,    'final_quantity' => 5, 'notes' => 'Best price mouse']);
-        History::create(['user_id' => $admin->id, 'rfq_id' => $rfq1->id, 'vendor_selection_id' => $sel1v1->id, 'action' => 'Vendor Selection Submitted', 'transaction_status' => 'completed', 'notes' => 'Split PO: Laptop→PT Tekno Mandiri, Mouse→CV Maju Komputer', 'action_date' => now()->subDays(24)]);
-        // ── PR-02: IN_PROCESS — Bahan Kimia Lab (3 vendor, komparasi harga + shortage) ──
+        History::create(['user_id' => $admin->id, 'rfq_id' => $rfq1->id, 'vendor_selection_id' => $sel1v1->id, 'action' => 'Vendor Selection Submitted', 'transaction_status' => 'completed', 'notes' => 'Split PO: Laptopâ†’PT Tekno Mandiri, Mouseâ†’CV Maju Komputer', 'action_date' => now()->subDays(24)]);
+        // ── PR-02: IN_PROCESS - Bahan Kimia Lab (3 vendor, komparasi harga + shortage) ──
         $pr2 = PurchaseRequest::create([
             'user_id' => $user->id, 'document_number' => 'PR-2026-0002',
             'title' => 'Pengadaan Bahan Kimia Lab', 'department' => 'Quality Control',
@@ -110,7 +110,7 @@ class DatabaseSeeder extends Seeder
             'status' => 'vendor_selection',
         ]);
         $pr2_i1 = PurchaseRequestItem::create(['purchase_request_id' => $pr2->id, 'item_id' => $this->itm(), 'item_name' => 'Asam Sulfat 98%',          'quantity' => 50,  'unit' => 'Liter', 'specification' => 'Grade Industri, sertifikasi COA']);
-        $pr2_i2 = PurchaseRequestItem::create(['purchase_request_id' => $pr2->id, 'item_id' => $this->itm(), 'item_name' => 'Natrium Hidroksida (NaOH)', 'quantity' => 30,  'unit' => 'Kg',    'specification' => 'Purity ≥97%']);
+        $pr2_i2 = PurchaseRequestItem::create(['purchase_request_id' => $pr2->id, 'item_id' => $this->itm(), 'item_name' => 'Natrium Hidroksida (NaOH)', 'quantity' => 30,  'unit' => 'Kg',    'specification' => 'Purity â‰¥97%']);
         $pr2_i3 = PurchaseRequestItem::create(['purchase_request_id' => $pr2->id, 'item_id' => $this->itm(), 'item_name' => 'Indikator pH Universal',    'quantity' => 10,  'unit' => 'Pak',   'specification' => 'Range 0-14, isi 100 strip']);
         $rfq2 = Rfq::create(['purchase_request_id' => $pr2->id, 'rfq_number' => 'RFQ-2026-0102', 'is_sent_to_user' => false, 'status' => 'open', 'opened_at' => now()->subDays(10)]);
         QuotationPeriod::create(['rfq_id' => $rfq2->id, 'round' => 1, 'start_date' => now()->subDays(10), 'end_date' => now()->addDays(4), 'status' => 'open']);
@@ -129,7 +129,7 @@ class DatabaseSeeder extends Seeder
         QuotationDetail::create(['quotation_id' => $q2v6->id, 'purchase_request_item_id' => $pr2_i2->id, 'offered_price_per_item' => 48000,  'offered_quantity' => 30]); // CHEAPEST
         QuotationDetail::create(['quotation_id' => $q2v6->id, 'purchase_request_item_id' => $pr2_i3->id, 'offered_price_per_item' => 105000, 'offered_quantity' => 10]); // CHEAPEST pH
         History::create(['user_id' => $admin->id, 'rfq_id' => $rfq2->id, 'action' => 'RFQ Created', 'transaction_status' => 'completed', 'notes' => 'RFQ-2026-0102 dibuat untuk PR-2026-0002', 'action_date' => now()->subDays(10)]);
-        // ── PR-03: IN_PROCESS — Peralatan Safety (4 item, 3 vendor, shortage harness) ──
+        // ── PR-03: IN_PROCESS - Peralatan Safety (4 item, 3 vendor, shortage harness) ──
         $pr3 = PurchaseRequest::create([
             'user_id' => $user2->id, 'document_number' => 'PR-2026-0003',
             'title' => 'Pengadaan Peralatan Safety', 'department' => 'HSE',
@@ -161,7 +161,7 @@ class DatabaseSeeder extends Seeder
         QuotationDetail::create(['quotation_id' => $q3v4->id, 'purchase_request_item_id' => $pr3_i1->id, 'offered_price_per_item' => 145000, 'offered_quantity' => 20]); // CHEAPEST helm
         QuotationDetail::create(['quotation_id' => $q3v4->id, 'purchase_request_item_id' => $pr3_i4->id, 'offered_price_per_item' => 16000,  'offered_quantity' => 100]); // CHEAPEST masker
         History::create(['user_id' => $admin->id, 'rfq_id' => $rfq3->id, 'action' => 'RFQ Created', 'transaction_status' => 'completed', 'notes' => 'RFQ-2026-0103 dibuat untuk PR-2026-0003', 'action_date' => now()->subDays(8)]);
-        // ── PR-04: APPROVED — Komponen Elektronik (1 vendor, VS done) ──
+        // ── PR-04: APPROVED - Komponen Elektronik (1 vendor, VS done) ──
         $pr4 = PurchaseRequest::create([
             'user_id' => $user->id, 'document_number' => 'PR-2026-0004',
             'title' => 'Restock Komponen Elektronik', 'department' => 'Engineering',
@@ -187,7 +187,7 @@ class DatabaseSeeder extends Seeder
         SelectionItem::create(['vendor_selection_id' => $sel4v2->id, 'quotation_summary_id' => $qs4v2i2->id, 'purchase_request_item_id' => $pr4_i2->id, 'final_price_per_item' => 45000, 'final_quantity' => 20]);
         SelectionItem::create(['vendor_selection_id' => $sel4v2->id, 'quotation_summary_id' => $qs4v2i3->id, 'purchase_request_item_id' => $pr4_i3->id, 'final_price_per_item' => 25000, 'final_quantity' => 15]);
         History::create(['user_id' => $admin->id, 'rfq_id' => $rfq4->id, 'vendor_selection_id' => $sel4v2->id, 'action' => 'Vendor Selection Submitted', 'transaction_status' => 'completed', 'notes' => 'Semua item dari CV Maju Komputer', 'action_date' => now()->subDays(9)]);
-        // ── PR-05: AWAITING_APPROVAL — Spare Part Mesin CNC ──
+        // ── PR-05: AWAITING_APPROVAL - Spare Part Mesin CNC ──
         $pr5 = PurchaseRequest::create([
             'user_id' => $user2->id, 'document_number' => 'PR-2026-0005',
             'title' => 'Pengadaan Spare Part Mesin CNC', 'department' => 'Maintenance',
@@ -196,11 +196,11 @@ class DatabaseSeeder extends Seeder
             'need_date' => now()->addDays(14), 'note' => 'Mesin CNC-03 breakdown, spare part darurat',
             'status' => 'submitted',
         ]);
-        PurchaseRequestItem::create(['purchase_request_id' => $pr5->id, 'item_id' => $this->itm(), 'item_name' => 'Bearing SKF 6205-2RS',   'quantity' => 8, 'unit' => 'Pcs',   'specification' => 'Inner Dia 25mm, 52×15mm']);
+        PurchaseRequestItem::create(['purchase_request_id' => $pr5->id, 'item_id' => $this->itm(), 'item_name' => 'Bearing SKF 6205-2RS',   'quantity' => 8, 'unit' => 'Pcs',   'specification' => 'Inner Dia 25mm, 52Ã—15mm']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr5->id, 'item_id' => $this->itm(), 'item_name' => 'V-Belt A-48',            'quantity' => 4, 'unit' => 'Pcs',   'specification' => 'Panjang 48 inch, lebar 13mm']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr5->id, 'item_id' => $this->itm(), 'item_name' => 'Oil Seal TC 25x42x7',   'quantity' => 6, 'unit' => 'Pcs',   'specification' => 'Nitrile rubber, double lip']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr5->id, 'item_id' => $this->itm(), 'item_name' => 'Relay Omron MY4N 24VDC','quantity' => 5, 'unit' => 'Pcs',   'specification' => '4 Pole, 5A']);
-        // ── PR-06: AWAITING_APPROVAL — Seragam Karyawan ──
+        // ── PR-06: AWAITING_APPROVAL - Seragam Karyawan ──
         $pr6 = PurchaseRequest::create([
             'user_id' => $user->id, 'document_number' => 'PR-2026-0006',
             'title' => 'Pengadaan Seragam Karyawan Baru', 'department' => 'HR',
@@ -212,7 +212,7 @@ class DatabaseSeeder extends Seeder
         PurchaseRequestItem::create(['purchase_request_id' => $pr6->id, 'item_id' => $this->itm(), 'item_name' => 'Kemeja Seragam Lengan Panjang', 'quantity' => 60, 'unit' => 'Pcs', 'specification' => 'Warna biru navy, bahan katun']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr6->id, 'item_id' => $this->itm(), 'item_name' => 'Celana Seragam Formal',         'quantity' => 60, 'unit' => 'Pcs', 'specification' => 'Warna abu-abu, bahan drill']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr6->id, 'item_id' => $this->itm(), 'item_name' => 'ID Card Holder Lanyard',        'quantity' => 30, 'unit' => 'Pcs', 'specification' => 'Logo perusahaan, anti-breakaway']);
-        // ── PR-07: IN_PROCESS — Pelumas Industri (4 vendor, split best-price) ──
+        // ── PR-07: IN_PROCESS - Pelumas Industri (4 vendor, split best-price) ──
         $pr7 = PurchaseRequest::create([
             'user_id' => $user2->id, 'document_number' => 'PR-2026-0007',
             'title' => 'Pengadaan Pelumas Industri', 'department' => 'Maintenance',
@@ -238,7 +238,7 @@ class DatabaseSeeder extends Seeder
         QuotationDetail::create(['quotation_id' => $q7v7->id, 'purchase_request_item_id' => $pr7_i1->id, 'offered_price_per_item' => 43000, 'offered_quantity' => 150]); // SHORTAGE
         QuotationDetail::create(['quotation_id' => $q7v7->id, 'purchase_request_item_id' => $pr7_i2->id, 'offered_price_per_item' => 70000, 'offered_quantity' => 50]);
         History::create(['user_id' => $admin->id, 'rfq_id' => $rfq7->id, 'action' => 'RFQ Created', 'transaction_status' => 'completed', 'notes' => 'RFQ-2026-0107 dibuat untuk PR-2026-0007', 'action_date' => now()->subDays(6)]);
-        // ── PR-08: AWAITING_APPROVAL — Packaging Material ──
+        // ── PR-08: AWAITING_APPROVAL - Packaging Material ──
         $pr8 = PurchaseRequest::create([
             'user_id' => $user->id, 'document_number' => 'PR-2026-0008',
             'title' => 'Pengadaan Packaging Material', 'department' => 'Warehouse',
@@ -247,12 +247,12 @@ class DatabaseSeeder extends Seeder
             'need_date' => now()->addDays(10), 'note' => 'Persiapan shipment Q3',
             'status' => 'submitted',
         ]);
-        PurchaseRequestItem::create(['purchase_request_id' => $pr8->id, 'item_id' => $this->itm(), 'item_name' => 'Kardus Box Double Wall 60×40×40', 'quantity' => 500, 'unit' => 'Pcs', 'specification' => 'Kraft paper, pre-printed logo']);
+        PurchaseRequestItem::create(['purchase_request_id' => $pr8->id, 'item_id' => $this->itm(), 'item_name' => 'Kardus Box Double Wall 60Ã—40Ã—40', 'quantity' => 500, 'unit' => 'Pcs', 'specification' => 'Kraft paper, pre-printed logo']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr8->id, 'item_id' => $this->itm(), 'item_name' => 'Bubble Wrap Rol 1.2m',            'quantity' => 20,  'unit' => 'Rol', 'specification' => 'Small bubble 10mm, panjang 50m']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr8->id, 'item_id' => $this->itm(), 'item_name' => 'Strapping Band PP 12mm',          'quantity' => 30,  'unit' => 'Rol', 'specification' => 'Lebar 12mm, tebal 0.6mm, 200m/rol']);
-        PurchaseRequestItem::create(['purchase_request_id' => $pr8->id, 'item_id' => $this->itm(), 'item_name' => 'Pallet Kayu EUR 120×80cm',         'quantity' => 50,  'unit' => 'Pcs', 'specification' => 'Fumigated ISPM 15']);
+        PurchaseRequestItem::create(['purchase_request_id' => $pr8->id, 'item_id' => $this->itm(), 'item_name' => 'Pallet Kayu EUR 120Ã—80cm',         'quantity' => 50,  'unit' => 'Pcs', 'specification' => 'Fumigated ISPM 15']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr8->id, 'item_id' => $this->itm(), 'item_name' => 'Lakban OPP Coklat 48mm',           'quantity' => 100, 'unit' => 'Rol', 'specification' => 'Tebal 50 mikron, 100m/rol']);
-        // ── PR-09: AWAITING_APPROVAL — Filter Udara Compressor ──
+        // ── PR-09: AWAITING_APPROVAL - Filter Udara Compressor ──
         $pr9 = PurchaseRequest::create([
             'user_id' => $user2->id, 'document_number' => 'PR-2026-0009',
             'title' => 'Pengadaan Filter Udara Compressor', 'department' => 'Maintenance',
@@ -263,7 +263,7 @@ class DatabaseSeeder extends Seeder
         ]);
         PurchaseRequestItem::create(['purchase_request_id' => $pr9->id, 'item_id' => $this->itm(), 'item_name' => 'Air Filter Element Atlas Copco',    'quantity' => 6, 'unit' => 'Pcs', 'specification' => 'GA37-75 series, OEM 1619127900']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr9->id, 'item_id' => $this->itm(), 'item_name' => 'Oil Filter Separator Cartridge',     'quantity' => 6, 'unit' => 'Pcs', 'specification' => 'GA55-75 series, coalescence type']);
-        // ── PR-10: REJECTED — Furnitur Kantor ──
+        // ── PR-10: REJECTED - Furnitur Kantor ──
         $pr10 = PurchaseRequest::create([
             'user_id' => $user->id, 'document_number' => 'PR-2026-0010',
             'title' => 'Pengadaan Furnitur Kantor Baru', 'department' => 'General Affairs',
@@ -272,14 +272,14 @@ class DatabaseSeeder extends Seeder
             'need_date' => now()->addDays(30), 'note' => 'Renovasi ruang meeting lantai 3',
             'status' => 'rejected',
         ]);
-        PurchaseRequestItem::create(['purchase_request_id' => $pr10->id, 'item_id' => $this->itm(), 'item_name' => 'Meja Rapat Premium Oval',    'quantity' => 1,  'unit' => 'Unit', 'specification' => 'Kayu jati, 300×120cm, 12 kursi']);
+        PurchaseRequestItem::create(['purchase_request_id' => $pr10->id, 'item_id' => $this->itm(), 'item_name' => 'Meja Rapat Premium Oval',    'quantity' => 1,  'unit' => 'Unit', 'specification' => 'Kayu jati, 300Ã—120cm, 12 kursi']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr10->id, 'item_id' => $this->itm(), 'item_name' => 'Kursi Rapat Executive',      'quantity' => 12, 'unit' => 'Unit', 'specification' => 'Kulit sintetis, armrest, swivel']);
         PurchaseRequestItem::create(['purchase_request_id' => $pr10->id, 'item_id' => $this->itm(), 'item_name' => 'Layar Proyektor 120 inch',   'quantity' => 1,  'unit' => 'Unit', 'specification' => 'Electric motorized, 16:9 ratio']);
         History::create(['user_id' => $admin->id, 'action' => 'Request Rejected', 'transaction_status' => 'completed', 'notes' => 'PR-2026-0010 ditolak: anggaran sudah habis untuk Q2', 'action_date' => now()->subDays(6)]);
-        // ════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
         // ── SERVICE REQUESTS ─────────────────────────────────────────────
-        // ════════════════════════════════════════════════════════════════════
-        // ── SR-01: IN_PROCESS — Renovasi Pantry (2 jobs, 3 vendor offering) ──
+        // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+        // ── SR-01: IN_PROCESS - Renovasi Pantry (2 jobs, 3 vendor offering) ──
         $sr1 = ServiceRequest::create([
             'user_id' => $user->id, 'document_number' => 'SR-2026-0001',
             'service_name' => 'Renovasi Pantry Gedung A',
@@ -287,11 +287,11 @@ class DatabaseSeeder extends Seeder
             'plant' => 'Cikarang', 'status' => 'vendor_selection',
         ]);
         $sr1_job1 = ServiceRequestJob::create(['service_request_id' => $sr1->id, 'job_code' => $this->svc(), 'job_description' => 'Pembongkaran & Pembuangan Material Lama']);
-        ServiceRequestItem::create(['job_id' => $sr1_job1->id, 'item_name' => 'Jasa Bongkar Keramik Lantai', 'quantity' => 1,  'unit' => 'Lot', 'specification' => '±50m2, termasuk angkut buang']);
+        ServiceRequestItem::create(['job_id' => $sr1_job1->id, 'item_name' => 'Jasa Bongkar Keramik Lantai', 'quantity' => 1,  'unit' => 'Lot', 'specification' => 'Â±50m2, termasuk angkut buang']);
         ServiceRequestItem::create(['job_id' => $sr1_job1->id, 'item_name' => 'Angkut & Buang Material Sisa','quantity' => 1,  'unit' => 'Lot', 'specification' => 'Biaya dump truck termasuk']);
         $sr1_job2 = ServiceRequestJob::create(['service_request_id' => $sr1->id, 'job_code' => $this->svc(), 'job_description' => 'Pemasangan Interior Baru']);
         $sr1_i3   = ServiceRequestItem::create(['job_id' => $sr1_job2->id, 'item_name' => 'Pemasangan Kitchen Set Modular', 'quantity' => 1,  'unit' => 'Set', 'specification' => 'HPL motif kayu, 4 pintu bawah + gantung']);
-        ServiceRequestItem::create(['job_id' => $sr1_job2->id, 'item_name' => 'Pemasangan Keramik 60×60',   'quantity' => 50, 'unit' => 'm2',  'specification' => 'Granit polish, termasuk nat']);
+        ServiceRequestItem::create(['job_id' => $sr1_job2->id, 'item_name' => 'Pemasangan Keramik 60Ã—60',   'quantity' => 50, 'unit' => 'm2',  'specification' => 'Granit polish, termasuk nat']);
         $rfq_sr1 = Rfq::create(['service_request_id' => $sr1->id, 'rfq_number' => 'RFQ-SR-2026-0001', 'is_sent_to_user' => true, 'sent_to_user_at' => now()->subDays(2), 'status' => 'closed', 'opened_at' => now()->subDays(4)]);
         $q_sr1_v3 = Quotation::create(['rfq_id' => $rfq_sr1->id, 'vendor_id' => $v3->id, 'total_price' => 10500000, 'status' => 'finalized']);
         $qd_sr1_v3= QuotationDetail::create(['quotation_id' => $q_sr1_v3->id, 'service_request_item_id' => $sr1_i3->id, 'offered_price_per_item' => 10500000, 'offered_quantity' => 1]);
@@ -302,7 +302,7 @@ class DatabaseSeeder extends Seeder
         $q_sr1_v5 = Quotation::create(['rfq_id' => $rfq_sr1->id, 'vendor_id' => $v5->id, 'total_price' => 8500000, 'status' => 'finalized']);
         $qd_sr1_v5= QuotationDetail::create(['quotation_id' => $q_sr1_v5->id, 'service_request_item_id' => $sr1_i3->id, 'offered_price_per_item' => 8500000, 'offered_quantity' => 1]);
         QuotationSummary::create(['rfq_id' => $rfq_sr1->id, 'quotation_detail_id' => $qd_sr1_v5->id, 'is_sent_to_user' => true]);
-        // ── SR-02: AWAITING_APPROVAL — Perawatan AC Gedung Utama (2 jobs) ──
+        // ── SR-02: AWAITING_APPROVAL - Perawatan AC Gedung Utama (2 jobs) ──
         $sr2 = ServiceRequest::create([
             'user_id' => $user->id, 'document_number' => 'SR-2026-0002',
             'service_name' => 'Perawatan AC Gedung Utama',
@@ -315,7 +315,7 @@ class DatabaseSeeder extends Seeder
         $sr2_job2 = ServiceRequestJob::create(['service_request_id' => $sr2->id, 'job_code' => $this->svc(), 'job_description' => 'Penggantian Komponen Rusak']);
         ServiceRequestItem::create(['job_id' => $sr2_job2->id, 'item_name' => 'Ganti Kapasitor 35/5 MFD',  'quantity' => 5,  'unit' => 'Pcs',  'specification' => 'Sesuai hasil diagnosa']);
         ServiceRequestItem::create(['job_id' => $sr2_job2->id, 'item_name' => 'Ganti Filter Udara Washable','quantity' => 10, 'unit' => 'Pcs',  'specification' => 'Ukuran sesuai unit masing-masing']);
-        // ── SR-03: AWAITING_APPROVAL — Instalasi Jaringan LAN (3 jobs) ──
+        // ── SR-03: AWAITING_APPROVAL - Instalasi Jaringan LAN (3 jobs) ──
         $sr3 = ServiceRequest::create([
             'user_id' => $user2->id, 'document_number' => 'SR-2026-0003',
             'service_name' => 'Instalasi Jaringan LAN Area Produksi',
@@ -331,7 +331,7 @@ class DatabaseSeeder extends Seeder
         $sr3_job3 = ServiceRequestJob::create(['service_request_id' => $sr3->id, 'job_code' => $this->svc(), 'job_description' => 'Testing & Commissioning']);
         ServiceRequestItem::create(['job_id' => $sr3_job3->id, 'item_name' => 'Test Link Speed & Latency',    'quantity' => 1, 'unit' => 'Lot', 'specification' => 'Semua titik node, generate laporan']);
         ServiceRequestItem::create(['job_id' => $sr3_job3->id, 'item_name' => 'Dokumentasi As-Built Drawing', 'quantity' => 1, 'unit' => 'Set', 'specification' => 'PDF + AutoCAD file']);
-        // ── SR-04: IN_PROCESS — Perbaikan Atap Warehouse (2 jobs, 3 vendor) ──
+        // ── SR-04: IN_PROCESS - Perbaikan Atap Warehouse (2 jobs, 3 vendor) ──
         $sr4 = ServiceRequest::create([
             'user_id' => $user2->id, 'document_number' => 'SR-2026-0004',
             'service_name' => 'Perbaikan Atap Warehouse Gresik',
@@ -356,7 +356,7 @@ class DatabaseSeeder extends Seeder
         $qd_sr4_v7= QuotationDetail::create(['quotation_id' => $q_sr4_v7->id, 'service_request_item_id' => $sr4_i1->id, 'offered_price_per_item' => 68000000, 'offered_quantity' => 1]);
         QuotationSummary::create(['rfq_id' => $rfq_sr4->id, 'quotation_detail_id' => $qd_sr4_v7->id, 'is_sent_to_user' => false]);
         History::create(['user_id' => $admin->id, 'rfq_id' => $rfq_sr4->id, 'action' => 'RFQ Created', 'transaction_status' => 'completed', 'notes' => 'RFQ SR-0004 dibuat, menunggu quotation vendor', 'action_date' => now()->subDays(12)]);
-        // ── SR-05: IN_PROCESS — Pengecatan Dinding Pabrik (2 jobs, 2 vendor) ──
+        // ── SR-05: IN_PROCESS - Pengecatan Dinding Pabrik (2 jobs, 2 vendor) ──
         $sr5 = ServiceRequest::create([
             'user_id' => $user->id, 'document_number' => 'SR-2026-0005',
             'service_name' => 'Pengecatan Dinding Pabrik Area A',
@@ -378,7 +378,7 @@ class DatabaseSeeder extends Seeder
         $qd_sr5_v5= QuotationDetail::create(['quotation_id' => $q_sr5_v5->id, 'service_request_item_id' => $sr5_i1->id, 'offered_price_per_item' => 36500000, 'offered_quantity' => 1]);
         QuotationSummary::create(['rfq_id' => $rfq_sr5->id, 'quotation_detail_id' => $qd_sr5_v5->id, 'is_sent_to_user' => false]);
         History::create(['user_id' => $admin->id, 'rfq_id' => $rfq_sr5->id, 'action' => 'RFQ Created', 'transaction_status' => 'completed', 'notes' => 'RFQ SR-0005 dibuat untuk SR Pengecatan', 'action_date' => now()->subDays(7)]);
-        // ── SR-06: APPROVED — Instalasi CCTV (3 jobs, VS done) ──
+        // ── SR-06: APPROVED - Instalasi CCTV (3 jobs, VS done) ──
         $sr6 = ServiceRequest::create([
             'user_id' => $user2->id, 'document_number' => 'SR-2026-0006',
             'service_name' => 'Instalasi Sistem CCTV Pabrik',
@@ -405,7 +405,7 @@ class DatabaseSeeder extends Seeder
         $sel_sr6  = VendorSelection::create(['rfq_id' => $rfq_sr6->id, 'vendor_id' => $v2->id, 'quotation_id' => $q_sr6_v2->id, 'decision_notes' => 'CV Maju Komputer best price, pengalaman CCTV industri', 'decided_at' => now()->subDays(13)]);
         SelectionItem::create(['vendor_selection_id' => $sel_sr6->id, 'quotation_summary_id' => $qs_sr6_v2->id, 'service_request_item_id' => $sr6_i1->id, 'final_price_per_item' => 118000000, 'final_quantity' => 1, 'notes' => 'Best price dari 2 penawaran']);
         History::create(['user_id' => $admin->id, 'rfq_id' => $rfq_sr6->id, 'vendor_selection_id' => $sel_sr6->id, 'action' => 'Vendor Selection Submitted', 'transaction_status' => 'completed', 'notes' => 'CV Maju Komputer dipilih untuk SR Instalasi CCTV', 'action_date' => now()->subDays(13)]);
-        // ── SR-07: COMPLETED — Perbaikan Sistem Plumbing (2 jobs) ──
+        // ── SR-07: COMPLETED - Perbaikan Sistem Plumbing (2 jobs) ──
         $sr7 = ServiceRequest::create([
             'user_id' => $user->id, 'document_number' => 'SR-2026-0007',
             'service_name' => 'Perbaikan Sistem Plumbing Toilet Lantai 2',
@@ -438,7 +438,7 @@ class DatabaseSeeder extends Seeder
         SelectionItem::create(['vendor_selection_id' => $sel_sr7->id, 'quotation_summary_id' => $qs_sr7_v3_4->id, 'service_request_item_id' => $sr7_i4->id, 'final_price_per_item' => 850000, 'final_quantity' => 4, 'notes' => 'Completed on time']);
         
         History::create(['user_id' => $admin->id, 'rfq_id' => $rfq_sr7->id, 'vendor_selection_id' => $sel_sr7->id, 'action' => 'Vendor Selection Submitted', 'transaction_status' => 'completed', 'notes' => 'PT Karya Jasa dipilih untuk SR Plumbing', 'action_date' => now()->subDays(26)]);
-        // ── SR-08: AWAITING_APPROVAL — Pekerjaan Sipil Area Produksi (3 jobs) ──
+        // ── SR-08: AWAITING_APPROVAL - Pekerjaan Sipil Area Produksi (3 jobs) ──
         $sr8 = ServiceRequest::create([
             'user_id' => $user2->id, 'document_number' => 'SR-2026-0008',
             'service_name' => 'Pekerjaan Sipil Area Produksi Line 3',
@@ -446,15 +446,15 @@ class DatabaseSeeder extends Seeder
             'plant' => 'Cikarang', 'status' => 'submitted',
         ]);
         $sr8_job1 = ServiceRequestJob::create(['service_request_id' => $sr8->id, 'job_code' => $this->svc(), 'job_description' => 'Persiapan & Demolisi']);
-        ServiceRequestItem::create(['job_id' => $sr8_job1->id, 'item_name' => 'Bongkar Lantai Beton Existing', 'quantity' => 150, 'unit' => 'm2',    'specification' => 'Tebal ±15cm, termasuk disposal']);
+        ServiceRequestItem::create(['job_id' => $sr8_job1->id, 'item_name' => 'Bongkar Lantai Beton Existing', 'quantity' => 150, 'unit' => 'm2',    'specification' => 'Tebal Â±15cm, termasuk disposal']);
         ServiceRequestItem::create(['job_id' => $sr8_job1->id, 'item_name' => 'Galian Saluran Drainase',       'quantity' => 50,  'unit' => 'Meter', 'specification' => 'Kedalaman 50cm, lebar 30cm']);
         $sr8_job2 = ServiceRequestJob::create(['service_request_id' => $sr8->id, 'job_code' => $this->svc(), 'job_description' => 'Pekerjaan Struktur']);
         ServiceRequestItem::create(['job_id' => $sr8_job2->id, 'item_name' => 'Cor Lantai Beton K-300',         'quantity' => 150, 'unit' => 'm2',    'specification' => 'Tebal 15cm, wiremesh M8-200, power trowel']);
-        ServiceRequestItem::create(['job_id' => $sr8_job2->id, 'item_name' => 'Pasang U-Ditch Precast 30×30',  'quantity' => 50,  'unit' => 'Meter', 'specification' => 'Cover besi']);
+        ServiceRequestItem::create(['job_id' => $sr8_job2->id, 'item_name' => 'Pasang U-Ditch Precast 30Ã—30',  'quantity' => 50,  'unit' => 'Meter', 'specification' => 'Cover besi']);
         $sr8_job3 = ServiceRequestJob::create(['service_request_id' => $sr8->id, 'job_code' => $this->svc(), 'job_description' => 'Finishing & Coating']);
         ServiceRequestItem::create(['job_id' => $sr8_job3->id, 'item_name' => 'Cat Epoxy Lantai 2 Lapis',   'quantity' => 150, 'unit' => 'm2',    'specification' => 'Industrial grade, warna abu']);
         ServiceRequestItem::create(['job_id' => $sr8_job3->id, 'item_name' => 'Floor Marking Garis Lajur',   'quantity' => 100, 'unit' => 'Meter', 'specification' => 'Lebar 10cm, cat epoxy kuning']);
-        // ── SR-09: IN_PROCESS — Kalibrasi Alat Ukur (2 jobs, 3 vendor) ──
+        // ── SR-09: IN_PROCESS - Kalibrasi Alat Ukur (2 jobs, 3 vendor) ──
         $sr9 = ServiceRequest::create([
             'user_id' => $user->id, 'document_number' => 'SR-2026-0009',
             'service_name' => 'Kalibrasi Alat Ukur Produksi',
@@ -463,7 +463,7 @@ class DatabaseSeeder extends Seeder
         ]);
         $sr9_job1 = ServiceRequestJob::create(['service_request_id' => $sr9->id, 'job_code' => $this->svc(), 'job_description' => 'Kalibrasi Instrumen Tekanan & Suhu']);
         $sr9_i1   = ServiceRequestItem::create(['job_id' => $sr9_job1->id, 'item_name' => 'Kalibrasi Pressure Gauge',   'quantity' => 15, 'unit' => 'Pcs',  'specification' => 'Range 0-10 bar, akurasi 0.5%']);
-        ServiceRequestItem::create(['job_id' => $sr9_job1->id, 'item_name' => 'Kalibrasi Thermocouple Type K', 'quantity' => 10, 'unit' => 'Pcs',  'specification' => 'Range -50~1200°C, NIST traceable']);
+        ServiceRequestItem::create(['job_id' => $sr9_job1->id, 'item_name' => 'Kalibrasi Thermocouple Type K', 'quantity' => 10, 'unit' => 'Pcs',  'specification' => 'Range -50~1200Â°C, NIST traceable']);
         $sr9_job2 = ServiceRequestJob::create(['service_request_id' => $sr9->id, 'job_code' => $this->svc(), 'job_description' => 'Kalibrasi Alat Ukur Dimensi & Massa']);
         ServiceRequestItem::create(['job_id' => $sr9_job2->id, 'item_name' => 'Kalibrasi Vernier Caliper',     'quantity' => 8,  'unit' => 'Pcs',  'specification' => '0-300mm, resolusi 0.02mm']);
         ServiceRequestItem::create(['job_id' => $sr9_job2->id, 'item_name' => 'Kalibrasi Timbangan Digital',   'quantity' => 5,  'unit' => 'Unit', 'specification' => 'Kapasitas 200kg, ketelitian 0.1kg']);
@@ -479,7 +479,7 @@ class DatabaseSeeder extends Seeder
         $qd_sr9_v7= QuotationDetail::create(['quotation_id' => $q_sr9_v7->id, 'service_request_item_id' => $sr9_i1->id, 'offered_price_per_item' => 11200000, 'offered_quantity' => 1]);
         QuotationSummary::create(['rfq_id' => $rfq_sr9->id, 'quotation_detail_id' => $qd_sr9_v7->id, 'is_sent_to_user' => false]);
         History::create(['user_id' => $admin->id, 'rfq_id' => $rfq_sr9->id, 'action' => 'RFQ Created', 'transaction_status' => 'completed', 'notes' => 'RFQ SR-0009 dibuat untuk Kalibrasi Alat Ukur', 'action_date' => now()->subDays(4)]);
-        // ── SR-10: AWAITING_APPROVAL — Pembersihan Tangki Chemical (2 jobs) ──
+        // ── SR-10: AWAITING_APPROVAL - Pembersihan Tangki Chemical (2 jobs) ──
         $sr10 = ServiceRequest::create([
             'user_id' => $user2->id, 'document_number' => 'SR-2026-0010',
             'service_name' => 'Pembersihan Tangki Storage Chemical',
@@ -492,7 +492,7 @@ class DatabaseSeeder extends Seeder
         $sr10_job2= ServiceRequestJob::create(['service_request_id' => $sr10->id, 'job_code' => $this->svc(), 'job_description' => 'Cleaning & Inspeksi Internal']);
         ServiceRequestItem::create(['job_id' => $sr10_job2->id, 'item_name' => 'Chemical Cleaning Tangki',       'quantity' => 2, 'unit' => 'Unit', 'specification' => 'High pressure water jet + neutralizer']);
         ServiceRequestItem::create(['job_id' => $sr10_job2->id, 'item_name' => 'Visual Inspection & UT Test',   'quantity' => 2, 'unit' => 'Unit', 'specification' => 'Thickness gauging, foto dokumentasi, laporan']);
-        // ── SR-11: IN_PROCESS — Retrofit Panel Listrik MCC (3 jobs, 4 vendor, komparasi terbaik) ──
+        // ── SR-11: IN_PROCESS - Retrofit Panel Listrik MCC (3 jobs, 4 vendor, komparasi terbaik) ──
         $sr11 = ServiceRequest::create([
             'user_id' => $user->id, 'document_number' => 'SR-2026-0011',
             'service_name' => 'Retrofit Panel Listrik MCC Lini 2',
@@ -505,13 +505,13 @@ class DatabaseSeeder extends Seeder
         $sr11_job2= ServiceRequestJob::create(['service_request_id' => $sr11->id, 'job_code' => $this->svc(), 'job_description' => 'Pengadaan & Pemasangan Komponen']);
         ServiceRequestItem::create(['job_id' => $sr11_job2->id, 'item_name' => 'Pasang MCCB 3P 400A Schneider',  'quantity' => 4,  'unit' => 'Unit',  'specification' => 'Icu 50kA, komplet dengan trafo CT']);
         ServiceRequestItem::create(['job_id' => $sr11_job2->id, 'item_name' => 'Pasang Soft Starter 75kW ABB',   'quantity' => 2,  'unit' => 'Unit',  'specification' => 'PSR/PSTX series, bypass contactor']);
-        ServiceRequestItem::create(['job_id' => $sr11_job2->id, 'item_name' => 'Rewiring Bus Bar Copper 100×10', 'quantity' => 20, 'unit' => 'Meter', 'specification' => 'TPN, sleeve heat shrink']);
+        ServiceRequestItem::create(['job_id' => $sr11_job2->id, 'item_name' => 'Rewiring Bus Bar Copper 100Ã—10', 'quantity' => 20, 'unit' => 'Meter', 'specification' => 'TPN, sleeve heat shrink']);
         $sr11_job3= ServiceRequestJob::create(['service_request_id' => $sr11->id, 'job_code' => $this->svc(), 'job_description' => 'Testing, Commissioning & Training']);
         ServiceRequestItem::create(['job_id' => $sr11_job3->id, 'item_name' => 'Testing Insulation & Relay',      'quantity' => 1, 'unit' => 'Lot', 'specification' => 'Megger test, OC & GF relay setting']);
         ServiceRequestItem::create(['job_id' => $sr11_job3->id, 'item_name' => 'Commissioning & Training Operator','quantity' => 1, 'unit' => 'Lot', 'specification' => '1 hari komisioning + 0.5 hari training']);
         $rfq_sr11 = Rfq::create(['service_request_id' => $sr11->id, 'rfq_number' => 'RFQ-SR-2026-0011', 'is_sent_to_user' => false, 'status' => 'open', 'opened_at' => now()->subDays(9)]);
         QuotationPeriod::create(['rfq_id' => $rfq_sr11->id, 'round' => 1, 'start_date' => now()->subDays(9), 'end_date' => now()->addDays(5), 'status' => 'open']);
-        // 4 vendor — komparasi harga terbaik
+        // 4 vendor - komparasi harga terbaik
         $q_sr11_v1 = Quotation::create(['rfq_id' => $rfq_sr11->id, 'vendor_id' => $v1->id, 'total_price' => 380000000, 'status' => 'finalized']);
         $qd_sr11_v1= QuotationDetail::create(['quotation_id' => $q_sr11_v1->id, 'service_request_item_id' => $sr11_i1->id, 'offered_price_per_item' => 380000000, 'offered_quantity' => 1]);
         QuotationSummary::create(['rfq_id' => $rfq_sr11->id, 'quotation_detail_id' => $qd_sr11_v1->id, 'is_sent_to_user' => false]);
@@ -543,9 +543,15 @@ class DatabaseSeeder extends Seeder
                 
                 // Hapus detail lama yang tidak lengkap
                 $existingQdIds = QuotationDetail::where('quotation_id', $quotation->id)->pluck('id');
+                $existingQsIds = QuotationSummary::whereIn('quotation_detail_id', $existingQdIds)->pluck('id');
+                
+                // Backup SelectionItems yang terhubung dengan QuotationSummary ini
+                $backedUpSelections = SelectionItem::whereIn('quotation_summary_id', $existingQsIds)->get()->toArray();
+                
                 QuotationSummary::whereIn('quotation_detail_id', $existingQdIds)->delete();
                 QuotationDetail::where('quotation_id', $quotation->id)->delete();
                 
+                $newQsIds = [];
                 // Buat ulang penawaran (quotation) untuk semua item di dalam SR tersebut
                 foreach ($srItems as $item) {
                     $qd = QuotationDetail::create([
@@ -554,11 +560,27 @@ class DatabaseSeeder extends Seeder
                         'offered_price_per_item' => $avgPrice,
                         'offered_quantity' => $item->quantity
                     ]);
-                    QuotationSummary::create([
+                    $qs = QuotationSummary::create([
                         'rfq_id' => $rfq->id,
                         'quotation_detail_id' => $qd->id,
                         'is_sent_to_user' => $rfq->is_sent_to_user
                     ]);
+                    $newQsIds[$item->id] = $qs->id;
+                }
+                
+                // Restore SelectionItems
+                foreach ($backedUpSelections as $backup) {
+                    $itemId = $backup['service_request_item_id'];
+                    if ($itemId && isset($newQsIds[$itemId])) {
+                        SelectionItem::create([
+                            'vendor_selection_id' => $backup['vendor_selection_id'],
+                            'quotation_summary_id' => $newQsIds[$itemId],
+                            'service_request_item_id' => $itemId,
+                            'final_price_per_item' => $backup['final_price_per_item'],
+                            'final_quantity' => $backup['final_quantity'],
+                            'notes' => $backup['notes'],
+                        ]);
+                    }
                 }
             }
         }

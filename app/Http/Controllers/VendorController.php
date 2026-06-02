@@ -193,4 +193,12 @@ class VendorController extends Controller
             'notes'     => $request->selection_notes ?? '—',
         ]);
     }
+
+    // ─────────────────────────────────────────────
+    // GET /api/vendors
+    // ─────────────────────────────────────────────
+    public function apiList()
+    {
+        return response()->json(Vendor::all());
+    }
 }

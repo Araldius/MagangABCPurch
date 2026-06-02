@@ -10,8 +10,8 @@
 {{-- STAT CARDS --}}
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px">
-        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Vendors Used</div>
-        <div style="font-size:28px;font-weight:800;color:#111827;margin:8px 0 5px;line-height:1">{{ $vendorsUsed }}</div>
+        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Total Orders</div>
+        <div style="font-size:28px;font-weight:800;color:#111827;margin:8px 0 5px;line-height:1">{{ $records->count() }}</div>
         <div style="font-size:11.5px;color:#9ca3af">Throughout {{ now()->year }}</div>
     </div>
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px">
@@ -53,17 +53,17 @@
         <table style="width:100%;border-collapse:collapse;font-size:12.5px">
             <thead>
                 <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb">
-                    <th onclick="histSortFn(0)" style="padding:12px 20px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer;white-space:nowrap">DOC NO. <span id="hs0">↕</span></th>
-                    <th onclick="histSortFn(1)" style="padding:12px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer">VENDOR <span id="hs1">↕</span></th>
-                    <th onclick="histSortFn(2)" style="padding:12px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer">DEPARTMENT <span id="hs2">↕</span></th>
-                    <th onclick="histSortFn(3)" style="padding:12px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer">TOTAL VALUE <span id="hs3">↕</span></th>
+                    <th onclick="histSort(0)" style="padding:12px 20px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer;white-space:nowrap">DOC NO. <span id="hs0">↕</span></th>
+                    <th onclick="histSort(1)" style="padding:12px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer">VENDOR <span id="hs1">↕</span></th>
+                    <th onclick="histSort(2)" style="padding:12px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer">DEPARTMENT <span id="hs2">↕</span></th>
+                    <th onclick="histSort(3)" style="padding:12px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;cursor:pointer">TOTAL VALUE <span id="hs3">↕</span></th>
                     <th style="padding:12px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">LEAD TIME</th>
                     <th style="padding:12px 14px;text-align:left;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">COMPLETED DATE</th>
                     <th style="padding:12px 14px;text-align:right;font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase">ACTION</th>
                 </tr>
             </thead>
             <tbody id="hist-tbody">
-                @forelse($records as $r)
+                @forelse($records as $idx => $r)
                 <tr style="border-bottom:1px solid #f3f4f6" data-dept="{{ $r->department }}">
                     <td style="padding:12px 20px;font-weight:600;color:#111827;font-family:monospace">{{ $r->doc_number }}</td>
                     <td style="padding:12px 14px">
@@ -74,7 +74,7 @@
                     <td style="padding:12px 14px;color:#6b7280">{{ $r->lead_days !== null ? $r->lead_days.' days' : '-' }}</td>
                     <td style="padding:12px 14px;color:#6b7280">{{ $r->completed_date }}</td>
                     <td style="padding:12px 14px;text-align:right">
-                        <button onclick="openDetail('{{ $r->doc_number }}')" style="padding:4px 10px;font-size:11.5px;font-weight:600;color:#374151;background:#fff;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer">Detail</button>
+                        <button onclick="openDetail({{ $idx }})" style="padding:4px 10px;font-size:11.5px;font-weight:600;color:#374151;background:#fff;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer">Detail</button>
                     </td>
                 </tr>
                 @empty
@@ -168,10 +168,10 @@ document.addEventListener('DOMContentLoaded', () => {
     applyHFilters();
 });
 
-let prData = @json($records->keyBy('doc_number'));
+let prData = @json($records->values());
 
-function openDetail(docNo) {
-    const pr = prData[docNo];
+function openDetail(idx) {
+    const pr = prData[idx];
     if (!pr) return;
 
     // Fill Header
@@ -193,13 +193,9 @@ function openDetail(docNo) {
 
     // Items
     let itemHtml = '';
-    let totReq = 0;
     (pr.items || []).forEach((it, idx) => {
-        // Since we don't have the granular final selection per item in the $records object right now, we will mock it based on total_value if needed, or if we passed items with price...
-        // Wait, $records doesn't have final price per item. We need it.
-        // Let's modify HistoryController to pass the items with final price.
         let uPrice = it.final_price_per_item || 0;
-        let tPrice = uPrice * (it.final_quantity || it.quantity || 0);
+        let tPrice = uPrice * (it.quantity || 0);
         itemHtml += `
             <tr style="border-bottom:1px solid #e5e7eb">
                 <td style="padding:10px 14px;font-weight:600;color:#111827">${idx+1}</td>
@@ -211,7 +207,7 @@ function openDetail(docNo) {
                 <td style="padding:10px 14px">${it.unit}</td>
                 <td style="padding:10px 14px;font-weight:600">Rp ${new Intl.NumberFormat('id-ID').format(uPrice)}</td>
                 <td style="padding:10px 14px;font-weight:700">Rp ${new Intl.NumberFormat('id-ID').format(tPrice)}</td>
-                <td style="padding:10px 14px">${pr.vendor_name === '-' ? '-' : pr.vendor_name}</td>
+                <td style="padding:10px 14px">${it.vendor_name || pr.vendor_name || '-'}</td>
             </tr>
         `;
     });
@@ -237,21 +233,21 @@ function closeModal() {
             <!-- Progress Status -->
             <div style="margin-bottom:30px">
                 <div style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">Progress Status</div>
-                <div style="display:flex;align-items:center;justify-content:space-between;position:relative;padding:0 30px">
-                    <div style="position:absolute;top:12px;left:40px;right:40px;height:2px;background:#10b981;z-index:1"></div>
-                    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;position:relative;padding:0 20px">
+                    <div style="position:absolute;top:12px;left:60px;right:60px;height:2px;background:#10b981;z-index:1"></div>
+                    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;width:80px">
                         <div style="width:26px;height:26px;border-radius:50%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         <div style="font-size:11px;font-weight:600;color:#10b981;text-align:center">PR<br>Submitted</div>
                     </div>
-                    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+                    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;width:80px">
                         <div style="width:26px;height:26px;border-radius:50%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         <div style="font-size:11px;font-weight:600;color:#10b981;text-align:center">Vendor<br>Search<br><span style="font-weight:500">(Purchasing)</span></div>
                     </div>
-                    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+                    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;width:80px">
                         <div style="width:26px;height:26px;border-radius:50%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         <div style="font-size:11px;font-weight:600;color:#10b981;text-align:center">Vendor<br>Selection</div>
                     </div>
-                    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+                    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;width:80px">
                         <div style="width:26px;height:26px;border-radius:50%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         <div style="font-size:11px;font-weight:600;color:#10b981;text-align:center">Completed</div>
                     </div>

@@ -2,12 +2,12 @@
 @php
     $pageTitle='PR & SR List';
     $statusCfg=[
-        'submitted'=>['Awaiting Approval','#fff7ed','#c2410c','#f97316'],
-        'vendor_selection'       =>['Vendor Selection',       '#f0f9ff','#0369a1','#0ea5e9'],
-        'completed'         =>['completed',          '#f0fdf4','#15803d','#22c55e'],
-        'completed'        =>['Completed',         '#eff6ff','#1d4ed8','#3b82f6'],
-        'rejected'         =>['Rejected',          '#fef2f2','#b91c1c','#ef4444'],
-        'cancelled'        =>['Cancelled',         '#f3f4f6','#374151','#9ca3af'],
+        'submitted'        => ['Awaiting Approval', '#fef3c7', '#d97706', '#f59e0b'],
+        'vendor_search'    => ['Vendor Search',     '#e0e7ff', '#4338ca', '#6366f1'],
+        'vendor_selection' => ['Vendor Selection',  '#dbeafe', '#1d4ed8', '#3b82f6'],
+        'completed'        => ['Completed',         '#dcfce7', '#15803d', '#22c55e'],
+        'rejected'         => ['Rejected',          '#fee2e2', '#b91c1c', '#ef4444'],
+        'cancelled'        => ['Cancelled',         '#f3f4f6', '#4b5563', '#9ca3af'],
     ];
 @endphp
 @section('content')
@@ -79,7 +79,8 @@
             <tbody id="pr-tbody">
                 @forelse($allRequests as $pr)
                 @php
-                    [$sLabel,$sBg,$sText,$sDot] = $statusCfg[$pr->status] ?? [ucfirst(str_replace('_',' ',$pr->status)),'#f3f4f6','#374151','#9ca3af'];
+                    $normStatus = str_replace(' ', '_', strtolower($pr->status));
+                    [$sLabel,$sBg,$sText,$sDot] = $statusCfg[$normStatus] ?? [ucfirst(str_replace('_',' ',$pr->status)),'#f3f4f6','#374151','#9ca3af'];
                     $upd = $pr->updated_at;
                     $lu  = $upd->isToday()
                         ? 'Today, '.$upd->format('H:i')
@@ -176,11 +177,41 @@
         {{-- Footer --}}
         <div style="padding:14px 22px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center">
             <button onclick="closePRDetail()" style="padding:7px 18px;border:1px solid #d1d5db;border-radius:7px;background:#fff;font-size:13px;cursor:pointer;color:#374151">Close</button>
-            <a id="detail-select-vendor-btn" href="#"
-                style="padding:7px 18px;background:#1e3a5f;color:#fff;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Select Vendor
-            </a>
+            <div style="display:flex; gap:8px" id="detail-actions">
+                <form id="detail-approve-form" method="POST" action="{{ route('requests.approve') }}" style="display:none; margin:0">
+                    @csrf
+                    <input type="hidden" name="id" id="approve-id">
+                    <input type="hidden" name="type" id="approve-type">
+                    <button type="submit" style="padding:7px 18px;background:#22c55e;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        ✓ Approve to Vendor Search
+                    </button>
+                </form>
+                <form id="detail-reject-form" method="POST" action="{{ route('requests.reject') }}" style="display:none; margin:0">
+                    @csrf
+                    <input type="hidden" name="id" id="reject-id">
+                    <input type="hidden" name="type" id="reject-type">
+                    <button type="submit" style="padding:7px 18px;background:#ef4444;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        ✗ Reject
+                    </button>
+                </form>
+                <form id="detail-cancel-form" method="POST" action="{{ route('requests.cancel') }}" style="display:none; margin:0">
+                    @csrf
+                    <input type="hidden" name="id" id="cancel-id">
+                    <input type="hidden" name="type" id="cancel-type">
+                    <button type="submit" onclick="return confirm('Apakah Anda yakin ingin membatalkan Request ini?');" style="padding:7px 18px;background:#f59e0b;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        Ø Cancel Request
+                    </button>
+                </form>
+                <a id="detail-add-quotation-btn" href="#"
+                    style="display:none;padding:7px 18px;background:#f8fafc;color:#475569;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;align-items:center;gap:6px">
+                    + Add Quotation
+                </a>
+                <a id="detail-select-vendor-btn" href="#"
+                    style="display:none;padding:7px 18px;background:#1e3a5f;color:#fff;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Select Vendor
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -216,14 +247,12 @@ function fmtRp(n) {
 }
 
 function smartCompare(a, b, dir) {
-    const aS = a.replace(/[^0-9.-]/g,''), bS = b.replace(/[^0-9.-]/g,'');
-    const an = parseFloat(aS), bn = parseFloat(bS);
-    let cmp;
-    if (aS !== '' && bS !== '' && !isNaN(an) && !isNaN(bn)) {
-        cmp = an - bn;
+    const da = new Date(a), db = new Date(b);
+    let cmp = 0;
+    if (!isNaN(da.getTime()) && !isNaN(db.getTime()) && !a.match(/^(PR|SR|PO|RFQ)-/i)) {
+        cmp = da - db;
     } else {
-        const da = new Date(a), db = new Date(b);
-        cmp = (!isNaN(da.getTime()) && !isNaN(db.getTime())) ? da - db : a.localeCompare(b, 'id');
+        cmp = a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'});
     }
     return dir === 'asc' ? cmp : -cmp;
 }
@@ -387,7 +416,41 @@ function openPRDetail(id, category) {
         ${isService ? '' : `<div><span style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em">Department</span>
              <div style="font-weight:600;font-size:12.5px;margin-top:2px">${pr.department || '—'}</div></div>`}`;
 
-    document.getElementById('detail-select-vendor-btn').href = `/vendor-selection?key=${category}_${id}`;
+    document.getElementById('detail-select-vendor-btn').style.display = 'none';
+    document.getElementById('detail-add-quotation-btn').style.display = 'none';
+    const approveForm = document.getElementById('detail-approve-form');
+    const rejectForm = document.getElementById('detail-reject-form');
+    const cancelForm = document.getElementById('detail-cancel-form');
+    if (approveForm) approveForm.style.display = 'none';
+    if (rejectForm) rejectForm.style.display = 'none';
+    if (cancelForm) cancelForm.style.display = 'none';
+
+    if (isPurchasing) {
+        if (pr.status === 'submitted') {
+            if (approveForm) {
+                approveForm.style.display = 'block';
+                document.getElementById('approve-id').value = pr.id;
+                document.getElementById('approve-type').value = category;
+            }
+            if (rejectForm) {
+                rejectForm.style.display = 'block';
+                document.getElementById('reject-id').value = pr.id;
+                document.getElementById('reject-type').value = category;
+            }
+        } else if (pr.status === 'vendor_selection' || pr.status === 'vendor_search') {
+            document.getElementById('detail-select-vendor-btn').style.display = 'inline-flex';
+            document.getElementById('detail-select-vendor-btn').href = `/vendor-selection?key=${category}_${id}`;
+            if (rfqId) {
+                document.getElementById('detail-add-quotation-btn').style.display = 'inline-flex';
+                document.getElementById('detail-add-quotation-btn').href = `/rfq/${rfqId}/quotations/create`;
+            }
+            if (cancelForm) {
+                cancelForm.style.display = 'block';
+                document.getElementById('cancel-id').value = pr.id;
+                document.getElementById('cancel-type').value = category;
+            }
+        }
+    }
 
     // ── Progress bar ──
     const _steps = [{label:'PR\nSubmitted'},{label:'Vendor\nSearch'},{label:'Vendor\nSelection'},{label:'Completed'}];
@@ -437,7 +500,7 @@ function openPRDetail(id, category) {
                 if (vs) grandTotal += vs.total;
                 rows += `<tr>
                     <td style="${tdS};color:#9ca3af">${i+1}</td>
-                    <td style="${tdS};font-weight:600;color:#111827">—</td>
+                    <td style="${tdS};font-weight:600;color:#111827;font-family:monospace">${it.item_id || '—'}</td>
                     <td style="${tdS};font-weight:600;color:#111827">${it.item_name || it.name || '-'}</td>
                     <td style="${tdS};color:#6b7280;font-size:11.5px">${it.item_notes || it.description || '-'}</td>
                     <td style="${tdS};color:#6b7280;font-size:11.5px">${it.specification || '-'}</td>

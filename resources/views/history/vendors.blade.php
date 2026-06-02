@@ -46,6 +46,12 @@
             <select id="period-filter" onchange="applyHFilters()"
                 style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit;">
                 <option value="">All Locations</option>
+                @php
+                    $locations = collect($vendors)->pluck('vendor_city')->filter()->unique()->sort()->values();
+                @endphp
+                @foreach($locations as $loc)
+                    <option value="{{ $loc }}">{{ $loc }}</option>
+                @endforeach
             </select>
             <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
         </div>
@@ -53,6 +59,9 @@
             <select id="value-filter" onchange="applyHFilters()"
                 style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit;">
                 <option value="">All Values</option>
+                <option value="low">< Rp 1 Jt</option>
+                <option value="mid">Rp 1 Jt – 50 Jt</option>
+                <option value="high">> Rp 50 Jt</option>
             </select>
             <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
         </div>
@@ -71,6 +80,8 @@
             <tbody id="hist-tbody">
                 @forelse($vendors as $idx => $vendor)
                 <tr style="border-bottom:1px solid #f3f4f6"
+                    data-location="{{ $vendor['vendor_city'] }}"
+                    data-value="{{ $vendor['total_value'] }}"
                     onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='transparent'">
                     <td style="padding:13px 20px">
                         <div style="font-size:12.5px;font-weight:600;color:#111827">{{ $vendor['vendor_name'] }}</div>
@@ -156,10 +167,19 @@ let histPage = 1, histPageSize = 10;
 
 function applyHFilters() {
     const q = (document.getElementById('hist-search')?.value || '').toLowerCase();
+    const location = document.getElementById('period-filter')?.value || '';
+    const valueRange = document.getElementById('value-filter')?.value || '';
 
     let rows = Array.from(document.querySelectorAll('#hist-tbody tr:not(#hist-empty)'));
     let filtered = rows.filter(r => {
         if (q && !r.textContent.toLowerCase().includes(q)) return false;
+        if (location && (r.dataset.location || '') !== location) return false;
+        if (valueRange) {
+            const val = parseFloat(r.dataset.value || '0');
+            if (valueRange === 'low' && val >= 1000000) return false;
+            if (valueRange === 'mid' && (val < 1000000 || val > 50000000)) return false;
+            if (valueRange === 'high' && val <= 50000000) return false;
+        }
         return true;
     });
 

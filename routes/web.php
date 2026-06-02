@@ -31,6 +31,9 @@ Route::middleware('auth')->group(function () {
     Route::post('purchase-request',         [PurchaseRequestController::class, 'store'])->name('purchase_requests.store');
     Route::get( 'pr-list',                  [PurchaseRequestController::class, 'index'])->name('pr.list');
     Route::get( 'purchase-request/{pr}',    [PurchaseRequestController::class, 'show'])->name('purchase_requests.show');
+    Route::post('request/approve',          [PurchaseRequestController::class, 'approve'])->name('requests.approve');
+    Route::post('request/reject',           [PurchaseRequestController::class, 'reject'])->name('requests.reject');
+    Route::post('request/cancel',           [PurchaseRequestController::class, 'cancel'])->name('requests.cancel');
 
     /* Procurement History */
     Route::prefix('procurement-history')->name('history.')->group(function () {
@@ -52,8 +55,13 @@ Route::middleware('auth')->group(function () {
     // POST route removed — old store() method no longer exists; use vendor-selection/store instead
 
     /* Quotation */
+    Route::get( 'rfq/{rfq}/quotations/create', [QuotationController::class, 'create'])->name('quotations.create');
+    Route::post('rfq/{rfq}/quotations',        [QuotationController::class, 'store'])->name('quotations.store');
     Route::get( 'quotation/status/{rfq}', [QuotationController::class, 'status'])->name('quotations.status');
     Route::post('quotation/status/{rfq}', [QuotationController::class, 'updateStatus'])->name('quotations.updateStatus');
     Route::get( 'quotation/final/{rfq}',  [QuotationController::class, 'final'])->name('quotations.final');
     Route::post('quotation/final/{rfq}',  [QuotationController::class, 'storeFinal'])->name('quotations.storeFinal');
+
+    /* API / Data Fetching */
+    Route::get('api/vendors', [VendorController::class, 'apiList'])->name('api.vendors');
 });

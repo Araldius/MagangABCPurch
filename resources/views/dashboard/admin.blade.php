@@ -1,5 +1,15 @@
 @extends('layouts.app')
-@php $pageTitle = 'Admin Dashboard'; @endphp
+@php 
+    $pageTitle = 'Admin Dashboard'; 
+    $statusCfg = [
+        'submitted'        => ['Awaiting Approval', '#fef3c7', '#d97706', '#f59e0b'],
+        'vendor_search'    => ['Vendor Search',     '#e0e7ff', '#4338ca', '#6366f1'],
+        'vendor_selection' => ['Vendor Selection',  '#dbeafe', '#1d4ed8', '#3b82f6'],
+        'completed'        => ['Completed',         '#dcfce7', '#15803d', '#22c55e'],
+        'rejected'         => ['Rejected',          '#fee2e2', '#b91c1c', '#ef4444'],
+        'cancelled'        => ['Cancelled',         '#f3f4f6', '#4b5563', '#9ca3af'],
+    ];
+@endphp
 
 @section('content')
 @php $firstName = explode(' ', auth()->user()->name)[0]; @endphp
@@ -59,21 +69,9 @@
                 <tbody>
                     @forelse($latestRequests as $pr)
                     @php
-                        $badgeClass = match($pr->status) {
-                            'submitted'=> 'badge-awaiting',
-                            'rfq_open'         => 'badge-rfq',
-                            'completed'        => 'badge-completed',
-                            'cancelled'        => 'badge-cancelled',
-                            default            => 'badge-inprocess',
-                        };
-                        $badgeLabel = match($pr->status) {
-                            'vendor_selection'          => 'Vendor Selection',
-                            'submitted'=> 'Awaiting',
-                            'rfq_open'         => 'RFQ Open',
-                            'completed'        => 'Completed',
-                            'cancelled'        => 'Cancelled',
-                            default            => ucfirst($pr->status),
-                        };
+                        $normStatus = str_replace(' ', '_', strtolower($pr->status));
+                        if ($normStatus === 'rfq_open') { $normStatus = 'vendor_search'; }
+                        [$sLabel,$sBg,$sText,$sDot] = $statusCfg[$normStatus] ?? [ucfirst(str_replace('_',' ',$pr->status)),'#f3f4f6','#374151','#9ca3af'];
                     @endphp
                     <tr>
                         <td class="td-doc">{{ $pr->document_number }}</td>
@@ -81,7 +79,11 @@
                             <div style="font-weight:500;">{{ $pr->user->name ?? '—' }}</div>
                         </td>
                         <td><span class="tag tag-blue">{{ $pr->department ?? '—' }}</span></td>
-                        <td><span class="badge {{ $badgeClass }}">{{ $badgeLabel }}</span></td>
+                        <td>
+                            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:{{ $sBg }};font-size:11.5px;font-weight:600;color:{{ $sText }};white-space:nowrap">
+                                <span style="width:5px;height:5px;border-radius:50%;background:{{ $sDot }}"></span>{{ $sLabel }}
+                            </span>
+                        </td>
                         <td class="text-muted text-sm">
                             {{ $pr->submission_date ? \Carbon\Carbon::parse($pr->submission_date)->format('d M Y') : \Carbon\Carbon::parse($pr->created_at)->format('d M Y') }}
                         </td>

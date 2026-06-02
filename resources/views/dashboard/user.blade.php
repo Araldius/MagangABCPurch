@@ -4,12 +4,12 @@
     $user      = auth()->user();
     $firstName = explode(' ', $user->name)[0];
     $statusCfg = [
-        'submitted' => ['Awaiting Approval', '#fff7ed','#c2410c','#f97316'],
-        'vendor_selection'        => ['Vendor Selection',        '#f0f9ff','#0369a1','#0ea5e9'],
-        'completed'          => ['completed',           '#f0fdf4','#15803d','#22c55e'],
-        'completed'         => ['Completed',          '#eff6ff','#1d4ed8','#3b82f6'],
-        'rejected'          => ['Rejected',           '#fef2f2','#b91c1c','#ef4444'],
-        'cancelled'         => ['Cancelled',          '#f3f4f6','#374151','#9ca3af'],
+        'submitted'        => ['Awaiting Approval', '#fef3c7', '#d97706', '#f59e0b'],
+        'vendor_search'    => ['Vendor Search',     '#e0e7ff', '#4338ca', '#6366f1'],
+        'vendor_selection' => ['Vendor Selection',  '#dbeafe', '#1d4ed8', '#3b82f6'],
+        'completed'        => ['Completed',         '#dcfce7', '#15803d', '#22c55e'],
+        'rejected'         => ['Rejected',          '#fee2e2', '#b91c1c', '#ef4444'],
+        'cancelled'        => ['Cancelled',         '#f3f4f6', '#4b5563', '#9ca3af'],
     ];
 @endphp
 
@@ -512,7 +512,7 @@ function openDetailModal(id, category) {
                 if (vs) grandTotal += vs.total;
                 itemRows += `<tr>
                     <td style="${tdStyle}">${i+1}</td>
-                    <td style="${tdStyle}color:#9ca3af;font-family:monospace;">—</td>
+                    <td style="${tdStyle}font-family:monospace;color:#3b5bdb;font-weight:600;">${it.item_id||'—'}</td>
                     <td style="${tdStyle}font-weight:500;">${it.item_name||it.name||'—'}</td>
                     <td style="${tdStyle}color:#6b7280;font-size:11.5px;">${it.item_notes||it.description||'—'}</td>
                     <td style="${tdStyle}color:#6b7280;font-size:11.5px;">${it.specification||'—'}</td>
@@ -651,6 +651,13 @@ function openDetailModal(id, category) {
 
         <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;margin-top:18px;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #e5e7eb;">Activity Log</div>
         ${logItems}`;
+
+    const selectBtn = document.getElementById('modal-select-vendor-btn');
+    if (pr.status === 'vendor_selection') {
+        selectBtn.style.display = 'inline-flex';
+    } else {
+        selectBtn.style.display = 'none';
+    }
 
     document.getElementById('detail-modal').style.display = 'flex';
 }

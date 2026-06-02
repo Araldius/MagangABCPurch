@@ -10,8 +10,8 @@
 {{-- STAT CARDS --}}
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px">
-        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Vendors Used</div>
-        <div style="font-size:28px;font-weight:800;color:#111827;margin:8px 0 5px;line-height:1">{{ $vendorsUsed }}</div>
+        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em">Total Items</div>
+        <div style="font-size:28px;font-weight:800;color:#111827;margin:8px 0 5px;line-height:1">{{ count($items) }}</div>
         <div style="font-size:11.5px;color:#9ca3af">Throughout {{ now()->year }}</div>
     </div>
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px 20px">
@@ -46,6 +46,12 @@
             <select id="period-filter" onchange="applyHFilters()"
                 style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit;">
                 <option value="">All Periods</option>
+                @php
+                    $periods = collect($items)->pluck('last_purchase')->filter()->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m'))->unique()->sortDesc()->values();
+                @endphp
+                @foreach($periods as $p)
+                    <option value="{{ $p }}">{{ \Carbon\Carbon::parse($p.'-01')->format('M Y') }}</option>
+                @endforeach
             </select>
             <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
         </div>
@@ -53,6 +59,9 @@
             <select id="value-filter" onchange="applyHFilters()"
                 style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit;">
                 <option value="">All Values</option>
+                <option value="low">< Rp 1 Jt</option>
+                <option value="mid">Rp 1 Jt – 10 Jt</option>
+                <option value="high">> Rp 10 Jt</option>
             </select>
             <svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;color:#6b7280" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
         </div>
@@ -72,6 +81,8 @@
             <tbody id="hist-tbody">
                 @forelse($items as $idx => $item)
                 <tr style="border-bottom:1px solid #f3f4f6"
+                    data-period="{{ $item['last_purchase'] ? \Carbon\Carbon::parse($item['last_purchase'])->format('Y-m') : '' }}"
+                    data-value="{{ $item['last_value'] }}"
                     onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='transparent'">
                     <td style="padding:13px 20px"><span style="font-family:'Courier New',monospace;font-size:12px;font-weight:600;color:#111827">{{ $item['item_id'] }}</span></td>
                     <td style="padding:13px 14px;font-size:12.5px;font-weight:600;color:#111827">{{ $item['item_name'] }}</td>
@@ -158,10 +169,19 @@ let histPage = 1, histPageSize = 10;
 
 function applyHFilters() {
     const q = (document.getElementById('hist-search')?.value || '').toLowerCase();
+    const period = document.getElementById('period-filter')?.value || '';
+    const valueRange = document.getElementById('value-filter')?.value || '';
 
     let rows = Array.from(document.querySelectorAll('#hist-tbody tr:not(#hist-empty)'));
     let filtered = rows.filter(r => {
         if (q && !r.textContent.toLowerCase().includes(q)) return false;
+        if (period && (r.dataset.period || '') !== period) return false;
+        if (valueRange) {
+            const val = parseFloat(r.dataset.value || '0');
+            if (valueRange === 'low' && val >= 1000000) return false;
+            if (valueRange === 'mid' && (val < 1000000 || val > 10000000)) return false;
+            if (valueRange === 'high' && val <= 10000000) return false;
+        }
         return true;
     });
 

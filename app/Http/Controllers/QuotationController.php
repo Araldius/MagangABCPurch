@@ -8,11 +8,98 @@ use App\Models\QuotationDetail;
 use App\Models\QuotationSummary;
 use App\Models\Rfq;
 use App\Models\SelectionItem;
+use App\Models\PurchaseRequest;
 use App\Models\VendorSelection;
 use Illuminate\Http\Request;
 
 class QuotationController extends Controller
 {
+    public function create(Rfq $rfq)
+    {
+        $rfq->load([
+            'purchaseRequest.items',
+            'serviceRequest.jobs.items',
+            'vendor'
+        ]);
+
+        return view('quotations.create', compact('rfq'));
+    }
+
+    public function store(Request $request, Rfq $rfq)
+    {
+        $data = $request->validate([
+            'vendor_id' => ['nullable', 'exists:vendors,id'],
+            'new_vendor_name' => ['nullable', 'string', 'max:255'],
+            'new_vendor_location' => ['nullable', 'string', 'max:255'],
+            'new_vendor_contact' => ['nullable', 'string', 'max:255'],
+            'items' => ['required', 'array'],
+            'items.*.item_id' => ['required'], // PR item or SR item ID
+            'items.*.price' => ['required', 'numeric', 'min:0'],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+        ]);
+
+        // Resolve vendor
+        $vendorId = $data['vendor_id'];
+        if (!$vendorId && !empty($data['new_vendor_name'])) {
+            $vendor = \App\Models\Vendor::create([
+                'vendor_name' => $data['new_vendor_name'],
+                'location' => $data['new_vendor_location'],
+                'contact' => $data['new_vendor_contact'],
+                'status' => 'active',
+            ]);
+            $vendorId = $vendor->id;
+        }
+
+        if (!$vendorId) {
+            return back()->withErrors(['vendor_id' => 'Please select or create a vendor.'])->withInput();
+        }
+
+        // Update RFQ vendor if not set
+        if (!$rfq->vendor_id) {
+            $rfq->vendor_id = $vendorId;
+            $rfq->save();
+        }
+
+        // Create Quotation
+        $quotation = Quotation::create([
+            'rfq_id' => $rfq->id,
+            'vendor_id' => $vendorId,
+            'total_price' => collect($data['items'])->sum(fn($it) => $it['price'] * $it['quantity']),
+            'status' => 'submitted',
+        ]);
+
+        // Create details
+        $isService = (bool) $rfq->service_request_id;
+        foreach ($data['items'] as $it) {
+            QuotationDetail::create([
+                'quotation_id' => $quotation->id,
+                'purchase_request_item_id' => $isService ? null : $it['item_id'],
+                'service_request_item_id' => $isService ? $it['item_id'] : null,
+                'offered_price_per_item' => $it['price'],
+                'offered_quantity' => $it['quantity'],
+            ]);
+        }
+
+        // Transition PR/SR status to vendor_selection if it is currently vendor_search
+        $pr = $isService ? $rfq->serviceRequest : $rfq->purchaseRequest;
+        if ($pr && $pr->status === 'vendor_search') {
+            $pr->status = 'vendor_selection';
+            $pr->save();
+        }
+
+        History::create([
+            'user_id' => auth()->id(),
+            'vendor_id' => $vendorId,
+            'rfq_id' => $rfq->id,
+            'action' => 'Manual Quotation Added',
+            'transaction_status' => 'completed',
+            'notes' => 'Quotation added manually by Admin',
+            'action_date' => now(),
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Manual quotation saved successfully.');
+    }
+
     public function status(Rfq $rfq)
     {
         $rfq->load(['purchaseRequest', 'vendor', 'vendorQuotations.vendor', 'quotationPeriods', 'quotation.quotationDetails']);

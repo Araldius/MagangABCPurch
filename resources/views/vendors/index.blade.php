@@ -273,13 +273,14 @@ function renderRequirementsTable(){
     
     if (currentPR.type === 'service') {
         let html = `<tr class="tr-service"><td colspan="5">📁 Service: ${currentPR.display_title}</td></tr>`;
+        let counter = 1;
         currentPR.jobs.forEach(job => {
             html += `<tr class="tr-job"><td colspan="5">↳ 🛠️ Scope: ${job.job_description}</td></tr>`;
             job.items.forEach(item => {
                 const [label,bg,tc,dot] = getItemStatus(item.id);
                 html += `<tr class="tr-item" style="background:${getRowBg(label)}">
-                    <td style="color:#6b7280">-</td>
-                    <td style="font-family:monospace;font-size:11.5px;color:#3b5bdb">${item.id}</td>
+                    <td style="color:#6b7280">${counter++}</td>
+                    <td style="font-family:monospace;font-size:11.5px;color:#3b5bdb;font-weight:600">${item.item_id||item.id}</td>
                     <td style="font-weight:500;color:#111827">${item.item_name}</td>
                     <td style="font-weight:600;text-align:right">${item.quantity} ${item.unit}</td>
                     <td><span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:${bg};font-size:11px;font-weight:600;color:${tc}"><span style="width:5px;height:5px;border-radius:50%;background:${dot}"></span>${label}</span></td>
@@ -360,15 +361,17 @@ function renderVendorCards(){
             const vendorSelCount = Object.values(selections).filter(s => s.vendor_id == v.id).length;
             isVendorChecked = vendorSelCount > 0;
 
-            contentHtml += `<div class="vc-svc-header">${currentPR.display_title}</div>`;
+            const allSelected = currentPR.items.every(i => selections[`${v.id}_${i.id}`]);
+            contentHtml += `<label class="vc-svc-header" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" ${allSelected ? 'checked' : ''} onchange="toggleVendorService(${v.id}, this.checked)" style="width:16px;height:16px;accent-color:#3b5bdb;">
+                ${currentPR.display_title}
+            </label>`;
 
             if(currentPR.jobs) {
                 currentPR.jobs.forEach((job, jIdx) => {
-                    const allSelected = job.items.every(i => selections[`${v.id}_${i.id}`]);
-                    contentHtml += `<label class="vc-job-header" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox" ${allSelected ? 'checked' : ''} onchange="toggleVendorJob(${v.id}, ${jIdx}, this.checked)" style="width:16px;height:16px;accent-color:#3b5bdb;">
+                    contentHtml += `<div class="vc-job-header">
                         ${job.job_description}
-                    </label><div class="vc-item-box">`;
+                    </div><div class="vc-item-box">`;
                     if(job.items) { job.items.forEach(item => { contentHtml += renderItemCard(v, item, off); }); }
                     contentHtml += `</div>`;
                 });
