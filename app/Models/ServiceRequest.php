@@ -13,6 +13,7 @@ class ServiceRequest extends Model
 
     protected $fillable = [
         'user_id',
+        'department',
         'document_number',
         'service_name',
         'submission_date',

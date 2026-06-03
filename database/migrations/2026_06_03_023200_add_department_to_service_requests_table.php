@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('service_request_items', function (Blueprint $table) {
-            $table->string('item_id')->nullable()->after('job_id');
+        Schema::table('service_requests', function (Blueprint $table) {
+            $table->string('department')->nullable()->after('user_id');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('service_request_items', function (Blueprint $table) {
-            $table->dropColumn('item_id');
+        Schema::table('service_requests', function (Blueprint $table) {
+            $table->dropColumn('department');
         });
     }
 };

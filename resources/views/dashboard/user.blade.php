@@ -54,8 +54,8 @@
         <input type="text" id="dash-pr-search" placeholder="Search doc, title..." oninput="applyDashPR()" style="height:32px;border:1px solid #e5e7eb;border-radius:7px;padding:0 10px;font-size:12.5px;width:180px;outline:none;">
         <select id="dash-pr-category" onchange="applyDashPR()" style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;background:#fff;cursor:pointer;">
             <option value="">All Category</option>
-            <option value="goods">📦 Goods</option>
-            <option value="service">🔧 Service</option>
+            <option value="goods"> Goods</option>
+            <option value="service"> Service</option>
         </select>
         <select id="dash-pr-status" onchange="applyDashPR()" style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;background:#fff;cursor:pointer;">
             <option value="">All Status</option>
@@ -121,9 +121,9 @@
                     </td>
                     <td style="padding:13px 14px;">
                         @if($prCategory === 'service')
-                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#e0e7ff;color:#3730a3;">🔧 Service</span>
+                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#e0e7ff;color:#3730a3;"> Service</span>
                         @else
-                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#f1f5f9;color:#475569;">📦 Goods</span>
+                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#f1f5f9;color:#475569;"> Goods</span>
                         @endif
                     </td>
                     <td style="padding:13px 14px;color:#374151;">{{ $qtyLabel }}</td>
@@ -506,7 +506,7 @@ function openDetailModal(id, category) {
 
     if (category === 'service' || pr.type === 'service' || pr.jobs) {
         (pr.jobs||[]).forEach(job => {
-            itemRows += `<tr><td colspan="${hasVS?10:7}" style="background:#f3f4f6;padding:6px 10px;font-weight:700;font-size:11.5px;">💼 JOB: ${job.job_description}</td></tr>`;
+            itemRows += `<tr><td colspan="${hasVS?10:7}" style="background:#f3f4f6;padding:6px 10px;font-weight:700;font-size:11.5px;">JOB: ${job.job_description}</td></tr>`;
             (job.items||[]).forEach((it, i) => {
                 const vs = itemVS[it.id];
                 if (vs) grandTotal += vs.total;

@@ -31,8 +31,8 @@
             style="height:32px;border:1px solid #e5e7eb;border-radius:7px;padding:0 10px;font-size:12.5px;width:200px;outline:none">
         <select id="type-filter" onchange="applyFilters()" style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;background:#fff;cursor:pointer">
             <option value="">All Types</option>
-            <option value="goods">📦 Goods</option>
-            <option value="service">🔧 Service</option>
+            <option value="goods"> Goods</option>
+            <option value="service"> Service</option>
         </select>
         @if($isPurchasing)
         <select id="dept-filter" onchange="applyFilters()" style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;background:#fff;cursor:pointer">
@@ -122,9 +122,9 @@
                     </td>
                     <td style="padding:13px 14px">
                         @if($prCategory === 'service')
-                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#e0e7ff;color:#3730a3">🔧 Service</span>
+                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#e0e7ff;color:#3730a3"> Service</span>
                         @else
-                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#f1f5f9;color:#475569">📦 Goods</span>
+                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#f1f5f9;color:#475569"> Goods</span>
                         @endif
                     </td>
                     @if($isPurchasing)
@@ -183,7 +183,7 @@
                     <input type="hidden" name="id" id="approve-id">
                     <input type="hidden" name="type" id="approve-type">
                     <button type="submit" style="padding:7px 18px;background:#22c55e;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-                        ✓ Approve to Vendor Search
+                        Approve to Vendor Search
                     </button>
                 </form>
                 <form id="detail-reject-form" method="POST" action="{{ route('requests.reject') }}" style="display:none; margin:0">
@@ -191,7 +191,7 @@
                     <input type="hidden" name="id" id="reject-id">
                     <input type="hidden" name="type" id="reject-type">
                     <button type="submit" style="padding:7px 18px;background:#ef4444;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-                        ✗ Reject
+                        Reject
                     </button>
                 </form>
                 <form id="detail-cancel-form" method="POST" action="{{ route('requests.cancel') }}" style="display:none; margin:0">
@@ -199,7 +199,7 @@
                     <input type="hidden" name="id" id="cancel-id">
                     <input type="hidden" name="type" id="cancel-type">
                     <button type="submit" onclick="return confirm('Apakah Anda yakin ingin membatalkan Request ini?');" style="padding:7px 18px;background:#f59e0b;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-                        Ø Cancel Request
+                        Cancel Request
                     </button>
                 </form>
                 <a id="detail-add-quotation-btn" href="#"
@@ -492,7 +492,7 @@ function openPRDetail(id, category) {
                 : '';
             rows += `<tr>
                 <td colspan="${hasVS ? 10 : 7}" style="background:#f0f4f8;padding:8px 12px;font-weight:700;font-size:11.5px;color:#374151;border-bottom:1px solid #e5e7eb">
-                    💼 ${jCodeBadge}${job.job_description || '-'}
+                    ${jCodeBadge}${job.job_description || '-'}
                 </td>
             </tr>`;
             (job.items||[]).forEach((it, i) => {
@@ -599,7 +599,7 @@ function openPRDetail(id, category) {
     if (hasVS && Object.keys(vendorTotals).length > 0) {
         const isServiceSummary = isService;
         vSumHtml = `<div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-top:18px;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #e5e7eb">
-            ${isServiceSummary ? '🔧 Selected Service Vendor' : '📦 Vendor Purchase Summary'}
+            ${isServiceSummary ? ' Selected Service Vendor' : ' Vendor Purchase Summary'}
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">` +
             Object.values(vendorTotals).map(v => `
@@ -667,7 +667,7 @@ function openPRDetail(id, category) {
         </div>
 
         <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #e5e7eb">
-            ${isService ? '🛠️ Scope of Work & Items' : '📦 Item List'}
+            ${isService ? 'Scope of Work & Items' : 'Item List'}
         </div>
         ${tableHtml}
         ${vSumHtml}

@@ -299,7 +299,7 @@ input:focus, select:focus { border-color: var(--border-focus); box-shadow: 0 0 0
             <div class="form-group">
               <label>Department <span class="req">*</span></label>
               <select name="dept">
-                <option value="">— Select Department —</option>
+                <option value="">Select Department</option>
                 <option {{ old('dept')=='IT & Digital'?'selected':'' }}>IT & Digital</option>
                 <option {{ old('dept')=='Operations'?'selected':'' }}>Operations</option>
                 <option {{ old('dept')=='Finance'?'selected':'' }}>Finance</option>
@@ -318,7 +318,7 @@ input:focus, select:focus { border-color: var(--border-focus); box-shadow: 0 0 0
           <div class="form-group">
             <label>Work Location (Plant)</label>
             <select name="plant">
-              <option value="">— Select Plant —</option>
+              <option value="">Select Plant</option>
               <option {{ old('plant')=='Cikarang'?'selected':'' }}>Cikarang</option>
               <option {{ old('plant')=='Cibitung'?'selected':'' }}>Cibitung</option>
               <option {{ old('plant')=='Slipi'?'selected':'' }}>Slipi</option>

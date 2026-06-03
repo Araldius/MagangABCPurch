@@ -99,7 +99,11 @@ class PurchaseRequestController extends Controller
         $prYearCount  = PurchaseRequest::whereYear('created_at', now()->year)->count() + 1;
         $nextPrDocNum = 'PR-' . now()->format('Y') . '-' . str_pad($prYearCount, 4, '0', STR_PAD_LEFT);
 
-        return view('purchase_requests.create', compact('existingItems', 'existingServiceTemplates', 'nextPrDocNum'));
+        // Auto-generate next SR document number: SR-YYYY-NNNN
+        $srYearCount  = ServiceRequest::whereYear('created_at', now()->year)->count() + 1;
+        $nextSrDocNum = 'SR-' . now()->format('Y') . '-' . str_pad($srYearCount, 4, '0', STR_PAD_LEFT);
+
+        return view('purchase_requests.create', compact('existingItems', 'existingServiceTemplates', 'nextPrDocNum', 'nextSrDocNum'));
     }
 
     public function store(Request $request)
@@ -118,6 +122,7 @@ class PurchaseRequestController extends Controller
 
                 $sr = ServiceRequest::create([
                     'user_id'         => Auth::id(),
+                    'department'      => $request->service_department ?? Auth::user()->department,
                     'document_number' => $srDocNum,
                     'service_name'    => $svcData['service_name'],
                     'submission_date' => now(),

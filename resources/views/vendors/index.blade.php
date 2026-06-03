@@ -39,7 +39,7 @@ h1 { font-size:20px;font-weight:700;color:#111827;margin:0 0 3px }
         <div style="flex:1;position:relative">
             <select id="pr-select"
                 style="width:100%;padding:9px 32px 9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;color:#374151;background:#fff;appearance:none;cursor:pointer;font-family:inherit">
-                <option value="">— Select PR/SR number to view vendor offers —</option>
+                <option value="">Select PR/SR number to view vendor offers</option>
                 @foreach($prs as $pr)
                 <option value="{{ $pr->type }}_{{ $pr->id }}"
                     {{ isset($selectedKey) && $selectedKey === $pr->type.'_'.$pr->id ? 'selected' : '' }}>
@@ -272,10 +272,10 @@ function renderRequirementsTable(){
     const tbody = document.getElementById('items-requirement-tbody');
     
     if (currentPR.type === 'service') {
-        let html = `<tr class="tr-service"><td colspan="5">📁 Service: ${currentPR.display_title}</td></tr>`;
+        let html = `<tr class="tr-service"><td colspan="5">Service: ${currentPR.display_title}</td></tr>`;
         let counter = 1;
         currentPR.jobs.forEach(job => {
-            html += `<tr class="tr-job"><td colspan="5">↳ 🛠️ Scope: ${job.job_description}</td></tr>`;
+            html += `<tr class="tr-job"><td colspan="5">↳ Scope: ${job.job_description}</td></tr>`;
             job.items.forEach(item => {
                 const [label,bg,tc,dot] = getItemStatus(item.id);
                 html += `<tr class="tr-item" style="background:${getRowBg(label)}">
@@ -572,7 +572,7 @@ function renderResultWorkspace() {
             const jobItemsSelected = job.items.filter(i => Object.values(selections).some(s => s.item_id == i.id));
             if(jobItemsSelected.length > 0) {
                 itemsArrHtml += `<tr style="background:#f3f4f6; border-bottom:1px dashed #d1d5db;">
-                    <td colspan="7" style="font-weight:700; color:#374151; padding:10px 14px;">🛠️ Scope: ${job.job_description}</td>
+                    <td colspan="7" style="font-weight:700; color:#374151; padding:10px 14px;">Scope: ${job.job_description}</td>
                 </tr>`;
                 
                 job.items.forEach(item => {
@@ -646,7 +646,7 @@ function renderResultWorkspace() {
             ${currentPR.type === 'service'
                 ? Object.entries(vs.jobs).map(([jobDesc, items]) => `
                     <div style="margin-bottom:10px">
-                        <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px dashed #e5e7eb;">🛠️ ${jobDesc}</div>
+                        <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px dashed #e5e7eb;"> ${jobDesc}</div>
                         ${items.map(it=>`<div style="margin-bottom:6px">
                             <div style="font-size:12.5px;font-weight:600;color:#374151">${it.name}</div>
                             <div style="font-size:11.5px;color:#9ca3af">${it.qty} ${it.unit} × Rp ${Number(it.price).toLocaleString('id-ID')} <span style="float:right;font-weight:700;color:#4b5563">${fmt(it.sub)}</span></div>
