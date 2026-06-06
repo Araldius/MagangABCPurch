@@ -22,6 +22,8 @@ class Rfq extends Model
         'sent_to_user_at',
         'opened_at',
         'closed_at',
+        'vendor_token',
+        'token_expires_at',
     ];
 
     protected $casts = [

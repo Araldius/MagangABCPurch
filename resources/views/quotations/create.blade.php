@@ -96,11 +96,11 @@
 
         <div class="form-row form-row-2">
             <div class="form-group flex-1" style="margin-bottom:0;">
-                <label class="form-label">Location</label>
+                <label class="form-label">Location / Address</label>
                 <input class="form-control" name="new_vendor_location" id="vendor_location" placeholder="Vendor location">
             </div>
             <div class="form-group flex-1" style="margin-bottom:0;">
-                <label class="form-label">Contact</label>
+                <label class="form-label">Contact Person</label>
                 <input class="form-control" name="new_vendor_contact" id="vendor_contact" placeholder="Vendor contact">
             </div>
         </div>
@@ -137,8 +137,12 @@
                                 <td style="color:var(--text-muted); font-size:12px;">{{ $item->specification ?? '-' }}</td>
                                 <td>
                                     <div style="display:flex;align-items:center;gap:6px;">
-                                        <input type="number" step="0.01" class="form-control qty-input" name="items[{{ $idx }}][quantity]" value="{{ $item->quantity }}" required style="width:80px; text-align:center;">
-                                        <span style="font-size:11.5px;color:var(--text-muted);">{{ $item->unit }}</span>
+                                        <input type="number" step="0.01" class="form-control qty-input" name="items[{{ $idx }}][quantity]" value="{{ $item->quantity }}" required style="width:80px; text-align:center;" readonly>
+                                        <select class="form-control unit-select" name="items[{{ $idx }}][unit]" required style="width:75px; padding:6px; font-size:11.5px; height:auto;">
+                                            @foreach(['Pcs', 'Unit', 'Box', 'Kg', 'Liter', 'Meter', 'Roll', 'Set', 'Lot', 'Jasa', 'Pack'] as $u)
+                                                <option value="{{ $u }}" {{ strtolower($item->unit) == strtolower($u) ? 'selected' : '' }}>{{ $u }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </td>
                                 <td>
@@ -160,7 +164,11 @@
                             <td>
                                 <div style="display:flex;align-items:center;gap:6px;">
                                     <input type="number" step="0.01" class="form-control qty-input" name="items[{{ $idx }}][quantity]" value="{{ $item->quantity }}" required style="width:80px; text-align:center;">
-                                    <span style="font-size:11.5px;color:var(--text-muted);">{{ $item->unit }}</span>
+                                    <select class="form-control unit-select" name="items[{{ $idx }}][unit]" required style="width:75px; padding:6px; font-size:11.5px; height:auto;">
+                                        @foreach(['Pcs', 'Unit', 'Box', 'Kg', 'Liter', 'Meter', 'Roll', 'Set', 'Lot', 'Jasa', 'Pack'] as $u)
+                                            <option value="{{ $u }}" {{ strtolower($item->unit) == strtolower($u) ? 'selected' : '' }}>{{ $u }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </td>
                             <td>
@@ -178,6 +186,11 @@
                 </tr>
             </tfoot>
         </table>
+    </div>
+
+    <div style="padding:16px 20px;border-top:1px solid #f3f4f6;">
+        <label style="display:block; font-size:12px; font-weight:600; color:var(--text-main); margin-bottom:6px;">Remarks / Notes</label>
+        <textarea class="form-control" name="note" rows="3" placeholder="Enter notes or conclusion for this quotation..."></textarea>
     </div>
 
     <div style="padding:16px 20px;border-top:1px solid #f3f4f6;display:flex;justify-content:flex-end;gap:12px;background:#fafafa">
@@ -350,3 +363,5 @@
     }
 </script>
 @endsection
+
+c:\Users\given.MSI\InternshipWebsiteLaravel - Copy\database\migrations\2026_06_07_000000_make_user_id_nullable_in_history_table.php

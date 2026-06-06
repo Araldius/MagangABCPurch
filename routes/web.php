@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn() => redirect()->route('login'));
 
+/* ── Public Vendor Portal ── */
+Route::get('vendors/quote/{token}', [App\Http\Controllers\VendorPortalController::class, 'show'])->name('vendors.quote.show');
+Route::post('vendors/quote/{token}', [App\Http\Controllers\VendorPortalController::class, 'submit'])->name('vendors.quote.submit');
+
 /* ── Auth (guest only) ── */
 Route::middleware('guest')->group(function () {
     Route::get( 'login',    [AuthController::class, 'showLogin'])->name('login');
@@ -64,4 +68,5 @@ Route::middleware('auth')->group(function () {
 
     /* API / Data Fetching */
     Route::get('api/vendors', [VendorController::class, 'apiList'])->name('api.vendors');
+    Route::post('api/rfq/{rfq}/generate-link', [QuotationController::class, 'generateVendorLink']);
 });

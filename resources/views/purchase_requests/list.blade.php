@@ -31,8 +31,8 @@
             style="height:32px;border:1px solid #e5e7eb;border-radius:7px;padding:0 10px;font-size:12.5px;width:200px;outline:none">
         <select id="type-filter" onchange="applyFilters()" style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;background:#fff;cursor:pointer">
             <option value="">All Types</option>
-            <option value="goods"> Goods</option>
-            <option value="service"> Service</option>
+            <option value="goods">📦 Goods</option>
+            <option value="service">🔧 Service</option>
         </select>
         @if($isPurchasing)
         <select id="dept-filter" onchange="applyFilters()" style="height:32px;padding:0 28px 0 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12.5px;background:#fff;cursor:pointer">
@@ -122,9 +122,9 @@
                     </td>
                     <td style="padding:13px 14px">
                         @if($prCategory === 'service')
-                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#e0e7ff;color:#3730a3"> Service</span>
+                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#e0e7ff;color:#3730a3">🔧 Service</span>
                         @else
-                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#f1f5f9;color:#475569"> Goods</span>
+                        <span style="padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#f1f5f9;color:#475569">📦 Goods</span>
                         @endif
                     </td>
                     @if($isPurchasing)
@@ -183,7 +183,7 @@
                     <input type="hidden" name="id" id="approve-id">
                     <input type="hidden" name="type" id="approve-type">
                     <button type="submit" style="padding:7px 18px;background:#22c55e;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-                        Approve to Vendor Search
+                        ✓ Approve to Vendor Search
                     </button>
                 </form>
                 <form id="detail-reject-form" method="POST" action="{{ route('requests.reject') }}" style="display:none; margin:0">
@@ -191,7 +191,7 @@
                     <input type="hidden" name="id" id="reject-id">
                     <input type="hidden" name="type" id="reject-type">
                     <button type="submit" style="padding:7px 18px;background:#ef4444;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-                        Reject
+                        ✗ Reject
                     </button>
                 </form>
                 <form id="detail-cancel-form" method="POST" action="{{ route('requests.cancel') }}" style="display:none; margin:0">
@@ -199,18 +199,45 @@
                     <input type="hidden" name="id" id="cancel-id">
                     <input type="hidden" name="type" id="cancel-type">
                     <button type="submit" onclick="return confirm('Apakah Anda yakin ingin membatalkan Request ini?');" style="padding:7px 18px;background:#f59e0b;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
-                        Cancel Request
+                        Ø Cancel Request
                     </button>
                 </form>
                 <a id="detail-add-quotation-btn" href="#"
                     style="display:none;padding:7px 18px;background:#f8fafc;color:#475569;border:1px solid #cbd5e1;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;align-items:center;gap:6px">
                     + Add Quotation
                 </a>
+                <button id="detail-generate-link-btn" type="button" onclick="generateVendorLink()"
+                    style="display:none;padding:7px 18px;background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;align-items:center;gap:6px">
+                    🔗 Generate Vendor Link
+                </button>
                 <a id="detail-select-vendor-btn" href="#"
                     style="display:none;padding:7px 18px;background:#1e3a5f;color:#fff;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     Select Vendor
                 </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ── VENDOR LINK MODAL ── --}}
+<div id="vendor-link-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:210;align-items:center;justify-content:center;padding:20px">
+    <div style="background:#fff;border-radius:12px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.15);overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;background:#f8fafc">
+            <div style="font-weight:700;color:#1e3a5f;display:flex;align-items:center;gap:8px">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Vendor Link Generated
+            </div>
+            <button onclick="document.getElementById('vendor-link-modal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af;line-height:1">&times;</button>
+        </div>
+        <div style="padding:24px 20px">
+            <div style="font-size:13px;color:#4b5563;margin-bottom:12px">Tautan ini valid selama 7 hari. Bagikan ke vendor agar mereka dapat memasukkan penawaran secara mandiri.</div>
+            <div style="display:flex;gap:8px">
+                <input type="text" id="vendor-link-input" readonly style="flex:1;padding:10px 14px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;color:#374151;background:#f9fafb;outline:none" value="">
+                <button onclick="copyVendorLink()" id="copy-link-btn" style="padding:10px 16px;background:#1e3a5f;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:0.2s">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Copy
+                </button>
             </div>
         </div>
     </div>
@@ -226,6 +253,7 @@
             $req->loadMissing([
                 'rfqs.vendorSelections.vendor',
                 'rfqs.vendorSelections.selectionItems',
+                'rfqs.quotations.vendor',
                 'rfqs.histories.user',
             ]);
         }
@@ -364,10 +392,13 @@ function openPRDetail(id, category) {
 
     // Build vendorTotals map for summary cards
     const vendorTotals = {};
+    const quotations = rfq ? (rfq.quotations || []) : [];
     vendorSelections.forEach(vs => {
         const vName = (vs.vendor && (vs.vendor.vendor_name || vs.vendor.name)) || '—';
         const vid   = vs.vendor_id;
-        if (!vendorTotals[vid]) vendorTotals[vid] = { name: vName, items: [], total: 0 };
+        const q = quotations.find(qq => qq.vendor_id === vid);
+        const qNote = q && q.note ? q.note : null;
+        if (!vendorTotals[vid]) vendorTotals[vid] = { name: vName, items: [], total: 0, note: qNote };
         (vs.selection_items || []).forEach(si => {
             const sub = (parseFloat(si.final_price_per_item)||0) * (parseInt(si.final_quantity)||0);
             vendorTotals[vid].total += sub;
@@ -443,6 +474,8 @@ function openPRDetail(id, category) {
             if (rfqId) {
                 document.getElementById('detail-add-quotation-btn').style.display = 'inline-flex';
                 document.getElementById('detail-add-quotation-btn').href = `/rfq/${rfqId}/quotations/create`;
+                document.getElementById('detail-generate-link-btn').style.display = 'inline-flex';
+                document.getElementById('detail-generate-link-btn').dataset.rfq = rfqId;
             }
             if (cancelForm) {
                 cancelForm.style.display = 'block';
@@ -492,7 +525,7 @@ function openPRDetail(id, category) {
                 : '';
             rows += `<tr>
                 <td colspan="${hasVS ? 10 : 7}" style="background:#f0f4f8;padding:8px 12px;font-weight:700;font-size:11.5px;color:#374151;border-bottom:1px solid #e5e7eb">
-                    ${jCodeBadge}${job.job_description || '-'}
+                    💼 ${jCodeBadge}${job.job_description || '-'}
                 </td>
             </tr>`;
             (job.items||[]).forEach((it, i) => {
@@ -599,7 +632,7 @@ function openPRDetail(id, category) {
     if (hasVS && Object.keys(vendorTotals).length > 0) {
         const isServiceSummary = isService;
         vSumHtml = `<div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-top:18px;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #e5e7eb">
-            ${isServiceSummary ? ' Selected Service Vendor' : ' Vendor Purchase Summary'}
+            ${isServiceSummary ? '🔧 Selected Service Vendor' : '📦 Vendor Purchase Summary'}
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">` +
             Object.values(vendorTotals).map(v => `
@@ -607,6 +640,7 @@ function openPRDetail(id, category) {
                 <div style="padding:10px 12px;background:#f8fafc;border-bottom:1px solid #e5e7eb">
                     <div style="font-size:13px;font-weight:700;color:#1e3a5f">${v.name}</div>
                     <div style="font-size:13px;font-weight:800;color:#111827;margin-top:3px;font-family:monospace">${fmtRp(v.total)}</div>
+                    ${v.note ? `<div style="font-size:11px;color:#6b7280;margin-top:4px;font-style:italic">"${v.note}"</div>` : ''}
                 </div>
                 <div style="padding:8px 12px;display:flex;flex-direction:column;gap:5px">
                     ${v.items.map(si => `<div style="display:flex;justify-content:space-between;font-size:11.5px">
@@ -667,7 +701,7 @@ function openPRDetail(id, category) {
         </div>
 
         <div style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:5px;border-bottom:2px solid #e5e7eb">
-            ${isService ? 'Scope of Work & Items' : 'Item List'}
+            ${isService ? '🛠️ Scope of Work & Items' : '📦 Item List'}
         </div>
         ${tableHtml}
         ${vSumHtml}
@@ -679,6 +713,43 @@ function openPRDetail(id, category) {
 }
 
 function closePRDetail() { document.getElementById('pr-detail-modal').style.display = 'none'; }
+
+async function generateVendorLink() {
+    const btn = document.getElementById('detail-generate-link-btn');
+    const rfqId = btn.dataset.rfq;
+    if(!rfqId) return;
+    
+    btn.innerText = 'Generating...';
+    try {
+        const res = await fetch(`/api/rfq/${rfqId}/generate-link`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if(data.link) {
+            document.getElementById('vendor-link-input').value = data.link;
+            document.getElementById('vendor-link-modal').style.display = 'flex';
+            document.getElementById('copy-link-btn').innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/></svg> Copy`;
+        } else {
+            alert('Error generating link');
+        }
+    } catch(e) {
+        alert('Error generating link');
+    }
+    btn.innerHTML = '🔗 Generate Vendor Link';
+}
+
+function copyVendorLink() {
+    const input = document.getElementById('vendor-link-input');
+    input.select();
+    document.execCommand('copy');
+    
+    const btn = document.getElementById('copy-link-btn');
+    btn.innerHTML = `✓ Copied!`;
+    setTimeout(() => {
+        btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/></svg> Copy`;
+    }, 2000);
+}
 
 document.addEventListener('DOMContentLoaded', applyFilters);
 </script>

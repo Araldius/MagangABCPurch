@@ -104,7 +104,7 @@
             <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">Plant <span class="req">*</span></label>
                 <select class="form-control" name="plant" required>
-                    <option value="">Select Plant</option>
+                    <option value="">— Select Plant —</option>
                     <option value="Cikarang">Cikarang</option>
                     <option value="Cibitung">Cibitung</option>
                     <option value="Gresik">Gresik</option>
@@ -126,8 +126,8 @@
     </div>
     <div class="card-body">
         <div style="display:flex;gap:8px;margin-bottom:20px;">
-            <button type="button" id="tab-goods" class="tab-btn tab-active" onclick="setTab('goods')">Goods</button>
-            <button type="button" id="tab-service" class="tab-btn" onclick="setTab('service')"> Service</button>
+            <button type="button" id="tab-goods" class="tab-btn tab-active" onclick="setTab('goods')">🛒 Goods</button>
+            <button type="button" id="tab-service" class="tab-btn" onclick="setTab('service')">🔧 Service</button>
         </div>
 
         <div id="goods-panel">
@@ -169,7 +169,19 @@
         </div>
 
         <div id="service-panel" style="display:none;">
-            <div class="flex-between mb-2 mt-2">
+            <div class="form-row form-row-2">
+                <div class="form-group">
+                    <label class="form-label">Document Number</label>
+                    <input class="form-control" id="service-doc" value="{{ $nextSrDocNum ?? 'SR-'.now()->format('Y').'-XXXX' }}" readonly
+                        style="background:#f9fafb;color:#6b7280;cursor:not-allowed;"
+                        title="Auto-generated">
+                    <span style="font-size:11px;color:#9ca3af;margin-top:4px">Auto-generated saat submit</span>
+                </div>
+                <div class="form-group"><label class="form-label">Title / Project Name <span class="req">*</span></label><input class="form-control" name="service_title" id="service-title" placeholder="e.g. Perawatan Fasilitas Tahunan" required></div>
+            </div>
+            <div class="form-group"><label class="form-label">Department</label><input class="form-control" name="service_department" value="{{ Auth::user()->department ?? '' }}"></div>
+
+            <div class="flex-between mb-2 mt-4">
                 <label class="form-label mb-0" id="service-count-label">0 service(s) added</label>
                 <button type="button" class="btn btn-primary btn-sm" onclick="openSvcListModal()">+ Add Service</button>
             </div>
@@ -289,14 +301,16 @@
 <script>
 const unitOptionsHtml = `
     <option value="Pcs">Pcs</option>
-    <option value="Roll">Roll</option>
     <option value="Unit">Unit</option>
-    <option value="Meter">Meter</option>
-    <option value="Kg">Kg</option>
-    <option value="Set">Set</option>
     <option value="Box">Box</option>
+    <option value="Kg">Kg</option>
+    <option value="Liter">Liter</option>
+    <option value="Meter">Meter</option>
+    <option value="Roll">Roll</option>
+    <option value="Set">Set</option>
     <option value="Lot">Lot</option>
     <option value="Jasa">Jasa</option>
+    <option value="Pack">Pack</option>
 `;
 
 function setTab(t) {

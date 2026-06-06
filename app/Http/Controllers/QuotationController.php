@@ -35,7 +35,9 @@ class QuotationController extends Controller
             'items' => ['required', 'array'],
             'items.*.item_id' => ['required'], // PR item or SR item ID
             'items.*.price' => ['required', 'numeric', 'min:0'],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.quantity' => ['required', 'numeric', 'min:0'],
+            'items.*.unit' => ['nullable', 'string'],
+            'note' => ['nullable', 'string'],
         ]);
 
         // Resolve vendor
@@ -65,6 +67,7 @@ class QuotationController extends Controller
             'rfq_id' => $rfq->id,
             'vendor_id' => $vendorId,
             'total_price' => collect($data['items'])->sum(fn($it) => $it['price'] * $it['quantity']),
+            'note' => $data['note'] ?? null,
             'status' => 'submitted',
         ]);
 
@@ -77,6 +80,7 @@ class QuotationController extends Controller
                 'service_request_item_id' => $isService ? $it['item_id'] : null,
                 'offered_price_per_item' => $it['price'],
                 'offered_quantity' => $it['quantity'],
+                'offered_unit' => $it['unit'] ?? null,
             ]);
         }
 
@@ -231,5 +235,23 @@ class QuotationController extends Controller
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Quotation final berhasil disimpan.');
+    }
+
+    public function generateVendorLink(Request $request, Rfq $rfq)
+    {
+        // 1 tautan spesifik untuk 1 RFQ (berlaku untuk beberapa vendor). Kedaluwarsa 7 hari.
+        if (!$rfq->vendor_token) {
+            $rfq->vendor_token = \Illuminate\Support\Str::random(32);
+            $rfq->token_expires_at = now()->addDays(7);
+            $rfq->save();
+        } else if ($rfq->token_expires_at < now()) {
+            // Jika token sudah kedaluwarsa tapi kita ingin buat yang baru
+            $rfq->vendor_token = \Illuminate\Support\Str::random(32);
+            $rfq->token_expires_at = now()->addDays(7);
+            $rfq->save();
+        }
+
+        $link = url('/vendors/quote/' . $rfq->vendor_token);
+        return response()->json(['link' => $link]);
     }
 }
