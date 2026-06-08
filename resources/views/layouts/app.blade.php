@@ -53,6 +53,27 @@
         .alert-success{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
         .alert-danger{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
         .alert ul{margin:4px 0 0 16px}
+        
+        /* NOTIFICATIONS */
+        .notif-bell{position:relative;cursor:pointer;color:#6b7280;padding:6px;border-radius:50%;transition:background .15s,color .15s;display:flex;align-items:center;justify-content:center;}
+        .notif-bell:hover{background:#f3f4f6;color:#111827}
+        .notif-badge{position:absolute;top:2px;right:2px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;}
+        .notif-dropdown{position:absolute;top:48px;right:0;width:320px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.08);display:none;z-index:100;overflow:hidden;}
+        .notif-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f3f4f6;background:#f9fafb;}
+        .notif-header span{font-size:13px;font-weight:700;color:#111827;}
+        .notif-header button{background:none;border:none;color:#3b5bdb;font-size:11px;font-weight:600;cursor:pointer;}
+        .notif-header button:hover{text-decoration:underline;}
+        .notif-list{max-height:300px;overflow-y:auto;}
+        .notif-item{padding:12px 16px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:background .15s;}
+        .notif-item:hover{background:#f9fafb;}
+        .notif-item.unread{background:#eff6ff;}
+        .notif-item.unread:hover{background:#e0e7ff;}
+        .notif-item:last-child{border-bottom:none;}
+        
+        /* TOAST */
+        .toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:12px;z-index:9999;}
+        .toast{background:#fff;border-left:4px solid #3b5bdb;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.15);padding:14px 18px;width:340px;transform:translateX(120%);transition:transform .3s cubic-bezier(0.34, 1.56, 0.64, 1);opacity:0;}
+        .toast.show{transform:translateX(0);opacity:1;}
     </style>
 </head>
 <body>
@@ -116,7 +137,25 @@
             <span class="current">{{ $pageTitle ?? 'Dashboard' }}</span>
         </div>
         @auth
-        <div class="topbar-user">
+        <div class="topbar-user" style="position:relative;">
+            <!-- Bell Icon -->
+            <div id="notif-bell" class="notif-bell" onclick="toggleNotifDropdown()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                <span id="notif-badge" class="notif-badge" style="display:none;">0</span>
+            </div>
+            <!-- Dropdown -->
+            <div id="notif-dropdown" class="notif-dropdown">
+                <div class="notif-header">
+                    <span>Notifications</span>
+                    <button onclick="markAllNotifAsRead()">Mark all as read</button>
+                </div>
+                <div id="notif-list" class="notif-list">
+                    <div style="padding:16px;text-align:center;color:#9ca3af;font-size:12px;">Loading...</div>
+                </div>
+            </div>
+
+            <div style="width:1px;height:24px;background:#e5e7eb;margin:0 4px;"></div>
+
             <div class="topbar-avatar">{{ strtoupper(substr(Auth::user()->name,0,2)) }}</div>
             <div>
                 <div class="topbar-name">{{ Auth::user()->name }}</div>
@@ -144,5 +183,134 @@
         <div style="display:flex;gap:12px;"><a href="#">Help</a><a href="#">Privacy</a><a href="#">Contact IT</a></div>
     </footer>
 </div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
+
+@auth
+<script>
+    let lastNotifIds = new Set();
+    
+    function toggleNotifDropdown() {
+        const dd = document.getElementById('notif-dropdown');
+        dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function showToast(message, link) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;background:#e0e7ff;color:#4338ca;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div>
+                    <div style="font-weight:600;color:#111827;font-size:13px;margin-bottom:2px;">New Quotation</div>
+                    <div style="color:#6b7280;font-size:12px;line-height:1.4;">${message}</div>
+                </div>
+            </div>
+        `;
+        if(link) {
+            toast.style.cursor = 'pointer';
+            toast.onclick = () => window.location.href = link;
+        }
+        container.appendChild(toast);
+        
+        // Trigger reflow for animation
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
+    function fetchNotifications() {
+        fetch('{{ route("notifications.fetch") }}', {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.error) return;
+            
+            // Update badge
+            const badge = document.getElementById('notif-badge');
+            if (data.unread_count > 0) {
+                badge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+
+            // Update dropdown list
+            const list = document.getElementById('notif-list');
+            if(data.notifications && data.notifications.length > 0) {
+                list.innerHTML = '';
+                data.notifications.forEach(n => {
+                    const d = n.data;
+                    const link = `/vendor-selection?key=${d.category}_${d.rfq_id}`;
+                    
+                    // Check if it's new and unread, then show toast
+                    if (n.read_at === null && !lastNotifIds.has(n.id) && lastNotifIds.size > 0) {
+                        showToast(`<b>${d.vendor_name}</b> ${d.message} <b>${d.document_number}</b>`, link);
+                    }
+                    lastNotifIds.add(n.id);
+
+                    const item = document.createElement('div');
+                    item.className = 'notif-item ' + (n.read_at === null ? 'unread' : '');
+                    item.onclick = () => {
+                        markNotifAsRead(n.id, link);
+                    };
+                    item.innerHTML = `
+                        <div style="font-size:12px;color:#374151;line-height:1.4;">
+                            <span style="font-weight:600;color:#111827;">${d.vendor_name}</span> ${d.message} <span style="font-family:monospace;font-weight:600;color:#3b5bdb;">${d.document_number}</span>
+                        </div>
+                        <div style="font-size:10px;color:#9ca3af;margin-top:4px;">
+                            ${new Date(n.created_at).toLocaleString('id-ID', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            } else {
+                list.innerHTML = '<div style="padding:16px;text-align:center;color:#9ca3af;font-size:12px;">No notifications yet.</div>';
+            }
+        })
+        .catch(err => console.error(err));
+    }
+
+    function markNotifAsRead(id, link = null) {
+        fetch('{{ route("notifications.read") }}', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ id: id })
+        }).then(() => {
+            if(link) window.location.href = link;
+            else fetchNotifications();
+        });
+    }
+
+    function markAllNotifAsRead() {
+        markNotifAsRead(null);
+    }
+
+    // Close dropdown on click outside
+    document.addEventListener('click', function(e) {
+        const bell = document.getElementById('notif-bell');
+        const dd = document.getElementById('notif-dropdown');
+        if (dd && dd.style.display === 'block' && bell && !bell.contains(e.target) && !dd.contains(e.target)) {
+            dd.style.display = 'none';
+        }
+    });
+
+    // Initial fetch and start polling
+    fetchNotifications();
+    setInterval(fetchNotifications, 30000);
+</script>
+@endauth
+
 </body>
 </html>

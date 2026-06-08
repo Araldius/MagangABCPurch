@@ -69,4 +69,8 @@ Route::middleware('auth')->group(function () {
     /* API / Data Fetching */
     Route::get('api/vendors', [VendorController::class, 'apiList'])->name('api.vendors');
     Route::post('api/rfq/{rfq}/generate-link', [QuotationController::class, 'generateVendorLink']);
+    
+    /* Notifications */
+    Route::get('notifications/fetch', [\App\Http\Controllers\NotificationController::class, 'fetch'])->name('notifications.fetch');
+    Route::post('notifications/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
 });

@@ -8,7 +8,10 @@ use App\Models\Vendor;
 use App\Models\Quotation;
 use App\Models\QuotationDetail;
 use App\Models\History;
+use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\VendorQuotationSubmitted;
 
 class VendorPortalController extends Controller
 {
@@ -116,6 +119,12 @@ class VendorPortalController extends Controller
             'notes' => 'Quotation submitted by ' . $vendor->vendor_name,
             'action_date' => now(),
         ]);
+
+        // Send Notification to all purchasing users
+        $purchasingUsers = User::where('role', 'purchasing')->get();
+        if ($purchasingUsers->count() > 0) {
+            Notification::send($purchasingUsers, new VendorQuotationSubmitted($rfq, $vendor));
+        }
 
         return back()->with('success', 'Quotation berhasil dikirim! Terima kasih atas penawaran Anda.');
     }
